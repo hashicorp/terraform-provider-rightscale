@@ -63,8 +63,15 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	updateSchema(d, res)
 	if ok {
-		return updateLock(d, client, lock.(bool))
+		if err := updateLock(d, client, lock.(bool)); err != nil {
+			// Attempt to delete previously created deployment
+			client.Delete(res.Locator)
+			return err
+		}
 	}
+	// set ID last so Terraform does not assume the deployment has been
+	// created until all operations have completed successfully.
+	d.SetId(res.Locator.Namespace + ":" + res.Locator.Href)
 	return nil
 }
 

@@ -58,5 +58,4 @@ func updateSchema(d *schema.ResourceData, res *rsc.Resource) {
 	for k, v := range res.Fields {
 		d.Set(k, v)
 	}
-	d.SetId(res.Locator.Namespace + ":" + res.Locator.Href)
 }
