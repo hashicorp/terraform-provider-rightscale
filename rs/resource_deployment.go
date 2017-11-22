@@ -48,27 +48,37 @@ func resourceDeployment() *schema.Resource {
 		Schema: deploymentSchema,
 		Read:   resourceRead,
 		Exists: resourceExists,
-		Delete: resourceDelete,
+		Delete: resourceDelete, // can fail if deployment is locked - that's what we want
 		Create: resourceDeploymentCreate,
 		Update: resourceDeploymentUpdate,
 	}
 }
 
 func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
-	lock, ok := d.GetOk("locked")
+	var mustLock bool
+	{
+		locked, ok := d.GetOk("locked")
+		mustLock = ok && locked.(bool)
+	}
+
 	client := m.(rsc.Client)
 	res, err := client.Create("rs_cm", "deployment", deploymentFields(d))
 	if err != nil {
 		return err
 	}
-	updateSchema(d, res)
-	if ok {
-		if err := updateLock(d, client, lock.(bool)); err != nil {
+	for k, v := range res.Fields {
+		d.Set(k, v)
+	}
+
+	if mustLock {
+		if err := updateLock(d, client); err != nil {
 			// Attempt to delete previously created deployment
 			client.Delete(res.Locator)
 			return err
 		}
+		d.Set("locked", true)
 	}
+
 	// set ID last so Terraform does not assume the deployment has been
 	// created until all operations have completed successfully.
 	d.SetId(res.Locator.Namespace + ":" + res.Locator.Href)
@@ -76,39 +86,41 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
+	d.Partial(true)
+
 	client := m.(rsc.Client)
 	loc, err := locator(d)
 	if err != nil {
 		return err
 	}
+
+	// update lock
+	if err := updateLock(d, client); err != nil {
+		return err
+	}
+	d.SetPartial("locked")
+
+	// then the other fields
 	if err := client.Update(loc, deploymentFields(d)); err != nil {
 		return err
 	}
-	if lock, ok := d.GetOk("locked"); ok {
-		return updateLock(d, client, lock.(bool))
-	}
+
+	d.Partial(false)
 	return nil
 }
 
-func updateLock(d *schema.ResourceData, client rsc.Client, lock bool) error {
+// updateLock is a helper function that takes care of locking or unlocking the
+// deployment according to the value of the "locked" resource data field.
+func updateLock(d *schema.ResourceData, client rsc.Client) error {
 	loc, err := locator(d)
 	if err != nil {
 		return err
 	}
-	if lock != d.Get("locked") {
-		if lock {
-			if err := client.Run(loc, "@res.lock()"); err != nil {
-				return err
-			}
-			d.Set("locked", true)
-		} else {
-			if err := client.Run(loc, "@res.unlock()"); err != nil {
-				return err
-			}
-			d.Set("locked", false)
-		}
+	lock := d.Get("locked").(bool)
+	if lock {
+		return client.Run(loc, "@res.lock()")
 	}
-	return nil
+	return client.Run(loc, "@res.unlock()")
 }
 
 func deploymentFields(d *schema.ResourceData) rsc.Fields {

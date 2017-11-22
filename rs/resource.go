@@ -18,7 +18,9 @@ func resourceRead(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
-	updateSchema(d, res)
+	for k, v := range res.Fields {
+		d.Set(k, v)
+	}
 	return nil
 }
 
@@ -51,11 +53,4 @@ func locator(d *schema.ResourceData) (*rsc.Locator, error) {
 		return nil, fmt.Errorf("invalid resource ID %q", d.Id())
 	}
 	return &rsc.Locator{Namespace: parts[0], Href: parts[1]}, nil
-}
-
-// updateSchema stores the resource information in the given schema.
-func updateSchema(d *schema.ResourceData, res *rsc.Resource) {
-	for k, v := range res.Fields {
-		d.Set(k, v)
-	}
 }
