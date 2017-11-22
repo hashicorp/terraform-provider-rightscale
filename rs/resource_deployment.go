@@ -72,7 +72,7 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 
 	if mustLock {
 		if err := updateLock(d, client); err != nil {
-			// Attempt to delete previously created deployment
+			// Attempt to delete previously created deployment, ignore errors
 			client.Delete(res.Locator)
 			return err
 		}
@@ -96,13 +96,13 @@ func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
 
 	// update lock
 	if err := updateLock(d, client); err != nil {
-		return err
+		return handleError(d, err)
 	}
 	d.SetPartial("locked")
 
 	// then the other fields
 	if err := client.Update(loc, deploymentFields(d)); err != nil {
-		return err
+		return handleError(d, err)
 	}
 
 	d.Partial(false)

@@ -16,7 +16,7 @@ func resourceRead(d *schema.ResourceData, m interface{}) error {
 	}
 	res, err := client.Get(loc)
 	if err != nil {
-		return err
+		return handleRSCError(d, err)
 	}
 	for k, v := range res.Fields {
 		d.Set(k, v)
@@ -44,6 +44,18 @@ func resourceExists(d *schema.ResourceData, m interface{}) (bool, error) {
 		return false, err
 	}
 	return res != nil, nil
+}
+
+// handleRSCError checks if the error is rsc.ErrNotFound and if so removes the
+// id from the resource data fields to let Terraform know that the resource is
+// gone. In this case it also returns nil instead of the original error for
+// graceful handling by Terraform. Otherwise the original error is returned.
+func handleRSCError(d *schema.ResourceData, err error) error {
+	if err == rsc.ErrNotFound {
+		d.SetId("")
+		return nil
+	}
+	return err
 }
 
 // locator builds a locator from a schema.
