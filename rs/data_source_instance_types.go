@@ -1,0 +1,120 @@
+package rs
+
+import (
+	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/rightscale/terraform-provider-rs/rs/rsc"
+)
+
+// Example:
+//
+// data "rs_cm_instance_type" "n1-standard" {
+//     filter {
+//         name = "n1-standard"
+//     }
+//     cloud = ${data.rs_cm_cloud.gce.id}
+// }
+
+func dataSourceInstanceTypes() *schema.Resource {
+	return &schema.Resource{
+		Read: resourceInstanceTypeRead,
+
+		Schema: map[string]*schema.Schema{
+			"cloud": {
+				Type:        schema.TypeString,
+				Description: "href to instance type cloud",
+				Required:    true,
+				ForceNew:    true,
+			},
+			"filter": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Description: "name of instance type",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Description: "description of instance type",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"resource_uid": {
+							Type:        schema.TypeString,
+							Description: "cloud id of instance type",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"cpu_architecture": {
+							Type:        schema.TypeString,
+							Description: "CPU architecture of instance type",
+							Optional:    true,
+							ForceNew:    true,
+						},
+					},
+				},
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"resource_uid": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"memory": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"cpu_speed": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"cpu_count": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"cpu_architecture": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"local_disks": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"local_disk_size": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func resourceInstanceTypeRead(d *schema.ResourceData, m interface{}) error {
+	client := m.(rsc.Client)
+	cloud := d.Get("cloud").(string)
+	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
+
+	res, err := client.List(loc, "instance_types", cmFilters(d))
+	if err != nil {
+		return err
+	}
+
+	if len(res) == 0 {
+		return nil
+	}
+	for k, v := range res[0].Fields {
+		d.Set(k, v)
+	}
+	d.SetId(res[0].Locator.Href)
+	return nil
+}

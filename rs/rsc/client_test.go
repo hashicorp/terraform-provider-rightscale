@@ -53,6 +53,64 @@ func TestAuthenticate(t *testing.T) {
 	}
 }
 
+func TestList(t *testing.T) {
+	const (
+		namespace = "rs_cm"
+		typ       = "clouds"
+	)
+	var (
+		token   = validToken(t)
+		project = validProjectID(t)
+	)
+	cases := []struct {
+		Name           string
+		Namespace      string
+		Type           string
+		Href           string
+		Link           string
+		Filters        Fields
+		ExpectedPrefix string
+		ExpectedError  string
+	}{
+		{"clouds", "rs_cm", "clouds", "", "", nil, "", ""},
+		{"filtered", "rs_cm", "clouds", "", "", Fields{"filter[]": "name==EC2"}, "EC2", ""},
+		{"linked", "rs_cm", "clouds", "/api/clouds/1", "datacenters", nil, "", ""},
+		{"linked-and-filtered", "rs_cm", "clouds", "/api/clouds/1", "datacenters", Fields{"filter[]": "name==us-east-1a"}, "us-east-1a", ""},
+		{"no-namespace", "", "clouds", "", "", nil, "", "resource locator is invalid: namespace is missing"},
+		{"no-type-no-href", "", "", "", "", nil, "", "resource locator is invalid: namespace is missing"},
+	}
+
+	for _, c := range cases {
+		t.Run(c.Name, func(t *testing.T) {
+			cl, err := New(token, project)
+			if err != nil {
+				t.Fatal(err)
+			}
+			loc := &Locator{Namespace: c.Namespace, Type: c.Type, Href: c.Href}
+
+			clouds, err := cl.List(loc, c.Link, c.Filters)
+
+			if err != nil {
+				if c.ExpectedError == "" {
+					t.Errorf("got error %q, expected none", err)
+					return
+				}
+				if c.ExpectedError != err.Error() {
+					t.Errorf("got error %q, expected %q", err, c.ExpectedError)
+				}
+				return
+			}
+			if c.ExpectedPrefix != "" {
+				for i, cloud := range clouds {
+					if !strings.HasPrefix(cloud.Fields["name"].(string), c.ExpectedPrefix) {
+						t.Errorf("got name %q at index %d, expected prefix %q", cloud.Fields["name"], i, c.ExpectedPrefix)
+					}
+				}
+			}
+		})
+	}
+}
+
 func TestCreate(t *testing.T) {
 	const (
 		namespace = "rs_cm"

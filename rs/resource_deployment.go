@@ -1,56 +1,48 @@
 package rs
 
 import (
-	"errors"
-
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/rightscale/terraform-provider-rs/rs/rsc"
 )
 
-var deploymentSchema = map[string]*schema.Schema{
-	"name": &schema.Schema{
-		Description: "name of deployment",
-		Type:        schema.TypeString,
-		Required:    true,
-	},
-	"description": &schema.Schema{
-		Description: "description of deployment",
-		Type:        schema.TypeString,
-		Optional:    true,
-	},
-	"resource_group_href": &schema.Schema{
-		Description: "href of the Windows Azure Resource Group attached to the deployment",
-		Type:        schema.TypeString,
-		Optional:    true,
-	},
-	"locked": &schema.Schema{
-		Description: "whether deployment is locked",
-		Type:        schema.TypeBool,
-		Optional:    true,
-	},
-	"server_tag_scope": &schema.Schema{
-		Description:  "routing scope for tags for servers in the deployment",
-		Type:         schema.TypeString,
-		Optional:     true,
-		InputDefault: "deployment",
-		ForceNew:     true,
-		ValidateFunc: func(v interface{}, _ string) (warns []string, errs []error) {
-			if v == "" || v == "account" || v == "deployment" {
-				return nil, nil
-			}
-			return nil, []error{errors.New(`server_tag_scope must be "account" or "deployment"`)}
-		},
-	},
-}
-
 func resourceDeployment() *schema.Resource {
 	return &schema.Resource{
-		Schema: deploymentSchema,
 		Read:   resourceRead,
 		Exists: resourceExists,
 		Delete: resourceDelete, // can fail if deployment is locked - that's what we want
 		Create: resourceDeploymentCreate,
 		Update: resourceDeploymentUpdate,
+
+		Schema: map[string]*schema.Schema{
+			"name": &schema.Schema{
+				Description: "name of deployment",
+				Type:        schema.TypeString,
+				Required:    true,
+			},
+			"description": &schema.Schema{
+				Description: "description of deployment",
+				Type:        schema.TypeString,
+				Optional:    true,
+			},
+			"resource_group_href": &schema.Schema{
+				Description: "href of the Windows Azure Resource Group attached to the deployment",
+				Type:        schema.TypeString,
+				Optional:    true,
+			},
+			"locked": &schema.Schema{
+				Description: "whether deployment is locked",
+				Type:        schema.TypeBool,
+				Optional:    true,
+			},
+			"server_tag_scope": &schema.Schema{
+				Description:  "routing scope for tags for servers in the deployment",
+				Type:         schema.TypeString,
+				Optional:     true,
+				InputDefault: "deployment",
+				ValidateFunc: validation.StringInSlice([]string{"account", "deployment"}, false),
+			},
+		},
 	}
 }
 
@@ -96,13 +88,13 @@ func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
 
 	// update lock
 	if err := updateLock(d, client); err != nil {
-		return handleError(d, err)
+		return handleRSCError(d, err)
 	}
 	d.SetPartial("locked")
 
 	// then the other fields
 	if err := client.Update(loc, deploymentFields(d)); err != nil {
-		return handleError(d, err)
+		return handleRSCError(d, err)
 	}
 
 	d.Partial(false)

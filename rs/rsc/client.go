@@ -24,8 +24,18 @@ var (
 type (
 	// Client is the RightScale API client.
 	Client interface {
-		// Create creates a new resource.
-		Create(namespace, typ string, fields Fields) (*Resource, error)
+		// Create creates a new resource given a namespace, type name
+		// and field values.
+		Create(string, string, Fields) (*Resource, error)
+		// List lists resources given a root resource locator, an
+		// optional link to nested resources and optional filters. If
+		// the root locator contains a Href then a link must be provided
+		// and List returns the resources retrieved by following the
+		// link. If the root locator does not contain a href then no
+		// link can be provided and List returns the (top level)
+		// resources of the given locator type. In both cases the result
+		// may be filtered using the last argument.
+		List(*Locator, string, Fields) ([]*Resource, error)
 		// Get retrieves a resource given its locator. Get returns
 		// ErrNotFound if no resource could be found for the given
 		// locator.
@@ -37,21 +47,10 @@ type (
 		// Delete deletes an existing resource. Delete does nothing if
 		// the resource cannot be found.
 		Delete(*Locator) error
-		// Run runs custom RCL code. The code may make use of the
-		// @res reference to run actions on the resource.
+		// Run runs custom RCL code. The code may make use of the @res
+		// reference to run actions on the resource retrieved with the
+		// given locator.
 		Run(*Locator, string) error
-	}
-
-	// client is the Client interface implementation.
-	client struct {
-		// APIToken is the token used to authenticate RightScale API
-		// requests.
-		APIToken string
-		// ProjectID is the id of the RightScale project (a.k.a.
-		// account)
-		ProjectID int
-
-		rs *rsapi.API
 	}
 
 	// Resource represents a resource managed by the RightScale platform.
@@ -81,6 +80,18 @@ type (
 	// Fields represent arbitrary resource fields as consumed by the
 	// underlying API.
 	Fields map[string]interface{}
+
+	// client is the Client interface implementation.
+	client struct {
+		// APIToken is the token used to authenticate RightScale API
+		// requests.
+		APIToken string
+		// ProjectID is the id of the RightScale project (a.k.a.
+		// account)
+		ProjectID int
+
+		rs *rsapi.API
+	}
 )
 
 // New attempts to auth against all the RightScale hosts and initializes the
@@ -115,15 +126,97 @@ func New(token string, projectID int) (Client, error) {
 	return nil, fmt.Errorf("failed to authenticate")
 }
 
+// List retrieves the list of resources pointed to by l optionally filtering the
+// results with the given filters. The supported filters differ dependending on
+// the underlying resource, refer to the RightScale API 1.5 docs for details on
+// the CM resources.
+//
+// List returns an empty slice if there is no resource for the given locator and
+// filters.
+func (rsc *client) List(l *Locator, link string, filters Fields) ([]*Resource, error) {
+	if l.Namespace == "" {
+		return nil, fmt.Errorf("resource locator is invalid: namespace is missing")
+	}
+	var params string
+	{
+		if len(filters) > 0 {
+			f, err := json.Marshal(filters)
+			if err != nil {
+				return nil, fmt.Errorf("invalid list filters: %s", err)
+			}
+			params = string(f)
+		}
+	}
+
+	var prefix string
+	{
+		if l.Href != "" {
+			if link == "" {
+				return nil, fmt.Errorf("cannot list nested resources: missing link")
+			}
+			prefix = fmt.Sprintf("@res = %s.get(href: %q).%s(%s)",
+				l.Namespace, l.Href, link, params)
+		} else {
+			if l.Type == "" {
+				return nil, fmt.Errorf("resource locator is invalid: type is missing")
+			}
+			prefix = fmt.Sprintf("@res = %s.%s.get(%s)\n",
+				l.Namespace, l.Type, params)
+		}
+	}
+
+	rcl := prefix + `
+		$res    = to_object(@res)
+		$hrefs  = to_json($res["hrefs"])
+		$fields = to_json($res["details"])
+		$type   = $res["type"]`
+
+	outputs, err := rsc.runRCL(rcl, "$hrefs", "$fields", "$type")
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		hrefs   []string
+		details []map[string]interface{}
+	)
+	{
+		err := json.Unmarshal([]byte(outputs[0].(string)), &hrefs)
+		if err != nil {
+			return nil, fmt.Errorf("invalid list hrefs: %s", err)
+		}
+		err = json.Unmarshal([]byte(outputs[1].(string)), &details)
+		if err != nil {
+			return nil, fmt.Errorf("invalid list fields: %s", err)
+		}
+	}
+	typ := outputs[2].(string)
+	res := make([]*Resource, len(hrefs))
+	for i, href := range hrefs {
+		loc := Locator{Namespace: l.Namespace, Type: typ, Href: href}
+		res[i] = &Resource{Locator: &loc, Fields: details[i]}
+	}
+
+	return res, nil
+}
+
 // Get retrieves the details of the resource pointed to by l.
 // The field 'Type' of the given Locator may be ommitted.
 //
 // Get returns nil if there is no resource for the given locator.
 func (rsc *client) Get(l *Locator) (*Resource, error) {
-	rcl := fmt.Sprintf(`@resource = %s.get(href: "%s")
+	if l.Namespace == "" {
+		return nil, fmt.Errorf("resource locator is invalid: namespace is missing")
+	}
+	if l.Href == "" {
+		return nil, fmt.Errorf("resource locator is invalid: href is missing")
+	}
+	rcl := fmt.Sprintf(`
+		@resource = %s.get(href: "%s")
 		$resource = to_object(@resource)
 		$fields = to_json($resource["details"][0])
-		$type = $resource["type"]`, l.Namespace, l.Href)
+		$type = $resource["type"]
+		`, l.Namespace, l.Href)
 
 	outputs, err := rsc.runRCL(rcl, "$fields", "$type")
 	if err != nil {
@@ -145,6 +238,12 @@ func (rsc *client) Get(l *Locator) (*Resource, error) {
 // Update overwrite the fields of the resource.
 // The field 'Type' of the resource Locator may be ommitted.
 func (rsc *client) Update(l *Locator, fields Fields) error {
+	if l.Namespace == "" {
+		return fmt.Errorf("resource locator is invalid: namespace is missing")
+	}
+	if l.Href == "" {
+		return fmt.Errorf("resource locator is invalid: href is missing")
+	}
 	// Make it more convenient to update CM resources
 	if l.Namespace == "rs_cm" {
 		scoped := len(fields) == 1
@@ -183,11 +282,13 @@ func (rsc *client) Create(namespace, typ string, fields Fields) (*Resource, erro
 		return nil, err
 	}
 
-	rcl := fmt.Sprintf(`@res = %s
+	rcl := fmt.Sprintf(`
+		@res = %s
 		provision(@res)
 		$href = @res.href
 		$res = to_object(@res)
-		$fields = to_json($res["details"][0])`, js)
+		$fields = to_json($res["details"][0])
+		`, js)
 
 	outputs, err := rsc.runRCL(rcl, "$href", "$fields")
 	if err != nil {
@@ -211,17 +312,26 @@ func (rsc *client) Create(namespace, typ string, fields Fields) (*Resource, erro
 // Delete deletes the given resource.
 // Only the Href field or res needs to be initialized.
 func (rsc *client) Delete(l *Locator) error {
+	if l.Namespace == "" {
+		return fmt.Errorf("resource locator is invalid: namespace is missing")
+	}
+	if l.Href == "" {
+		return fmt.Errorf("resource locator is invalid: href is missing")
+	}
 	rcl := fmt.Sprintf("@res = %s.get(href: %q)\ndelete(@res)",
 		l.Namespace, l.Href)
 	_, err := rsc.runRCL(rcl)
 	return err
 }
 
-// Run runs custom RCL code that may make use of @res to run actions on the resource.
+// Run runs custom RCL code that may make use of @res to run actions on the
+// resource retrieved with the given locator.
 func (rsc *client) Run(l *Locator, rcl string) error {
-	rcl = fmt.Sprintf("@res = %s.get(href: %q)\n%s",
-		l.Namespace, l.Href, rcl)
-	_, err := rsc.runRCL(rcl)
+	var prefix string
+	if l != nil {
+		prefix = fmt.Sprintf("@res = %s.get(href: %q)\n", l.Namespace, l.Href)
+	}
+	_, err := rsc.runRCL(prefix + rcl)
 	return err
 }
 

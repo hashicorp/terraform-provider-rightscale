@@ -24,6 +24,14 @@ func (c *TestClient) Create(namespace, typ string, fields Fields) (*Resource, er
 	return nil, nil
 }
 
+// List runs any preset expectation.
+func (c *TestClient) List(l *Locator, link string, filters Fields) ([]*Resource, error) {
+	if e := c.Expectation("List"); e != nil {
+		return e.(func(*Locator, string, Fields) ([]*Resource, error))(l, link, filters)
+	}
+	return nil, nil
+}
+
 // Get runs any preset expectation.
 func (c *TestClient) Get(l *Locator) (*Resource, error) {
 	if e := c.Expectation("Get"); e != nil {
