@@ -7,21 +7,21 @@ import (
 
 // Example:
 //
-// data "rs_cm_subnet" "ssh" {
+// data "rs_cm_security_group" "ssh" {
 //     filter {
-//         name = "infra"
+//         resource_uid = "sg-c31ee987"
 //     }
 //     cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceSubnets() *schema.Resource {
+func dataSourceCMSecurityGroup() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceSubnetRead,
+		Read: resourceSecurityGroupRead,
 
 		Schema: map[string]*schema.Schema{
 			"cloud": {
 				Type:        schema.TypeString,
-				Description: "ID of the subnet cloud",
+				Description: "ID of the security group cloud",
 				Required:    true,
 				ForceNew:    true,
 			},
@@ -34,37 +34,25 @@ func dataSourceSubnets() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "name of subnet, uses partial match",
+							Description: "name of security group, uses partial match",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"deployment": {
+							Type:        schema.TypeString,
+							Description: "ID of deployment resource that owns security group",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"resource_uid": {
 							Type:        schema.TypeString,
-							Description: "cloud ID of subnet",
-							Optional:    true,
-							ForceNew:    true,
-						},
-						"datacenter": {
-							Type:        schema.TypeString,
-							Description: "ID of the subnet datacenter resource",
-							Optional:    true,
-							ForceNew:    true,
-						},
-						"instance": {
-							Type:        schema.TypeString,
-							Description: "ID of instance resource attached to subnet",
+							Description: "cloud ID of security group, e.g. 'sg-c31ee987'",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"network": {
 							Type:        schema.TypeString,
-							Description: "ID of network resource that owns subnet",
-							Optional:    true,
-							ForceNew:    true,
-						},
-						"visibility": {
-							Type:        schema.TypeString,
-							Description: "Visibility of the subnet to filter by (private, shared, etc)",
+							Description: "ID of the security group network resource",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -75,27 +63,11 @@ func dataSourceSubnets() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"is_default": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"cidr_block": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"state": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"resource_uid": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"visibility": {
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -103,12 +75,12 @@ func dataSourceSubnets() *schema.Resource {
 	}
 }
 
-func resourceSubnetRead(d *schema.ResourceData, m interface{}) error {
+func resourceSecurityGroupRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	cloud := d.Get("cloud").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "subnets", cmFilters(d))
+	res, err := client.List(loc, "security_groups", cmFilters(d))
 	if err != nil {
 		return err
 	}

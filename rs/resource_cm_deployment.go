@@ -6,13 +6,13 @@ import (
 	"github.com/rightscale/terraform-provider-rs/rs/rsc"
 )
 
-func resourceDeployment() *schema.Resource {
+func resourceCMDeployment() *schema.Resource {
 	return &schema.Resource{
 		Read:   resourceRead,
 		Exists: resourceExists,
 		Delete: resourceDelete, // can fail if deployment is locked - that's what we want
-		Create: resourceDeploymentCreate,
-		Update: resourceDeploymentUpdate,
+		Create: resourceCMDeploymentCreate,
+		Update: resourceCMDeploymentUpdate,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -46,7 +46,7 @@ func resourceDeployment() *schema.Resource {
 	}
 }
 
-func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
+func resourceCMDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 	var mustLock bool
 	{
 		locked, ok := d.GetOk("locked")
@@ -77,7 +77,7 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceCMDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
 	d.Partial(true)
 
 	client := m.(rsc.Client)

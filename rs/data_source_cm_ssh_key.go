@@ -14,7 +14,7 @@ import (
 //     cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceSSHKeys() *schema.Resource {
+func dataSourceCMSSHKey() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceSSHKeyRead,
 

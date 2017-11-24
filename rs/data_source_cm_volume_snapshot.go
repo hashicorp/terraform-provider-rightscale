@@ -14,9 +14,9 @@ import (
 //     cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceVolumes() *schema.Resource {
+func dataSourceCMVolumeSnapshot() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceVolumeRead,
+		Read: resourceVolumeSnapshotRead,
 
 		Schema: map[string]*schema.Schema{
 			"cloud": {
@@ -103,7 +103,7 @@ func dataSourceVolumes() *schema.Resource {
 	}
 }
 
-func resourceVolumeRead(d *schema.ResourceData, m interface{}) error {
+func resourceVolumeSnapshotRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	cloud := d.Get("cloud").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}

@@ -15,7 +15,7 @@ import (
 //     }
 // }
 
-func dataSourceClouds() *schema.Resource {
+func dataSourceCMCloud() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceCloudRead,
 
@@ -64,12 +64,12 @@ func dataSourceClouds() *schema.Resource {
 			},
 			"datacenters": {
 				Type:     schema.TypeList,
-				Elem:     dataSourceDatacenters(),
+				Elem:     dataSourceCMDatacenter(),
 				Computed: true,
 			},
 			"instance_types": {
 				Type:     schema.TypeList,
-				Elem:     dataSourceInstanceTypes(),
+				Elem:     dataSourceCMInstanceType(),
 				Computed: true,
 			},
 		},

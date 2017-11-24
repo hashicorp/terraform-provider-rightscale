@@ -29,8 +29,24 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 
+		DataSourcesMap: map[string]*schema.Resource{
+			"rs_cm_cloud":             dataSourceCMCloud(),
+			"rs_cm_datacenter":        dataSourceCMDatacenter(),
+			"rs_cm_instance":          dataSourceCMInstance(),
+			"rs_cm_instance_type":     dataSourceCMInstanceType(),
+			"rs_cm_multi_cloud_image": dataSourceCMMultiCloudImage(),
+			"rs_cm_network":           dataSourceCMNetwork(),
+			"rs_cm_security_group":    dataSourceCMSecurityGroup(),
+			"rs_cm_server_template":   dataSourceCMServerTemplate(),
+			"rs_cm_ssh_key":           dataSourceCMSSHKey(),
+			"rs_cm_subnet":            dataSourceCMSubnet(),
+			"rs_cm_volume":            dataSourceCMVolume(),
+			"rs_cm_volume_snapshot":   dataSourceCMVolumeSnapshot(),
+			"rs_cm_volume_type":       dataSourceCMVolumeType(),
+		},
+
 		ResourcesMap: map[string]*schema.Resource{
-			"rs_cm_deployment": resourceDeployment(),
+			"rs_cm_deployment": resourceCMDeployment(),
 		},
 
 		ConfigureFunc: providerConfigure,

@@ -7,21 +7,21 @@ import (
 
 // Example:
 //
-// data "rs_cm_security_group" "ssh" {
+// data "rs_cm_datacenter" "ec2-us-east-1a" {
+//     cloud = ${data.rs_cm_cloud.ec2_us_east.id}
 //     filter {
-//         resource_uid = "sg-c31ee987"
+//         name = "us-east-1a"
 //     }
-//     cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceSecurityGroups() *schema.Resource {
+func dataSourceCMDatacenter() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceSecurityGroupRead,
+		Read: resourceDatacenterRead,
 
 		Schema: map[string]*schema.Schema{
 			"cloud": {
 				Type:        schema.TypeString,
-				Description: "ID of the security group cloud",
+				Description: "href to datacenter cloud",
 				Required:    true,
 				ForceNew:    true,
 			},
@@ -33,28 +33,14 @@ func dataSourceSecurityGroups() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:        schema.TypeString,
-							Description: "name of security group, uses partial match",
-							Optional:    true,
-							ForceNew:    true,
-						},
-						"deployment": {
-							Type:        schema.TypeString,
-							Description: "ID of deployment resource that owns security group",
-							Optional:    true,
-							ForceNew:    true,
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
 						},
 						"resource_uid": {
-							Type:        schema.TypeString,
-							Description: "cloud ID of security group, e.g. 'sg-c31ee987'",
-							Optional:    true,
-							ForceNew:    true,
-						},
-						"network": {
-							Type:        schema.TypeString,
-							Description: "ID of the security group network resource",
-							Optional:    true,
-							ForceNew:    true,
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
 						},
 					},
 				},
@@ -75,12 +61,12 @@ func dataSourceSecurityGroups() *schema.Resource {
 	}
 }
 
-func resourceSecurityGroupRead(d *schema.ResourceData, m interface{}) error {
+func resourceDatacenterRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	cloud := d.Get("cloud").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "security_groups", cmFilters(d))
+	res, err := client.List(loc, "datacenters", cmFilters(d))
 	if err != nil {
 		return err
 	}

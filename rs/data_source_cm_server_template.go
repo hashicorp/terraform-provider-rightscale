@@ -7,16 +7,16 @@ import (
 
 // Example:
 //
-// data "rs_cm_network" "infra_vpc" {
+// data "rs_cm_server_template" "mysql" {
 //     filter {
-//         resource_uid = "vpc-c31ee987"
-//         cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
+//         name = "Database Manager for MySQL"
+//         revision = 24
 //     }
 // }
 
-func dataSourceNetworks() *schema.Resource {
+func dataSourceCMServerTemplate() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceNetworkRead,
+		Read: resourceServerTemplateRead,
 
 		Schema: map[string]*schema.Schema{
 			"filter": {
@@ -28,31 +28,31 @@ func dataSourceNetworks() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "name of network, uses partial match",
+							Description: "name of ServerTemplate, partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"cloud": {
-							Type:        schema.TypeString,
-							Description: "ID of the network cloud",
+						"revision": {
+							Type:        schema.TypeInt,
+							Description: "revision of ServerTemplate, use 0 to match latest non-committed version",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"deployment": {
+						"description": {
 							Type:        schema.TypeString,
-							Description: "ID of deployment resource that owns network",
+							Description: "description of ServerTemplate, partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"resource_uid": {
+						"lineage": {
 							Type:        schema.TypeString,
-							Description: "cloud ID of network, e.g. 'vpc-2124fe46'",
+							Description: "lineage of ServerTemplate",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"cidr_block": {
+						"multi_cloud_image": {
 							Type:        schema.TypeString,
-							Description: "CIDR of the network resource",
+							Description: "ID of ServerTemplate multi cloud image resource",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -63,33 +63,25 @@ func dataSourceNetworks() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"resource_uid": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"instance_tenancy": {
-				Type:     schema.TypeString,
+			"revision": {
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"cidr_block": {
+			"lineage": {
 				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"is_default": {
-				Type:     schema.TypeBool,
 				Computed: true,
 			},
 		},
 	}
 }
 
-func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
+func resourceServerTemplateRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
-	loc := &rsc.Locator{Namespace: "rs_cm", Type: "networks"}
+	loc := &rsc.Locator{Namespace: "rs_cm", Type: "server_templates"}
 
 	res, err := client.List(loc, "", cmFilters(d))
 	if err != nil {

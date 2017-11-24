@@ -14,7 +14,7 @@ import (
 //     }
 // }
 
-func dataSourceMultiCloudImages() *schema.Resource {
+func dataSourceCMMultiCloudImage() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceMultiCloudImageRead,
 

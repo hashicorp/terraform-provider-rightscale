@@ -24,7 +24,7 @@ import (
 //     server_array = ${data.rs_cm_server_array.workers}
 // }
 
-func dataSourceInstances() *schema.Resource {
+func dataSourceCMInstance() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceInstanceRead,
 
