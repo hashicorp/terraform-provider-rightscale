@@ -42,6 +42,13 @@ func resourceCMDeployment() *schema.Resource {
 				InputDefault: "deployment",
 				ValidateFunc: validation.StringInSlice([]string{"account", "deployment"}, false),
 			},
+
+			// Read-only fields
+			"links": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Computed: true,
+			},
 		},
 	}
 }
@@ -54,7 +61,7 @@ func resourceCMDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	client := m.(rsc.Client)
-	res, err := client.Create("rs_cm", "deployment", deploymentFields(d))
+	res, err := client.Create("rs_cm", "deployment", deploymentWriteFields(d))
 	if err != nil {
 		return err
 	}
@@ -93,7 +100,7 @@ func resourceCMDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
 	d.SetPartial("locked")
 
 	// then the other fields
-	if err := client.Update(loc, deploymentFields(d)); err != nil {
+	if err := client.Update(loc, deploymentWriteFields(d)); err != nil {
 		return handleRSCError(d, err)
 	}
 
@@ -115,7 +122,7 @@ func updateLock(d *schema.ResourceData, client rsc.Client) error {
 	return client.Run(loc, "@res.unlock()")
 }
 
-func deploymentFields(d *schema.ResourceData) rsc.Fields {
+func deploymentWriteFields(d *schema.ResourceData) rsc.Fields {
 	fields := rsc.Fields{"name": d.Get("name")}
 	for _, f := range []string{"description", "resource_group_href", "server_tag_scope"} {
 		if v, ok := d.GetOk(f); ok {

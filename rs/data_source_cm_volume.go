@@ -103,6 +103,11 @@ func dataSourceCMVolume() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"links": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Computed: true,
+			},
 		},
 	}
 }
@@ -121,6 +126,10 @@ func resourceVolumeRead(d *schema.ResourceData, m interface{}) error {
 		return nil
 	}
 	for k, v := range res[0].Fields {
+		if k == "cloud_specific_attributes" {
+			d.Set(k, []interface{}{v})
+			continue
+		}
 		d.Set(k, v)
 	}
 	d.SetId(res[0].Locator.Href)

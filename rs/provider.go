@@ -49,7 +49,10 @@ func Provider() terraform.ResourceProvider {
 		ResourcesMap: map[string]*schema.Resource{
 			"rs_cm_deployment": resourceCMDeployment(),
 			"rs_cm_instance":   resourceCMInstance(),
+			"rs_cm_network":    resourceCMNetwork(),
 			"rs_cm_server":     resourceCMServer(),
+			"rs_cm_ssh_key":    resourceCMSSHKey(),
+			"rs_cm_subnet":     resourceCMSubnet(),
 		},
 
 		ConfigureFunc: providerConfigure,

@@ -244,24 +244,11 @@ func (rsc *client) Update(l *Locator, fields Fields) error {
 	if l.Href == "" {
 		return fmt.Errorf("resource locator is invalid: href is missing")
 	}
-	// Make it more convenient to update CM resources
-	if l.Namespace == "rs_cm" {
-		scoped := len(fields) == 1
-		if scoped {
-			for k := range fields {
-				scoped = k == l.Type
-			}
-		}
-		if !scoped {
-			fields = Fields{l.Type: fields}
-		}
-	}
 
 	js, err := json.Marshal(fields)
 	if err != nil {
 		return err
 	}
-
 	rcl := fmt.Sprintf(`@resource = %s.get(href: "%s")
 		@resource.update(%s)`, l.Namespace, l.Href, js)
 

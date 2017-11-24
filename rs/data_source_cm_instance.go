@@ -130,6 +130,11 @@ func dataSourceCMInstance() *schema.Resource {
 					},
 				},
 			},
+			"associate_public_ip_address": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"cloud_specific_attributes": cmInstanceCloudAttributes,
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -152,10 +157,6 @@ func dataSourceCMInstance() *schema.Resource {
 			},
 			"pricing_type": {
 				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"cloud_specific_attributes": {
-				Type:     schema.TypeMap,
 				Computed: true,
 			},
 			"public_ip_addresses": {
@@ -200,6 +201,10 @@ func resourceInstanceRead(d *schema.ResourceData, m interface{}) error {
 		return nil
 	}
 	for k, v := range res[0].Fields {
+		if k == "cloud_specific_attributes" {
+			d.Set(k, []interface{}{v})
+			continue
+		}
 		d.Set(k, v)
 	}
 	d.SetId(res[0].Locator.Href)

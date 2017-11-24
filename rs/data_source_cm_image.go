@@ -81,11 +81,7 @@ func dataSourceCMImage() *schema.Resource {
 					},
 				},
 			},
-			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"resource_uid": {
+			"cpu_architecture": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -93,25 +89,37 @@ func dataSourceCMImage() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"os_platform": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"image_type": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"visibility": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"cpu_architecture": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"links": {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"os_platform": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"resource_uid": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"root_device_storage": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"virtualization_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"visibility": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},

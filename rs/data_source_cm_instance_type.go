@@ -59,23 +59,7 @@ func dataSourceCMInstanceType() *schema.Resource {
 					},
 				},
 			},
-			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"resource_uid": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"memory": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"cpu_speed": {
+			"cpu_architecture": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -83,8 +67,17 @@ func dataSourceCMInstanceType() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"cpu_architecture": {
+			"cpu_speed": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"links": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeMap},
 				Computed: true,
 			},
 			"local_disks": {
@@ -95,9 +88,16 @@ func dataSourceCMInstanceType() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"links": {
-				Type:     schema.TypeList,
-				Elem:     &schema.Schema{Type: schema.TypeMap},
+			"memory": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"resource_uid": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},

@@ -128,7 +128,7 @@ func TestCreate(t *testing.T) {
 	cleanDeployment(t, depl, rs)
 	defer cleanDeployment(t, depl, rs)
 
-	_, err = cl.Create(namespace, typ, Fields{"name": depl, "description": deplDesc})
+	_, err = cl.Create(namespace, typ, Fields{"deployment": Fields{"name": depl, "description": deplDesc}})
 
 	if err != nil {
 		t.Errorf("got error %q, expected none", err)
@@ -164,7 +164,7 @@ func TestDelete(t *testing.T) {
 	cleanDeployment(t, depl, rs)
 	defer cleanDeployment(t, depl, rs)
 
-	res, err := cl.Create(namespace, typ, Fields{"name": depl, "description": deplDesc})
+	res, err := cl.Create(namespace, typ, Fields{"deployment": Fields{"name": depl, "description": deplDesc}})
 	if err != nil {
 		t.Fatal(err)
 	}
