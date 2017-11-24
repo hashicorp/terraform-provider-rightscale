@@ -7,21 +7,21 @@ import (
 
 // Example:
 //
-// data "rs_cm_instance_type" "n1-standard" {
+// data "rs_cm_volume" "mysql_master" {
 //     filter {
-//         name = "n1-standard"
+//         name = "mysql_master"
 //     }
-//     cloud = ${data.rs_cm_cloud.gce.id}
+//     cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceInstanceTypes() *schema.Resource {
+func dataSourceVolumes() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceInstanceTypeRead,
+		Read: resourceVolumeRead,
 
 		Schema: map[string]*schema.Schema{
 			"cloud": {
 				Type:        schema.TypeString,
-				Description: "ID of instance cloud resource",
+				Description: "ID of the volume cloud",
 				Required:    true,
 				ForceNew:    true,
 			},
@@ -34,25 +34,37 @@ func dataSourceInstanceTypes() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "name of instance type, uses partial match",
+							Description: "name of volume, uses partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"description": {
 							Type:        schema.TypeString,
-							Description: "description of instance type",
+							Description: "description of volume, uses partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"resource_uid": {
 							Type:        schema.TypeString,
-							Description: "cloud id of instance type",
+							Description: "cloud ID of volume",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"cpu_architecture": {
+						"datacenter": {
 							Type:        schema.TypeString,
-							Description: "CPU architecture of instance type, e.g. 'x86_64'",
+							Description: "ID of the volume datacenter resource",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"deployment": {
+							Type:        schema.TypeString,
+							Description: "ID of deployment resource that owns volume",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"parent_volume_snapshot": {
+							Type:        schema.TypeString,
+							Description: "ID of volume snapshot that volume was created from",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -63,35 +75,31 @@ func dataSourceInstanceTypes() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"resource_uid": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"memory": {
+			"resource_uid": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"cpu_speed": {
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"cpu_count": {
+			"cloud_specific_attributes": {
+				Type:     schema.TypeMap,
+				Computed: true,
+			},
+			"size": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"cpu_architecture": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"local_disks": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"local_disk_size": {
+			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -99,12 +107,12 @@ func dataSourceInstanceTypes() *schema.Resource {
 	}
 }
 
-func resourceInstanceTypeRead(d *schema.ResourceData, m interface{}) error {
+func resourceVolumeRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	cloud := d.Get("cloud").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "instance_types", cmFilters(d))
+	res, err := client.List(loc, "volumes", cmFilters(d))
 	if err != nil {
 		return err
 	}

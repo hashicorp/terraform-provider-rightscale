@@ -7,21 +7,21 @@ import (
 
 // Example:
 //
-// data "rs_cm_instance_type" "n1-standard" {
+// data "rs_cm_security_group" "ssh" {
 //     filter {
-//         name = "n1-standard"
+//         resource_uid = "sg-c31ee987"
 //     }
-//     cloud = ${data.rs_cm_cloud.gce.id}
+//     cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceInstanceTypes() *schema.Resource {
+func dataSourceSecurityGroups() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceInstanceTypeRead,
+		Read: resourceSecurityGroupRead,
 
 		Schema: map[string]*schema.Schema{
 			"cloud": {
 				Type:        schema.TypeString,
-				Description: "ID of instance cloud resource",
+				Description: "ID of the security group cloud",
 				Required:    true,
 				ForceNew:    true,
 			},
@@ -34,25 +34,25 @@ func dataSourceInstanceTypes() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "name of instance type, uses partial match",
+							Description: "name of security group, uses partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"description": {
+						"deployment": {
 							Type:        schema.TypeString,
-							Description: "description of instance type",
+							Description: "ID of deployment resource that owns security group",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"resource_uid": {
 							Type:        schema.TypeString,
-							Description: "cloud id of instance type",
+							Description: "cloud ID of security group, e.g. 'sg-c31ee987'",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"cpu_architecture": {
+						"network": {
 							Type:        schema.TypeString,
-							Description: "CPU architecture of instance type, e.g. 'x86_64'",
+							Description: "ID of the security group network resource",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -71,40 +71,16 @@ func dataSourceInstanceTypes() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"memory": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"cpu_speed": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"cpu_count": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"cpu_architecture": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"local_disks": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"local_disk_size": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
 
-func resourceInstanceTypeRead(d *schema.ResourceData, m interface{}) error {
+func resourceSecurityGroupRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	cloud := d.Get("cloud").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "instance_types", cmFilters(d))
+	res, err := client.List(loc, "security_groups", cmFilters(d))
 	if err != nil {
 		return err
 	}

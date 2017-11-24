@@ -7,24 +7,18 @@ import (
 
 // Example:
 //
-// data "rs_cm_instance_type" "n1-standard" {
+// data "rs_cm_network" "infra_vpc" {
 //     filter {
-//         name = "n1-standard"
+//         resource_uid = "vpc-c31ee987"
+//         cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
 //     }
-//     cloud = ${data.rs_cm_cloud.gce.id}
 // }
 
-func dataSourceInstanceTypes() *schema.Resource {
+func dataSourceNetworks() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceInstanceTypeRead,
+		Read: resourceNetworkRead,
 
 		Schema: map[string]*schema.Schema{
-			"cloud": {
-				Type:        schema.TypeString,
-				Description: "ID of instance cloud resource",
-				Required:    true,
-				ForceNew:    true,
-			},
 			"filter": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -34,25 +28,31 @@ func dataSourceInstanceTypes() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "name of instance type, uses partial match",
+							Description: "name of network, uses partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"description": {
+						"cloud": {
 							Type:        schema.TypeString,
-							Description: "description of instance type",
+							Description: "ID of the network cloud",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"deployment": {
+							Type:        schema.TypeString,
+							Description: "ID of deployment resource that owns network",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"resource_uid": {
 							Type:        schema.TypeString,
-							Description: "cloud id of instance type",
+							Description: "cloud ID of network, e.g. 'vpc-2124fe46'",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"cpu_architecture": {
+						"cidr_block": {
 							Type:        schema.TypeString,
-							Description: "CPU architecture of instance type, e.g. 'x86_64'",
+							Description: "CIDR of the network resource",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -71,40 +71,27 @@ func dataSourceInstanceTypes() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"memory": {
+			"instance_tenancy": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"cpu_speed": {
+			"cidr_block": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"cpu_count": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"cpu_architecture": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"local_disks": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"local_disk_size": {
-				Type:     schema.TypeString,
+			"is_default": {
+				Type:     schema.TypeBool,
 				Computed: true,
 			},
 		},
 	}
 }
 
-func resourceInstanceTypeRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
-	cloud := d.Get("cloud").(string)
-	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
+	loc := &rsc.Locator{Namespace: "rs_cm", Type: "networks"}
 
-	res, err := client.List(loc, "instance_types", cmFilters(d))
+	res, err := client.List(loc, "", cmFilters(d))
 	if err != nil {
 		return err
 	}
