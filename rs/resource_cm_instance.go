@@ -11,8 +11,8 @@ func resourceCMInstance() *schema.Resource {
 		Read:   resourceRead,
 		Exists: resourceExists,
 		Delete: resourceDelete, // can fail if instance is locked - that's what we want
-		Create: resourceCMInstanceCreate,
-		Update: resourceCMInstanceUpdate,
+		Create: resourceCreateFunc("rs_cm", "instance", instanceFields),
+		Update: resourceUpdateFunc(instanceFields),
 
 		Schema: map[string]*schema.Schema{
 			"associate_public_ip_address": &schema.Schema{
@@ -263,33 +263,6 @@ func resourceCMInstance() *schema.Resource {
 			},
 		},
 	}
-}
-
-func resourceCMInstanceCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(rsc.Client)
-	res, err := client.Create("rs_cm", "instance", instanceFields(d))
-	if err != nil {
-		return err
-	}
-	for k, v := range res.Fields {
-		d.Set(k, v)
-	}
-	d.SetId(res.Locator.Namespace + ":" + res.Locator.Href)
-	return nil
-}
-
-func resourceCMInstanceUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(rsc.Client)
-	loc, err := locator(d)
-	if err != nil {
-		return err
-	}
-
-	if err := client.Update(loc, instanceFields(d)); err != nil {
-		return handleRSCError(d, err)
-	}
-
-	return nil
 }
 
 func instanceFields(d *schema.ResourceData) rsc.Fields {

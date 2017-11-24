@@ -8,6 +8,37 @@ import (
 	"github.com/rightscale/terraform-provider-rs/rs/rsc"
 )
 
+func resourceCreateFunc(namespace, typ string, fieldsFunc func(*schema.ResourceData) rsc.Fields) func(d *schema.ResourceData, m interface{}) error {
+	return func(d *schema.ResourceData, m interface{}) error {
+		client := m.(rsc.Client)
+		res, err := client.Create(namespace, typ, fieldsFunc(d))
+		if err != nil {
+			return err
+		}
+		for k, v := range res.Fields {
+			d.Set(k, v)
+		}
+		d.SetId(res.Locator.Namespace + ":" + res.Locator.Href)
+		return nil
+	}
+}
+
+func resourceUpdateFunc(fieldsFunc func(*schema.ResourceData) rsc.Fields) func(d *schema.ResourceData, m interface{}) error {
+	return func(d *schema.ResourceData, m interface{}) error {
+		client := m.(rsc.Client)
+		loc, err := locator(d)
+		if err != nil {
+			return err
+		}
+
+		if err := client.Update(loc, fieldsFunc(d)); err != nil {
+			return handleRSCError(d, err)
+		}
+
+		return nil
+	}
+}
+
 func resourceRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	loc, err := locator(d)

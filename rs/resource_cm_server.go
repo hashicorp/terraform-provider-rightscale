@@ -11,8 +11,8 @@ func resourceCMServer() *schema.Resource {
 		Read:   resourceRead,
 		Exists: resourceExists,
 		Delete: resourceDelete, // can fail if server is locked - that's what we want
-		Create: resourceCMServerCreate,
-		Update: resourceCMServerUpdate,
+		Create: resourceCreateFunc("rs_cm", "server", serverFields),
+		Update: resourceUpdateFunc(serverFields),
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -46,34 +46,6 @@ func resourceCMServer() *schema.Resource {
 			},
 		},
 	}
-}
-
-func resourceCMServerCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(rsc.Client)
-	res, err := client.Create("rs_cm", "server", serverFields(d))
-	if err != nil {
-		return err
-	}
-	for k, v := range res.Fields {
-		d.Set(k, v)
-	}
-
-	d.SetId(res.Locator.Namespace + ":" + res.Locator.Href)
-	return nil
-}
-
-func resourceCMServerUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(rsc.Client)
-	loc, err := locator(d)
-	if err != nil {
-		return err
-	}
-
-	if err := client.Update(loc, serverFields(d)); err != nil {
-		return handleRSCError(d, err)
-	}
-
-	return nil
 }
 
 func serverFields(d *schema.ResourceData) rsc.Fields {
