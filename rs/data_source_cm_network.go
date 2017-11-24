@@ -32,13 +32,13 @@ func dataSourceCMNetwork() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"cloud": {
+						"cloud_href": {
 							Type:        schema.TypeString,
 							Description: "ID of the network cloud",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"deployment": {
+						"deployment_href": {
 							Type:        schema.TypeString,
 							Description: "ID of deployment resource that owns network",
 							Optional:    true,
@@ -81,6 +81,11 @@ func dataSourceCMNetwork() *schema.Resource {
 			},
 			"is_default": {
 				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"links": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeMap},
 				Computed: true,
 			},
 		},

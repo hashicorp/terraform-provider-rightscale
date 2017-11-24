@@ -2,26 +2,27 @@ package rs
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/rightscale/terraform-provider-rs/rs/rsc"
 )
 
 // Example:
 //
-// data "rs_cm_volume_snapshot" "mysql_master" {
+// data "rs_cm_image" "centos_5" {
 //     filter {
-//         name = "mysql_master"
+//         name = "centos 5"
 //     }
-//     cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
+//     cloud = ${data.rs_cm_cloud.gce.id}
 // }
 
-func dataSourceCMVolumeSnapshot() *schema.Resource {
+func dataSourceCMImage() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceVolumeSnapshotRead,
+		Read: resourceImageRead,
 
 		Schema: map[string]*schema.Schema{
 			"cloud_href": {
 				Type:        schema.TypeString,
-				Description: "ID of the volume snapshot cloud",
+				Description: "ID of image cloud resource",
 				Required:    true,
 				ForceNew:    true,
 			},
@@ -34,39 +35,48 @@ func dataSourceCMVolumeSnapshot() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "name of volume snapshot, uses partial match",
+							Description: "name of image, uses partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"description": {
 							Type:        schema.TypeString,
-							Description: "description of volume snapshot, uses partial match",
+							Description: "description of image, uses partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"resource_uid": {
 							Type:        schema.TypeString,
-							Description: "cloud ID of volume snapshot",
+							Description: "cloud id of image",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"state": {
+						"os_platform": {
+							Type:         schema.TypeString,
+							Description:  "The image's operating system to filter on. Examples: Linux or Windows.",
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"windows", "linux"}, false),
+						},
+						"cpu_architecture": {
 							Type:        schema.TypeString,
-							Description: "state of the volume snapshot",
+							Description: "CPU architecture of image, e.g. 'x86_64', uses partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"deployment_href": {
-							Type:        schema.TypeString,
-							Description: "ID of deployment resource that owns volume snapshot",
-							Optional:    true,
-							ForceNew:    true,
+						"image_type": {
+							Type:         schema.TypeString,
+							Description:  `The Image Type to filter on. This will be either "machine", "machine_azure", "ramdisk" or "kernel"`,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"machine", "machine_azure", "ramdisk", "kernel"}, false),
 						},
-						"parent_volume_href": {
-							Type:        schema.TypeString,
-							Description: "ID of volume resource from which volume snapshot was created",
-							Optional:    true,
-							ForceNew:    true,
+						"visibility": {
+							Type:         schema.TypeString,
+							Description:  "The visibility of the Image in the cloud to filter on. Examples: private, public.",
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"machine", "machine_azure", "ramdisk", "kernel"}, false),
 						},
 					},
 				},
@@ -75,27 +85,27 @@ func dataSourceCMVolumeSnapshot() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"resource_uid": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"state": {
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"size": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"created_at": {
+			"os_platform": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"updated_at": {
+			"image_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"visibility": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"cpu_architecture": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -108,12 +118,12 @@ func dataSourceCMVolumeSnapshot() *schema.Resource {
 	}
 }
 
-func resourceVolumeSnapshotRead(d *schema.ResourceData, m interface{}) error {
+func resourceImageRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "volume_snapshots", cmFilters(d))
+	res, err := client.List(loc, "images", cmFilters(d))
 	if err != nil {
 		return err
 	}

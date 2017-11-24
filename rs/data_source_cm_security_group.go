@@ -19,7 +19,7 @@ func dataSourceCMSecurityGroup() *schema.Resource {
 		Read: resourceSecurityGroupRead,
 
 		Schema: map[string]*schema.Schema{
-			"cloud": {
+			"cloud_href": {
 				Type:        schema.TypeString,
 				Description: "ID of the security group cloud",
 				Required:    true,
@@ -38,7 +38,7 @@ func dataSourceCMSecurityGroup() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"deployment": {
+						"deployment_href": {
 							Type:        schema.TypeString,
 							Description: "ID of deployment resource that owns security group",
 							Optional:    true,
@@ -50,7 +50,7 @@ func dataSourceCMSecurityGroup() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"network": {
+						"network_href": {
 							Type:        schema.TypeString,
 							Description: "ID of the security group network resource",
 							Optional:    true,
@@ -71,13 +71,18 @@ func dataSourceCMSecurityGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"links": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Computed: true,
+			},
 		},
 	}
 }
 
 func resourceSecurityGroupRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
-	cloud := d.Get("cloud").(string)
+	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
 	res, err := client.List(loc, "security_groups", cmFilters(d))

@@ -62,14 +62,9 @@ func dataSourceCMCloud() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"datacenters": {
+			"links": {
 				Type:     schema.TypeList,
-				Elem:     dataSourceCMDatacenter(),
-				Computed: true,
-			},
-			"instance_types": {
-				Type:     schema.TypeList,
-				Elem:     dataSourceCMInstanceType(),
+				Elem:     &schema.Schema{Type: schema.TypeMap},
 				Computed: true,
 			},
 		},
@@ -95,7 +90,9 @@ func resourceCloudRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-var supportedCloudTypes = []string{"aws", "blue_skies", "eucalyptus",
-	"rackspace", "cloud_stack", "amazon", "open_stack", "open_stack_grizzly",
-	"open_stack_v2", "open_stack_v3", "soft_layer", "google", "azure", "azure_v2",
-	"hp", "rackspace_next_gen", "vscale", "uca"}
+var supportedCloudTypes = []string{
+	"aws", "blue_skies", "eucalyptus", "rackspace", "cloud_stack", "amazon",
+	"open_stack", "open_stack_grizzly", "open_stack_v2", "open_stack_v3",
+	"soft_layer", "google", "azure", "azure_v2", "hp", "rackspace_next_gen",
+	"vscale", "uca",
+}

@@ -19,7 +19,7 @@ func dataSourceCMSSHKey() *schema.Resource {
 		Read: resourceSSHKeyRead,
 
 		Schema: map[string]*schema.Schema{
-			"cloud": {
+			"cloud_href": {
 				Type:        schema.TypeString,
 				Description: "ID of the SSH key cloud",
 				Required:    true,
@@ -55,13 +55,18 @@ func dataSourceCMSSHKey() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"links": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Computed: true,
+			},
 		},
 	}
 }
 
 func resourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
-	cloud := d.Get("cloud").(string)
+	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
 	res, err := client.List(loc, "ssh_keys", cmFilters(d))

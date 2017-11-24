@@ -19,7 +19,7 @@ func dataSourceCMMultiCloudImage() *schema.Resource {
 		Read: resourceMultiCloudImageRead,
 
 		Schema: map[string]*schema.Schema{
-			"server_template": {
+			"server_template_href": {
 				Type:        schema.TypeString,
 				Description: "ID of image's server template resource",
 				Optional:    true,
@@ -57,12 +57,17 @@ func dataSourceCMMultiCloudImage() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"revision": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"revision": {
-				Type:     schema.TypeInt,
+			"links": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeMap},
 				Computed: true,
 			},
 		},
@@ -71,9 +76,16 @@ func dataSourceCMMultiCloudImage() *schema.Resource {
 
 func resourceMultiCloudImageRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
-	loc := &rsc.Locator{Namespace: "rs_cm", Type: "multi_cloud_images"}
+	loc := &rsc.Locator{Namespace: "rs_cm"}
+	link := ""
+	if st, ok := d.GetOk("server_template_href"); ok {
+		loc.Href = st.(string)
+		link = "multi_cloud_images"
+	} else {
+		loc.Type = "multi_cloud_images"
+	}
 
-	res, err := client.List(loc, "", cmFilters(d))
+	res, err := client.List(loc, link, cmFilters(d))
 	if err != nil {
 		return err
 	}

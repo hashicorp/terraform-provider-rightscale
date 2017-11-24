@@ -14,7 +14,7 @@ import (
 //     filter {
 //         resource_uid = "vpc-c31ee987"
 //     }
-//     cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
+//     cloud_href = ${data.rs_cm_cloud.ec2_us_east_1.id}
 // }
 //
 // data "rs_cm_instance" "worker_2" {
@@ -29,13 +29,13 @@ func dataSourceCMInstance() *schema.Resource {
 		Read: resourceInstanceRead,
 
 		Schema: map[string]*schema.Schema{
-			"cloud": {
+			"cloud_href": {
 				Type:        schema.TypeString,
 				Description: "ID of instance cloud resource, exclusive with 'server_array'",
 				Optional:    true,
 				ForceNew:    true,
 			},
-			"server_array": {
+			"server_array_href": {
 				Type:        schema.TypeString,
 				Description: "ID of instance server array resource, exclusive with 'cloud'",
 				Optional:    true,
@@ -54,7 +54,7 @@ func dataSourceCMInstance() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"datacenter": {
+						"datacenter_href": {
 							Type:        schema.TypeString,
 							Description: "ID of the instance datacenter resource",
 							Optional:    true,
@@ -67,13 +67,13 @@ func dataSourceCMInstance() *schema.Resource {
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"windows", "linux"}, false),
 						},
-						"parent": {
+						"parent_href": {
 							Type:        schema.TypeString,
 							Description: "ID of instance server or server array parent resource",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"server_template": {
+						"server_template_href": {
 							Type:        schema.TypeString,
 							Description: "ID of instance server template resource",
 							Optional:    true,
@@ -85,7 +85,7 @@ func dataSourceCMInstance() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"placement_group": {
+						"placement_group_href": {
 							Type:        schema.TypeString,
 							Description: "ID of instance placement group resource",
 							Optional:    true,
@@ -115,7 +115,7 @@ func dataSourceCMInstance() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"deployment": {
+						"deployment_href": {
 							Type:        schema.TypeString,
 							Description: "ID of deployment resource that owns instance",
 							Optional:    true,
@@ -172,6 +172,11 @@ func dataSourceCMInstance() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"links": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Computed: true,
+			},
 		},
 	}
 }
@@ -179,9 +184,9 @@ func dataSourceCMInstance() *schema.Resource {
 func resourceInstanceRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	var loc *rsc.Locator
-	if cloud, ok := d.GetOk("cloud"); ok {
+	if cloud, ok := d.GetOk("cloud_href"); ok {
 		loc = &rsc.Locator{Namespace: "rs_cm", Href: cloud.(string)}
-	} else if array, ok := d.GetOk("server_array"); ok {
+	} else if array, ok := d.GetOk("server_array_href"); ok {
 		loc = &rsc.Locator{Namespace: "rs_cm", Href: array.(string)}
 	} else {
 		return fmt.Errorf("instance data source must specify one of 'cloud' or 'server_array'")

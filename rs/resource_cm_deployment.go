@@ -26,7 +26,7 @@ func resourceCMDeployment() *schema.Resource {
 				Optional:    true,
 			},
 			"resource_group_href": &schema.Schema{
-				Description: "href of the Windows Azure Resource Group attached to the deployment",
+				Description: "ID of the Windows Azure Resource Group attached to the deployment",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
@@ -117,14 +117,10 @@ func updateLock(d *schema.ResourceData, client rsc.Client) error {
 
 func deploymentFields(d *schema.ResourceData) rsc.Fields {
 	fields := rsc.Fields{"name": d.Get("name")}
-	if desc, ok := d.GetOk("description"); ok {
-		fields["description"] = desc
-	}
-	if rghref, ok := d.GetOk("resource_group_href"); ok {
-		fields["resource_group_href"] = rghref
-	}
-	if scope, ok := d.GetOk("server_tag_scope"); ok {
-		fields["server_tag_scope"] = scope
+	for _, f := range []string{"description", "resource_group_href", "server_tag_scope"} {
+		if v, ok := d.GetOk(f); ok {
+			fields[f] = v
+		}
 	}
 	return fields
 }

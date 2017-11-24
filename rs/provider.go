@@ -32,6 +32,7 @@ func Provider() terraform.ResourceProvider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"rs_cm_cloud":             dataSourceCMCloud(),
 			"rs_cm_datacenter":        dataSourceCMDatacenter(),
+			"rs_cm_image":             dataSourceCMImage(),
 			"rs_cm_instance":          dataSourceCMInstance(),
 			"rs_cm_instance_type":     dataSourceCMInstanceType(),
 			"rs_cm_multi_cloud_image": dataSourceCMMultiCloudImage(),
@@ -47,6 +48,8 @@ func Provider() terraform.ResourceProvider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"rs_cm_deployment": resourceCMDeployment(),
+			"rs_cm_instance":   resourceCMInstance(),
+			"rs_cm_server":     resourceCMServer(),
 		},
 
 		ConfigureFunc: providerConfigure,

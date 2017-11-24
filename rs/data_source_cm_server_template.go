@@ -50,7 +50,7 @@ func dataSourceCMServerTemplate() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"multi_cloud_image": {
+						"multi_cloud_image_href": {
 							Type:        schema.TypeString,
 							Description: "ID of ServerTemplate multi cloud image resource",
 							Optional:    true,
@@ -73,6 +73,11 @@ func dataSourceCMServerTemplate() *schema.Resource {
 			},
 			"lineage": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"links": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeMap},
 				Computed: true,
 			},
 		},

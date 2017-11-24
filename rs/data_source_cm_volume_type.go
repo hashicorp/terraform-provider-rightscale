@@ -19,7 +19,7 @@ func dataSourceCMVolumeType() *schema.Resource {
 		Read: resourceVolumeTypeRead,
 
 		Schema: map[string]*schema.Schema{
-			"cloud": {
+			"cloud_href": {
 				Type:        schema.TypeString,
 				Description: "ID of the volume type cloud",
 				Required:    true,
@@ -77,7 +77,7 @@ func dataSourceCMVolumeType() *schema.Resource {
 
 func resourceVolumeTypeRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
-	cloud := d.Get("cloud").(string)
+	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
 	res, err := client.List(loc, "volume_types", cmFilters(d))

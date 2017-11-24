@@ -19,7 +19,7 @@ func dataSourceCMVolume() *schema.Resource {
 		Read: resourceVolumeRead,
 
 		Schema: map[string]*schema.Schema{
-			"cloud": {
+			"cloud_href": {
 				Type:        schema.TypeString,
 				Description: "ID of the volume cloud",
 				Required:    true,
@@ -50,19 +50,19 @@ func dataSourceCMVolume() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"datacenter": {
+						"datacenter_href": {
 							Type:        schema.TypeString,
 							Description: "ID of the volume datacenter resource",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"deployment": {
+						"deployment_href": {
 							Type:        schema.TypeString,
 							Description: "ID of deployment resource that owns volume",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"parent_volume_snapshot": {
+						"parent_volume_snapshot_href": {
 							Type:        schema.TypeString,
 							Description: "ID of volume snapshot that volume was created from",
 							Optional:    true,
@@ -109,7 +109,7 @@ func dataSourceCMVolume() *schema.Resource {
 
 func resourceVolumeRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
-	cloud := d.Get("cloud").(string)
+	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
 	res, err := client.List(loc, "volumes", cmFilters(d))

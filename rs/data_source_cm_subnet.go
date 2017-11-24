@@ -19,7 +19,7 @@ func dataSourceCMSubnet() *schema.Resource {
 		Read: resourceSubnetRead,
 
 		Schema: map[string]*schema.Schema{
-			"cloud": {
+			"cloud_href": {
 				Type:        schema.TypeString,
 				Description: "ID of the subnet cloud",
 				Required:    true,
@@ -44,19 +44,19 @@ func dataSourceCMSubnet() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"datacenter": {
+						"datacenter_href": {
 							Type:        schema.TypeString,
 							Description: "ID of the subnet datacenter resource",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"instance": {
+						"instance_href": {
 							Type:        schema.TypeString,
 							Description: "ID of instance resource attached to subnet",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"network": {
+						"network_href": {
 							Type:        schema.TypeString,
 							Description: "ID of network resource that owns subnet",
 							Optional:    true,
@@ -99,13 +99,18 @@ func dataSourceCMSubnet() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"links": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Computed: true,
+			},
 		},
 	}
 }
 
 func resourceSubnetRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
-	cloud := d.Get("cloud").(string)
+	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
 	res, err := client.List(loc, "subnets", cmFilters(d))
