@@ -59,11 +59,9 @@ func dataSourceCMNetwork() *schema.Resource {
 					},
 				},
 			},
-			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"resource_uid": {
+
+			// Read-only fields
+			"cidr_block": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -75,10 +73,6 @@ func dataSourceCMNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"cidr_block": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"is_default": {
 				Type:     schema.TypeBool,
 				Computed: true,
@@ -86,6 +80,14 @@ func dataSourceCMNetwork() *schema.Resource {
 			"links": {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"resource_uid": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},

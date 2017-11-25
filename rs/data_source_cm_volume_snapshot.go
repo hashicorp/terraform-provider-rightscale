@@ -71,7 +71,9 @@ func dataSourceCMVolumeSnapshot() *schema.Resource {
 					},
 				},
 			},
-			"name": {
+
+			// Read-only fields
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -79,11 +81,16 @@ func dataSourceCMVolumeSnapshot() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"resource_uid": {
+			"links": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Computed: true,
+			},
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"state": {
+			"resource_uid": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -91,17 +98,12 @@ func dataSourceCMVolumeSnapshot() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"created_at": {
+			"state": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"updated_at": {
 				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"links": {
-				Type:     schema.TypeList,
-				Elem:     &schema.Schema{Type: schema.TypeMap},
 				Computed: true,
 			},
 		},

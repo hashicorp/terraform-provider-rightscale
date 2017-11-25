@@ -71,7 +71,9 @@ func dataSourceCMSubnet() *schema.Resource {
 					},
 				},
 			},
-			"name": {
+
+			// Read-only fields
+			"cidr_block": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -83,11 +85,12 @@ func dataSourceCMSubnet() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
-			"cidr_block": {
-				Type:     schema.TypeString,
+			"links": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeMap},
 				Computed: true,
 			},
-			"state": {
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -95,13 +98,12 @@ func dataSourceCMSubnet() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"visibility": {
+			"state": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"links": {
-				Type:     schema.TypeList,
-				Elem:     &schema.Schema{Type: schema.TypeMap},
+			"visibility": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},

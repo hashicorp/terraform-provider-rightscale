@@ -61,7 +61,7 @@ func resourceCMDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	client := m.(rsc.Client)
-	res, err := client.Create("rs_cm", "deployment", deploymentWriteFields(d))
+	res, err := client.Create("rs_cm", "deployments", deploymentWriteFields(d))
 	if err != nil {
 		return err
 	}

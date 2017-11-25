@@ -23,6 +23,11 @@ func resourceCMInstance() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 			},
+			"cloud_href": &schema.Schema{
+				Description: "The ID of the instance cloud",
+				Type:        schema.TypeString,
+				Required:    true,
+			},
 			"cloud_specific_attributes": cmInstanceCloudAttributes,
 			"datacenter_href": &schema.Schema{
 				Description: "The ID of the instance datacenter",
@@ -284,7 +289,7 @@ func resourceCMInstanceCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	client := m.(rsc.Client)
-	res, err := client.Create("rs_cm", "instance", instanceWriteFields(d))
+	res, err := client.Create("rs_cm", "instances", instanceWriteFields(d))
 	if err != nil {
 		return err
 	}
@@ -331,7 +336,7 @@ func resourceCMInstanceUpdate(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 func instanceWriteFields(d *schema.ResourceData) rsc.Fields {
-	fields := rsc.Fields{}
+	fields := rsc.Fields{"cloud_href": d.Get("cloud_href")}
 	for _, f := range []string{
 		"associate_public_ip_address", "datacenter_href",
 		"deployment_href", "image_href", "instance_type_href",

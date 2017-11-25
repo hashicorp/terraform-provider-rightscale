@@ -47,17 +47,19 @@ func dataSourceCMSSHKey() *schema.Resource {
 					},
 				},
 			},
+
+			// Read-only fields
+			"links": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Computed: true,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"resource_uid": {
 				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"links": {
-				Type:     schema.TypeList,
-				Elem:     &schema.Schema{Type: schema.TypeMap},
 				Computed: true,
 			},
 		},

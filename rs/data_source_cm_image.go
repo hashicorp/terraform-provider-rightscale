@@ -81,6 +81,8 @@ func dataSourceCMImage() *schema.Resource {
 					},
 				},
 			},
+
+			// Read-only fields
 			"cpu_architecture": {
 				Type:     schema.TypeString,
 				Computed: true,

@@ -29,18 +29,6 @@ func dataSourceCMInstance() *schema.Resource {
 		Read: resourceInstanceRead,
 
 		Schema: map[string]*schema.Schema{
-			"cloud_href": {
-				Type:        schema.TypeString,
-				Description: "ID of instance cloud resource, exclusive with 'server_array'",
-				Optional:    true,
-				ForceNew:    true,
-			},
-			"server_array_href": {
-				Type:        schema.TypeString,
-				Description: "ID of instance server array resource, exclusive with 'cloud'",
-				Optional:    true,
-				ForceNew:    true,
-			},
 			"filter": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -130,28 +118,33 @@ func dataSourceCMInstance() *schema.Resource {
 					},
 				},
 			},
+
+			// Read-only fields
 			"associate_public_ip_address": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"cloud_href": {
+				Type:        schema.TypeString,
+				Description: "ID of instance cloud resource, exclusive with 'server_array_href'",
+				Optional:    true,
+				ForceNew:    true,
+			},
 			"cloud_specific_attributes": cmInstanceCloudAttributes,
-			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"resource_uid": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"state": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"updated_at": {
+			"links": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Computed: true,
+			},
+			"locked": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -159,23 +152,32 @@ func dataSourceCMInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"public_ip_addresses": {
-				Type:     schema.TypeList,
-				Elem:     schema.Schema{Type: schema.TypeString},
-				Computed: true,
-			},
 			"private_ip_addresses": {
 				Type:     schema.TypeList,
 				Elem:     schema.Schema{Type: schema.TypeString},
 				Computed: true,
 			},
-			"locked": {
-				Type:     schema.TypeBool,
+			"public_ip_addresses": {
+				Type:     schema.TypeList,
+				Elem:     schema.Schema{Type: schema.TypeString},
 				Computed: true,
 			},
-			"links": {
-				Type:     schema.TypeList,
-				Elem:     &schema.Schema{Type: schema.TypeMap},
+			"resource_uid": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"server_array_href": {
+				Type:        schema.TypeString,
+				Description: "ID of instance server array resource, exclusive with 'cloud_href'",
+				Optional:    true,
+				ForceNew:    true,
+			},
+			"state": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},

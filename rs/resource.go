@@ -55,15 +55,6 @@ func resourceRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(rsc.Client)
-	loc, err := locator(d)
-	if err != nil {
-		return err
-	}
-	return client.Delete(loc)
-}
-
 func resourceExists(d *schema.ResourceData, m interface{}) (bool, error) {
 	client := m.(rsc.Client)
 	loc, err := locator(d)
@@ -75,6 +66,15 @@ func resourceExists(d *schema.ResourceData, m interface{}) (bool, error) {
 		return false, err
 	}
 	return res != nil, nil
+}
+
+func resourceDelete(d *schema.ResourceData, m interface{}) error {
+	client := m.(rsc.Client)
+	loc, err := locator(d)
+	if err != nil {
+		return err
+	}
+	return client.Delete(loc)
 }
 
 // handleRSCError checks if the error is rsc.ErrNotFound and if so removes the

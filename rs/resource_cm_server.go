@@ -14,18 +14,13 @@ func resourceCMServer() *schema.Resource {
 		Update: resourceUpdateFunc(serverWriteFields),
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
-				Description: "name of server",
-				Type:        schema.TypeString,
-				Required:    true,
-			},
-			"description": &schema.Schema{
-				Description: "description of server",
+			"deployment_href": &schema.Schema{
+				Description: "ID of deployment in which to create server",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"deployment_href": &schema.Schema{
-				Description: "ID of deployment in which to create server",
+			"description": &schema.Schema{
+				Description: "description of server",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
@@ -36,11 +31,18 @@ func resourceCMServer() *schema.Resource {
 				Optional:    true,
 				Elem:        resourceCMInstance(),
 			},
+			"name": &schema.Schema{
+				Description: "name of server",
+				Type:        schema.TypeString,
+				Required:    true,
+			},
 			"optimized": &schema.Schema{
 				Description: "A flag indicating whether Instances of this Server should be optimized for high-performance volumes (e.g. Volumes supporting a specified number of IOPS). Not supported in all Clouds.",
 				Type:        schema.TypeBool,
 				Optional:    true,
 			},
+
+			// Read-only fields
 			"links": {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeMap},
@@ -62,7 +64,10 @@ func serverWriteFields(d *schema.ResourceData) rsc.Fields {
 			fields["optimized"] = "false"
 		}
 	}
-	for _, f := range []string{"name", "resource_group_href", "server_tag_scope"} {
+	for _, f := range []string{
+		"deployment_href", "description", "name", "resource_group_href",
+		"server_tag_scope",
+	} {
 		if v, ok := d.GetOk(f); ok {
 			fields[f] = v
 		}

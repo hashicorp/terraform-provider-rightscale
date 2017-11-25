@@ -47,11 +47,22 @@ func dataSourceCMVolumeType() *schema.Resource {
 					},
 				},
 			},
-			"name": {
+
+			// Read-only fields
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"links": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Computed: true,
+			},
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -63,17 +74,8 @@ func dataSourceCMVolumeType() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"updated_at": {
 				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"links": {
-				Type:     schema.TypeList,
-				Elem:     &schema.Schema{Type: schema.TypeMap},
 				Computed: true,
 			},
 		},

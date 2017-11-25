@@ -54,6 +54,8 @@ func resourceCMNetwork() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
+
+			// Read-onyl fields
 			"links": {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeMap},
@@ -76,7 +78,7 @@ func resourceCMNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	// first create network with no default route table
 	fields := networkWriteFields(d)
 	delete(fields, "route_table_href")
-	res, err := client.Create("rs_cm", "network", fields)
+	res, err := client.Create("rs_cm", "networks", fields)
 	if err != nil {
 		return err
 	}

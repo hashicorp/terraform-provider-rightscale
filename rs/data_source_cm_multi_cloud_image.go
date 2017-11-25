@@ -19,12 +19,6 @@ func dataSourceCMMultiCloudImage() *schema.Resource {
 		Read: resourceMultiCloudImageRead,
 
 		Schema: map[string]*schema.Schema{
-			"server_template_href": {
-				Type:        schema.TypeString,
-				Description: "ID of image's server template resource",
-				Optional:    true,
-				ForceNew:    true,
-			},
 			"filter": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -53,14 +47,14 @@ func dataSourceCMMultiCloudImage() *schema.Resource {
 					},
 				},
 			},
-			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
+			"server_template_href": {
+				Type:        schema.TypeString,
+				Description: "ID of image's server template resource",
+				Optional:    true,
+				ForceNew:    true,
 			},
-			"revision": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
+
+			// Read-only fields
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -68,6 +62,14 @@ func dataSourceCMMultiCloudImage() *schema.Resource {
 			"links": {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"revision": {
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 		},

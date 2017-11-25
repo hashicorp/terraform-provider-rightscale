@@ -59,14 +59,8 @@ func dataSourceCMSecurityGroup() *schema.Resource {
 					},
 				},
 			},
-			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"resource_uid": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
+
+			// Read-only fields
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -74,6 +68,14 @@ func dataSourceCMSecurityGroup() *schema.Resource {
 			"links": {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"resource_uid": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
