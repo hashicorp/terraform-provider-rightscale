@@ -87,7 +87,7 @@ func resourceCMSubnetCreate(d *schema.ResourceData, m interface{}) error {
 	// first create subnet with no default route table
 	fields := subnetWriteFields(d)
 	delete(fields, "route_table_href")
-	res, err := client.Create("rs_cm", "subnet", fields)
+	res, err := client.Create("rs_cm", "subnets", fields)
 	if err != nil {
 		return err
 	}

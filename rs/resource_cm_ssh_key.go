@@ -10,7 +10,7 @@ func resourceCMSSHKey() *schema.Resource {
 		Read:   resourceRead,
 		Exists: resourceExists,
 		Delete: resourceDelete,
-		Create: resourceCreateFunc("rs_cm", "ssh_key", sshKeyWriteFields),
+		Create: resourceCreateFunc("rs_cm", "ssh_keys", sshKeyWriteFields),
 		Update: resourceUpdateFunc(sshKeyWriteFields),
 
 		Schema: map[string]*schema.Schema{

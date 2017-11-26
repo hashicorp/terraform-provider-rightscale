@@ -11,7 +11,7 @@ func resourceCMServerArray() *schema.Resource {
 		Read:   resourceRead,
 		Exists: resourceExists,
 		Delete: resourceDelete,
-		Create: resourceCreateFunc("rs_cm", "server_array", serverArrayWriteFields),
+		Create: resourceCreateFunc("rs_cm", "server_arrays", serverArrayWriteFields),
 		Update: resourceUpdateFunc(serverArrayWriteFields),
 
 		Schema: map[string]*schema.Schema{

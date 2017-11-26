@@ -10,7 +10,7 @@ func resourceCMServer() *schema.Resource {
 		Read:   resourceRead,
 		Exists: resourceExists,
 		Delete: resourceDelete,
-		Create: resourceCreateFunc("rs_cm", "server", serverWriteFields),
+		Create: resourceCreateFunc("rs_cm", "servers", serverWriteFields),
 		Update: resourceUpdateFunc(serverWriteFields),
 
 		Schema: map[string]*schema.Schema{
