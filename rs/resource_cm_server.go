@@ -55,7 +55,7 @@ func resourceCMServer() *schema.Resource {
 func serverWriteFields(d *schema.ResourceData) rsc.Fields {
 	fields := rsc.Fields{}
 	if i, ok := d.GetOk("instance"); ok {
-		fields["instance"] = instanceWriteFields(i.(*schema.ResourceData))
+		fields["instance"] = instanceWriteFields(i.([]interface{})[0].(*schema.ResourceData))
 	}
 	if o, ok := d.GetOk("optimized"); ok {
 		if o.(bool) {
