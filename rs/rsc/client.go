@@ -47,10 +47,16 @@ type (
 		// Delete deletes an existing resource. Delete does nothing if
 		// the resource cannot be found.
 		Delete(*Locator) error
-		// Run runs custom RCL code. The code may make use of the @res
-		// reference to run actions on the resource retrieved with the
-		// given locator.
-		Run(*Locator, string) error
+		// RunProcess runs a Cloud Workflow process initialized with the
+		// given source code. The process runs synchronously and
+		// RunProcess returns after it completes or fails. The RCL code
+		// must define a definition called 'main' that accepts the given
+		// parameter values.
+		RunProcess(source string, parameters []*Parameter) (*Process, error)
+		// GetProcess retrieves the process with the given href.
+		GetProcess(href string) (*Process, error)
+		// DeleteProcess deletes the process with the given href.
+		DeleteProcess(href string) error
 	}
 
 	// Resource represents a resource managed by the RightScale platform.
@@ -81,6 +87,56 @@ type (
 	// underlying API.
 	Fields map[string]interface{}
 
+	// Parameter describes a RCL definition parameter value or output.
+	Parameter struct {
+		// Kind is the kind of parameter.
+		Kind ParameterKind `json:"kind"`
+
+		// Value is the parameter value. The mapping of parameter kind
+		// to Go type is as follows:
+		//
+		//    Parameter Kind     | Go type
+		//    ----------------+-----------------------------------------------
+		//    KindString      | string
+		//    KindNumber      | [u]int, [u]int32, [u]int64, float32 or float64
+		//    KindBool        | bool
+		//    KindDateTime    | string (RFC3339 time value)
+		//    KindDuration    | string (RCL duration, e.g. "1h1s")
+		//    KindNull        | nil
+		//    KindArray       | []*Parameter
+		//    KindObject      | map[string]interface{}
+		//    KindCollection  | map[string]interface{}
+		//    KindDeclaration | map[string]interface{}
+		//
+		// The map values for Parameter strict with kind:
+		//
+		//    - KindObject must be Parameter structs.
+		//    - KindCollection must be map[string]interface{} with keys
+		//      'namespace', 'type', 'hrefs' and 'details'.
+		//    - KindDeclaration must be map[string]interface{} with keys
+		//      'namespace', 'type' and 'fields'.
+		//
+		Value interface{} `json:"value"`
+	}
+
+	// ParameterKind is the RCL definition parameter kind enum.
+	ParameterKind string
+
+	// Process represents a Cloud Workflow process.
+	Process struct {
+		// Href is the process API resource href.
+		Href string
+		// Outputs lists the process outputs.
+		Outputs map[string]interface{}
+		// Status is the process status, one of "completed", "failed",
+		// "canceled" or "aborted".
+		Status string
+		// Error is a synthetized error constructed when the process
+		// fails. It may be ErrNotFound in case the process failed due
+		// to a "ResourceNotFound" RightScale API response.
+		Error error
+	}
+
 	// client is the Client interface implementation.
 	client struct {
 		// APIToken is the token used to authenticate RightScale API
@@ -92,6 +148,17 @@ type (
 
 		rs *rsapi.API
 	}
+)
+
+const (
+	KindString      ParameterKind = "string"
+	KindNumber      ParameterKind = "number"
+	KindBool        ParameterKind = "bool"
+	KindNull        ParameterKind = "null"
+	KindArray       ParameterKind = "array"
+	KindObject      ParameterKind = "object"
+	KindCollection  ParameterKind = "collection"
+	KindDeclaration ParameterKind = "declaration"
 )
 
 // New attempts to auth against all the RightScale hosts and initializes the
@@ -181,16 +248,16 @@ func (rsc *client) List(l *Locator, link string, filters Fields) ([]*Resource, e
 		details []map[string]interface{}
 	)
 	{
-		err := json.Unmarshal([]byte(outputs[0].(string)), &hrefs)
+		err := json.Unmarshal([]byte(outputs["$hrefs"].(string)), &hrefs)
 		if err != nil {
 			return nil, fmt.Errorf("invalid list hrefs: %s", err)
 		}
-		err = json.Unmarshal([]byte(outputs[1].(string)), &details)
+		err = json.Unmarshal([]byte(outputs["$fields"].(string)), &details)
 		if err != nil {
 			return nil, fmt.Errorf("invalid list fields: %s", err)
 		}
 	}
-	typ := outputs[2].(string)
+	typ := outputs["$type"].(string)
 	res := make([]*Resource, len(hrefs))
 	for i, href := range hrefs {
 		loc := Locator{Namespace: l.Namespace, Type: typ, Href: href}
@@ -224,12 +291,12 @@ func (rsc *client) Get(l *Locator) (*Resource, error) {
 	}
 
 	var fields Fields
-	fs := outputs[0].(string)
+	fs := outputs["$fields"].(string)
 	err = json.Unmarshal([]byte(fs), &fields)
 	if err != nil {
 		return nil, err
 	}
-	typ := outputs[1].(string)
+	typ := outputs["$type"].(string)
 	loc := Locator{Namespace: l.Namespace, Type: typ, Href: l.Href}
 
 	return &Resource{Locator: &loc, Fields: fields}, nil
@@ -283,7 +350,7 @@ func (rsc *client) Create(namespace, typ string, fields Fields) (*Resource, erro
 	}
 
 	var ofields Fields
-	err = json.Unmarshal([]byte(outputs[1].(string)), &ofields)
+	err = json.Unmarshal([]byte(outputs["$fields"].(string)), &ofields)
 	if err != nil {
 		return nil, err
 	}
@@ -291,7 +358,7 @@ func (rsc *client) Create(namespace, typ string, fields Fields) (*Resource, erro
 	loc := Locator{
 		Namespace: namespace,
 		Type:      typ,
-		Href:      outputs[0].(string),
+		Href:      outputs["$href"].(string),
 	}
 	return &Resource{Locator: &loc, Fields: ofields}, nil
 }
@@ -311,34 +378,19 @@ func (rsc *client) Delete(l *Locator) error {
 	return err
 }
 
-// Run runs custom RCL code that may make use of @res to run actions on the
-// resource retrieved with the given locator.
-func (rsc *client) Run(l *Locator, rcl string) error {
-	var prefix string
-	if l != nil {
-		prefix = fmt.Sprintf("@res = %s.get(href: %q)\n", l.Namespace, l.Href)
-	}
-	_, err := rsc.runRCL(prefix + rcl)
-	return err
-}
-
-// runRCL runs the given RCL code synchronously and returns the process outputs.
-func (rsc *client) runRCL(rcl string, outputs ...string) ([]interface{}, error) {
+// RunProcess runs the given RCL code synchronously and returns the process outputs.
+// The code must contain a 'main' definition that accepts the given parameter values.
+func (rsc *client) RunProcess(source string, params []*Parameter) (*Process, error) {
 	var (
-		projectID = strconv.Itoa(rsc.ProjectID)
-		processID string
+		projectID   = strconv.Itoa(rsc.ProjectID)
+		processHref string
 	)
 	{
-		source := "define main() "
-		if len(outputs) > 0 {
-			source += "return " + strings.Join(outputs, ", ") + " "
-		}
-		source += "do\nsub timeout: 1h do\n" + rcl + "\nend\nend"
 		payload := rsapi.APIParams{
 			"source":      source,
 			"main":        "main",
 			"rcl_version": "2",
-			"parameters":  nil,
+			"parameters":  params,
 			"application": "cwfconsole",
 			"created_by": map[string]interface{}{
 				"id":    0,
@@ -351,9 +403,9 @@ func (rsc *client) runRCL(rcl string, outputs ...string) ([]interface{}, error) 
 		if err != nil {
 			return nil, err
 		}
-		pref := res.(map[string]interface{})["Location"]
-		parts := strings.Split(pref.(string), "/")
-		processID = parts[len(parts)-1]
+		processHref = res.(map[string]interface{})["Location"].(string)
+		parts := strings.Split(processHref, "/")
+		processID := parts[len(parts)-1]
 
 		// print link to CWF console if DEBUG is set, mainly useful for tests
 		if os.Getenv("DEBUG") != "" {
@@ -362,9 +414,10 @@ func (rsc *client) runRCL(rcl string, outputs ...string) ([]interface{}, error) 
 		}
 	}
 
-	timeout := time.After(1 * time.Hour)
+	timeout := time.NewTimer(1 * time.Hour)
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
+	defer timeout.Stop()
 	for {
 		select {
 		case <-ticker.C:
@@ -373,8 +426,7 @@ func (rsc *client) runRCL(rcl string, outputs ...string) ([]interface{}, error) 
 				err error
 			)
 			{
-				path := "/cwf/v1/accounts/" + projectID + "/processes/" + processID
-				r, err := rsc.requestCWF("get", path, rsapi.APIParams{"view": "expanded"}, nil)
+				r, err := rsc.requestCWF("get", processHref, rsapi.APIParams{"view": "expanded"}, nil)
 				if err == nil {
 					res = r.(map[string]interface{})
 				}
@@ -388,31 +440,75 @@ func (rsc *client) runRCL(rcl string, outputs ...string) ([]interface{}, error) 
 				continue
 
 			case "completed":
-				outs := res["outputs"].([]interface{})
-				outputs := make([]interface{}, len(outs))
-				for i, out := range outs {
-					v := out.(map[string]interface{})["value"]
-					outputs[i] = v.(map[string]interface{})["value"]
-				}
-				return outputs, nil
+				return &Process{
+					Href:    processHref,
+					Status:  res["status"].(string),
+					Outputs: processOutputs(res),
+				}, nil
 
 			default:
-				var msg string
-				{
-					task := res["tasks"].([]interface{})[0]
-					err := task.(map[string]interface{})["error"]
-					if err == nil {
-						msg = "[no error]"
-					} else {
-						msg = err.(map[string]interface{})["message"].(string)
-					}
-				}
-				return nil, rclError(msg)
+				return &Process{
+					Href:   processHref,
+					Status: res["status"].(string),
+					Error:  processErrors(res),
+				}, nil
 			}
-		case <-timeout:
+		case <-timeout.C:
 			return nil, fmt.Errorf("timed out after one hour")
 		}
 	}
+}
+
+// GetProcess returns the process with the given href.
+func (rsc *client) GetProcess(href string) (*Process, error) {
+	var (
+		res map[string]interface{}
+		err error
+	)
+	{
+		r, err := rsc.requestCWF("get", href, rsapi.APIParams{"view": "expanded"}, nil)
+		if err == nil {
+			res = r.(map[string]interface{})
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &Process{
+		Href:    href,
+		Status:  res["status"].(string),
+		Outputs: processOutputs(res),
+		Error:   processErrors(res),
+	}, nil
+}
+
+// DeleteProcess deletes the process with the given href.
+func (rsc *client) DeleteProcess(href string) error {
+	_, err := rsc.requestCWF("delete", href, nil, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// runRCL provides a convenient method for running the given RCL code
+// synchronously. It returns the outputs with the given variable or reference
+// names. The code must not include any definition, use RunProcess to run
+// definitions.
+func (rsc *client) runRCL(rcl string, outputs ...string) (map[string]interface{}, error) {
+	source := "define main() "
+	if len(outputs) > 0 {
+		source += "return " + strings.Join(outputs, ", ") + " "
+	}
+	source += "do\nsub timeout: 1h do\n" + rcl + "\nend\nend"
+	p, err := rsc.RunProcess(source, nil)
+	if err != nil {
+		return nil, err
+	}
+	if p.Status != "completed" {
+		return nil, fmt.Errorf("unexpected process status %q", p.Status)
+	}
+	return p.Outputs, nil
 }
 
 // requestCWF makes a request to the RightScale Cloud Workflow API.
@@ -426,6 +522,10 @@ func (rsc *client) requestCWF(method, url string, params, payload rsapi.APIParam
 	res, err := rsc.rs.PerformRequest(req)
 	if err != nil {
 		return nil, err
+	}
+	// simplistic handling should be enough for this one API
+	if res.StatusCode > 299 {
+		return nil, fmt.Errorf("unexpected response status code %q", res.Status)
 	}
 
 	resp, err := rsc.rs.LoadResponse(res)
@@ -456,17 +556,49 @@ func checkProject(as []interface{}, projectID int) error {
 	return fmt.Errorf("session does not give access to project %d", projectID)
 }
 
+// processOutputs is a helper function that extracts the process outputs from an
+// unmarshaled "GET process" response.
+func processOutputs(res interface{}) map[string]interface{} {
+	outs := res.(map[string]interface{})["outputs"].([]interface{})
+	outputs := make(map[string]interface{}, len(outs))
+	for _, out := range outs {
+		om := out.(map[string]interface{})
+		outputs[om["name"].(string)] = om["value"]
+	}
+	return outputs
+}
+
+// processErrors is a helper function that extracts the process errors if any
+// from an unmarshaled "GET process" response.
+func processErrors(res interface{}) error {
+	var msgs []string
+	{
+		ts := res.(map[string]interface{})["tasks"].([]interface{})
+		var msgs []string
+		for _, task := range ts {
+			if err, ok := task.(map[string]interface{})["error"]; ok {
+				msg := err.(map[string]interface{})["message"].(string)
+				if err := rclError(msg); err != nil {
+					return err
+				}
+				msgs = append(msgs, msg)
+			}
+		}
+	}
+	if len(msgs) == 0 {
+		return nil
+	}
+	return errors.New(strings.Join(msgs, ", "))
+}
+
 // rclError analyzes the error message returned by runCWF and maps it to one of
 // the error variables defined in this package. Right now this only looks for
 // not found errors. It uses a heuristic that looks for the text
 // "ResourceNotFound" as returned by the RightScale API 1.5 or the status code
 // 404.
 func rclError(err string) error {
-	if err == "" {
-		return fmt.Errorf("[unknown error]")
-	}
 	if strings.Contains(err, "ResourceNotFound") || strings.Contains(err, "status code '404'") {
 		return ErrNotFound
 	}
-	return errors.New(err)
+	return nil
 }

@@ -44,6 +44,17 @@ RightScale create and update APIs are mapped to top-level fields in Terraform.
 Data sources use a `filter` field in terraform that gets mapped to the
 `filter[]` query string paramater when making API requests to RightScale.
 
+Looking at the AWS provider some data sources return a single resource or an
+error if multiple resources match the given filters (e.g.
+[nat gateway](https://github.com/terraform-providers/terraform-provider-aws/blob/master/aws/data_source_aws_nat_gateway.go#L107))
+while others return an array with a few chosen fields corresponding to each
+resource in the array elements (e.g.
+[instances](https://github.com/terraform-providers/terraform-provider-aws/blob/master/aws/data_source_aws_instances.go#L74))
+
+The former have singular names while the latter use the plural form. So far the
+data sources in this provider always return the first match and don't return an
+error in case of multiple matches. TBD whether we need to change the behavior.
+
 ## Descriptions
 
 Always provide a description for create and update fields (OK not to provide

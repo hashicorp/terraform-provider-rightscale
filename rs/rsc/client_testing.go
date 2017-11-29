@@ -56,10 +56,26 @@ func (c *TestClient) Delete(l *Locator) error {
 	return nil
 }
 
-// Run runs any preset expectation.
-func (c *TestClient) Run(l *Locator, rcl string) error {
-	if e := c.Expectation("Custom"); e != nil {
-		return e.(func(*Locator, string) error)(l, rcl)
+// RunProcess runs any preset expectation.
+func (c *TestClient) RunProcess(rcl string, parameters []*Parameter) (*Process, error) {
+	if e := c.Expectation("RunProcess"); e != nil {
+		return e.(func(string, []*Parameter) (*Process, error))(rcl, parameters)
+	}
+	return nil, nil
+}
+
+// GetProcess runs any preset expectation.
+func (c *TestClient) GetProcess(href string) (*Process, error) {
+	if e := c.Expectation("GetProcess"); e != nil {
+		return e.(func(string) (*Process, error))(href)
+	}
+	return nil, nil
+}
+
+// DeleteProcess runs any preset expectation.
+func (c *TestClient) DeleteProcess(href string) error {
+	if e := c.Expectation("DeleteProcess"); e != nil {
+		return e.(func(string) error)(href)
 	}
 	return nil
 }

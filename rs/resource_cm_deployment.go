@@ -1,6 +1,8 @@
 package rs
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/rightscale/terraform-provider-rs/rs/rsc"
@@ -116,10 +118,26 @@ func updateLock(d *schema.ResourceData, client rsc.Client) error {
 		return err
 	}
 	lock := d.Get("locked").(bool)
-	if lock {
-		return client.Run(loc, "@res.lock()")
+	op := "lock"
+	if !lock {
+		op = "unlock"
 	}
-	return client.Run(loc, "@res.unlock()")
+	source := fmt.Sprintf(`
+define main() do
+	@res = rs_cm.deployments.get(href: %q)
+	@res.%s()
+end
+	`, loc.Href, op)
+
+	process, err := client.RunProcess(source, nil)
+
+	if err != nil {
+		return err
+	}
+	if process.Error != nil {
+		return fmt.Errorf("operation failed: %s", process.Error.Error())
+	}
+	return nil
 }
 
 func deploymentWriteFields(d *schema.ResourceData) rsc.Fields {
