@@ -2,7 +2,7 @@ package rs
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/rightscale/terraform-provider-rs/rs/rsc"
+	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // cmFilters is a helper function that returns fields representing valid

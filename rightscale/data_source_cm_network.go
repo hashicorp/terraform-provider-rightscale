@@ -2,29 +2,23 @@ package rs
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/rightscale/terraform-provider-rs/rs/rsc"
+	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // Example:
 //
-// data "rs_cm_security_group" "ssh" {
+// data "rightscale_cm_network" "infra_vpc" {
 //     filter {
-//         resource_uid = "sg-c31ee987"
+//         resource_uid = "vpc-c31ee987"
+//         cloud = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
 //     }
-//     cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceCMSecurityGroup() *schema.Resource {
+func dataSourceCMNetwork() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceSecurityGroupRead,
+		Read: resourceNetworkRead,
 
 		Schema: map[string]*schema.Schema{
-			"cloud_href": {
-				Type:        schema.TypeString,
-				Description: "ID of the security group cloud",
-				Required:    true,
-				ForceNew:    true,
-			},
 			"filter": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -34,25 +28,31 @@ func dataSourceCMSecurityGroup() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "name of security group, uses partial match",
+							Description: "name of network, uses partial match",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"cloud_href": {
+							Type:        schema.TypeString,
+							Description: "ID of the network cloud",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"deployment_href": {
 							Type:        schema.TypeString,
-							Description: "ID of deployment resource that owns security group",
+							Description: "ID of deployment resource that owns network",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"resource_uid": {
 							Type:        schema.TypeString,
-							Description: "cloud ID of security group, e.g. 'sg-c31ee987'",
+							Description: "cloud ID of network, e.g. 'vpc-2124fe46'",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"network_href": {
+						"cidr_block": {
 							Type:        schema.TypeString,
-							Description: "ID of the security group network resource",
+							Description: "CIDR of the network resource",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -61,8 +61,20 @@ func dataSourceCMSecurityGroup() *schema.Resource {
 			},
 
 			// Read-only fields
+			"cidr_block": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"instance_tenancy": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"is_default": {
+				Type:     schema.TypeBool,
 				Computed: true,
 			},
 			"links": {
@@ -82,12 +94,11 @@ func dataSourceCMSecurityGroup() *schema.Resource {
 	}
 }
 
-func resourceSecurityGroupRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
-	cloud := d.Get("cloud_href").(string)
-	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
+	loc := &rsc.Locator{Namespace: "rs_cm", Type: "networks"}
 
-	res, err := client.List(loc, "security_groups", cmFilters(d))
+	res, err := client.List(loc, "", cmFilters(d))
 	if err != nil {
 		return err
 	}

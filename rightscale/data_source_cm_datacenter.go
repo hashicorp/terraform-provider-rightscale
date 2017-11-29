@@ -2,26 +2,26 @@ package rs
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/rightscale/terraform-provider-rs/rs/rsc"
+	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // Example:
 //
-// data "rs_cm_volume_type" "standard" {
+// data "rightscale_cm_datacenter" "ec2-us-east-1a" {
+//     cloud = ${data.rightscale_cm_cloud.ec2_us_east.id}
 //     filter {
-//         name = "standard"
+//         name = "us-east-1a"
 //     }
-//     cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceCMVolumeType() *schema.Resource {
+func dataSourceCMDatacenter() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceVolumeTypeRead,
+		Read: resourceDatacenterRead,
 
 		Schema: map[string]*schema.Schema{
 			"cloud_href": {
 				Type:        schema.TypeString,
-				Description: "ID of the volume type cloud",
+				Description: "ID of datacenter cloud resource",
 				Required:    true,
 				ForceNew:    true,
 			},
@@ -33,27 +33,25 @@ func dataSourceCMVolumeType() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:        schema.TypeString,
-							Description: "name of volume type, uses partial match",
-							Optional:    true,
-							ForceNew:    true,
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
 						},
 						"resource_uid": {
-							Type:        schema.TypeString,
-							Description: "cloud ID of volume type",
-							Optional:    true,
-							ForceNew:    true,
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
 						},
 					},
 				},
 			},
 
 			// Read-only fields
-			"created_at": {
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"description": {
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -62,19 +60,7 @@ func dataSourceCMVolumeType() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeMap},
 				Computed: true,
 			},
-			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"resource_uid": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"size": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -82,12 +68,12 @@ func dataSourceCMVolumeType() *schema.Resource {
 	}
 }
 
-func resourceVolumeTypeRead(d *schema.ResourceData, m interface{}) error {
+func resourceDatacenterRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "volume_types", cmFilters(d))
+	res, err := client.List(loc, "datacenters", cmFilters(d))
 	if err != nil {
 		return err
 	}

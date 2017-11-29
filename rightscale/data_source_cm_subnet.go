@@ -2,26 +2,26 @@ package rs
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/rightscale/terraform-provider-rs/rs/rsc"
+	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // Example:
 //
-// data "rs_cm_volume" "mysql_master" {
+// data "rightscale_cm_subnet" "ssh" {
 //     filter {
-//         name = "mysql_master"
+//         name = "infra"
 //     }
-//     cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
+//     cloud = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceCMVolume() *schema.Resource {
+func dataSourceCMSubnet() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceVolumeRead,
+		Read: resourceSubnetRead,
 
 		Schema: map[string]*schema.Schema{
 			"cloud_href": {
 				Type:        schema.TypeString,
-				Description: "ID of the volume cloud",
+				Description: "ID of the subnet cloud",
 				Required:    true,
 				ForceNew:    true,
 			},
@@ -34,37 +34,37 @@ func dataSourceCMVolume() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "name of volume, uses partial match",
-							Optional:    true,
-							ForceNew:    true,
-						},
-						"description": {
-							Type:        schema.TypeString,
-							Description: "description of volume, uses partial match",
+							Description: "name of subnet, uses partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"resource_uid": {
 							Type:        schema.TypeString,
-							Description: "cloud ID of volume",
+							Description: "cloud ID of subnet",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"datacenter_href": {
 							Type:        schema.TypeString,
-							Description: "ID of the volume datacenter resource",
+							Description: "ID of the subnet datacenter resource",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"deployment_href": {
+						"instance_href": {
 							Type:        schema.TypeString,
-							Description: "ID of deployment resource that owns volume",
+							Description: "ID of instance resource attached to subnet",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"parent_volume_snapshot_href": {
+						"network_href": {
 							Type:        schema.TypeString,
-							Description: "ID of volume snapshot that volume was created from",
+							Description: "ID of network resource that owns subnet",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"visibility": {
+							Type:        schema.TypeString,
+							Description: "Visibility of the subnet to filter by (private, shared, etc)",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -73,16 +73,16 @@ func dataSourceCMVolume() *schema.Resource {
 			},
 
 			// Read-only fields
-			"cloud_specific_attributes": {
-				Type:     schema.TypeMap,
-				Computed: true,
-			},
-			"created_at": {
+			"cidr_block": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"is_default": {
+				Type:     schema.TypeBool,
 				Computed: true,
 			},
 			"links": {
@@ -98,15 +98,11 @@ func dataSourceCMVolume() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"size": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"status": {
+			"state": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"updated_at": {
+			"visibility": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -114,12 +110,12 @@ func dataSourceCMVolume() *schema.Resource {
 	}
 }
 
-func resourceVolumeRead(d *schema.ResourceData, m interface{}) error {
+func resourceSubnetRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "volumes", cmFilters(d))
+	res, err := client.List(loc, "subnets", cmFilters(d))
 	if err != nil {
 		return err
 	}
@@ -128,10 +124,6 @@ func resourceVolumeRead(d *schema.ResourceData, m interface{}) error {
 		return nil
 	}
 	for k, v := range res[0].Fields {
-		if k == "cloud_specific_attributes" {
-			d.Set(k, []interface{}{v})
-			continue
-		}
 		d.Set(k, v)
 	}
 	d.SetId(res[0].Locator.Href)

@@ -2,21 +2,21 @@ package rs
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/rightscale/terraform-provider-rs/rs/rsc"
+	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // Example:
 //
-// data "rs_cm_multi_cloud_image" "centos_64" {
+// data "rightscale_cm_server_template" "mysql" {
 //     filter {
-//         name = "RightImage_CentOS_6.4_x64_v13.5"
-//         revision = 43
+//         name = "Database Manager for MySQL"
+//         revision = 24
 //     }
 // }
 
-func dataSourceCMMultiCloudImage() *schema.Resource {
+func dataSourceCMServerTemplate() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceMultiCloudImageRead,
+		Read: resourceServerTemplateRead,
 
 		Schema: map[string]*schema.Schema{
 			"filter": {
@@ -28,34 +28,44 @@ func dataSourceCMMultiCloudImage() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "name of multi-cloud image, partial match",
+							Description: "name of ServerTemplate, partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"revision": {
 							Type:        schema.TypeInt,
-							Description: "revision of multi-cloud image, use 0 to match latest non-committed version",
+							Description: "revision of ServerTemplate, use 0 to match latest non-committed version",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"description": {
 							Type:        schema.TypeString,
-							Description: "description of multi-cloud image, partial match",
+							Description: "description of ServerTemplate, partial match",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"lineage": {
+							Type:        schema.TypeString,
+							Description: "lineage of ServerTemplate",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"multi_cloud_image_href": {
+							Type:        schema.TypeString,
+							Description: "ID of ServerTemplate multi cloud image resource",
 							Optional:    true,
 							ForceNew:    true,
 						},
 					},
 				},
 			},
-			"server_template_href": {
-				Type:        schema.TypeString,
-				Description: "ID of image's server template resource",
-				Optional:    true,
-				ForceNew:    true,
-			},
 
 			// Read-only fields
 			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"lineage": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -76,18 +86,11 @@ func dataSourceCMMultiCloudImage() *schema.Resource {
 	}
 }
 
-func resourceMultiCloudImageRead(d *schema.ResourceData, m interface{}) error {
+func resourceServerTemplateRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
-	loc := &rsc.Locator{Namespace: "rs_cm"}
-	link := ""
-	if st, ok := d.GetOk("server_template_href"); ok {
-		loc.Href = st.(string)
-		link = "multi_cloud_images"
-	} else {
-		loc.Type = "multi_cloud_images"
-	}
+	loc := &rsc.Locator{Namespace: "rs_cm", Type: "server_templates"}
 
-	res, err := client.List(loc, link, cmFilters(d))
+	res, err := client.List(loc, "", cmFilters(d))
 	if err != nil {
 		return err
 	}

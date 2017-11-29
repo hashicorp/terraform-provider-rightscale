@@ -3,16 +3,16 @@ package rs
 import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"github.com/rightscale/terraform-provider-rs/rs/rsc"
+	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // Example:
 //
-// data "rs_cm_image" "centos_5" {
+// data "rightscale_cm_image" "centos_5" {
 //     filter {
 //         name = "centos 5"
 //     }
-//     cloud = ${data.rs_cm_cloud.gce.id}
+//     cloud = ${data.rightscale_cm_cloud.gce.id}
 // }
 
 func dataSourceCMImage() *schema.Resource {

@@ -5,23 +5,23 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"github.com/rightscale/terraform-provider-rs/rs/rsc"
+	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // Examples:
 //
-// data "rs_cm_instance" "mysql" {
+// data "rightscale_cm_instance" "mysql" {
 //     filter {
 //         resource_uid = "vpc-c31ee987"
 //     }
-//     cloud_href = ${data.rs_cm_cloud.ec2_us_east_1.id}
+//     cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
 // }
 //
-// data "rs_cm_instance" "worker_2" {
+// data "rightscale_cm_instance" "worker_2" {
 //     filter {
 //         name = "Worker #2"
 //     }
-//     server_array = ${data.rs_cm_server_array.workers}
+//     server_array = ${data.rightscale_cm_server_array.workers}
 // }
 
 func dataSourceCMInstance() *schema.Resource {

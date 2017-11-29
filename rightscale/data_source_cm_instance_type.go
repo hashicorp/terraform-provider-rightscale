@@ -2,23 +2,29 @@ package rs
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/rightscale/terraform-provider-rs/rs/rsc"
+	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // Example:
 //
-// data "rs_cm_network" "infra_vpc" {
+// data "rightscale_cm_instance_type" "n1-standard" {
 //     filter {
-//         resource_uid = "vpc-c31ee987"
-//         cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
+//         name = "n1-standard"
 //     }
+//     cloud = ${data.rightscale_cm_cloud.gce.id}
 // }
 
-func dataSourceCMNetwork() *schema.Resource {
+func dataSourceCMInstanceType() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceNetworkRead,
+		Read: resourceInstanceTypeRead,
 
 		Schema: map[string]*schema.Schema{
+			"cloud_href": {
+				Type:        schema.TypeString,
+				Description: "ID of instance cloud resource",
+				Required:    true,
+				ForceNew:    true,
+			},
 			"filter": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -28,31 +34,25 @@ func dataSourceCMNetwork() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "name of network, uses partial match",
+							Description: "name of instance type, uses partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"cloud_href": {
+						"description": {
 							Type:        schema.TypeString,
-							Description: "ID of the network cloud",
-							Optional:    true,
-							ForceNew:    true,
-						},
-						"deployment_href": {
-							Type:        schema.TypeString,
-							Description: "ID of deployment resource that owns network",
+							Description: "description of instance type",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"resource_uid": {
 							Type:        schema.TypeString,
-							Description: "cloud ID of network, e.g. 'vpc-2124fe46'",
+							Description: "cloud id of instance type",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"cidr_block": {
+						"cpu_architecture": {
 							Type:        schema.TypeString,
-							Description: "CIDR of the network resource",
+							Description: "CPU architecture of instance type, e.g. 'x86_64'",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -61,7 +61,15 @@ func dataSourceCMNetwork() *schema.Resource {
 			},
 
 			// Read-only fields
-			"cidr_block": {
+			"cpu_architecture": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"cpu_count": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"cpu_speed": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -69,17 +77,21 @@ func dataSourceCMNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"instance_tenancy": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"is_default": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
 			"links": {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Computed: true,
+			},
+			"local_disks": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"local_disk_size": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"memory": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"name": {
@@ -94,11 +106,12 @@ func dataSourceCMNetwork() *schema.Resource {
 	}
 }
 
-func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
+func resourceInstanceTypeRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
-	loc := &rsc.Locator{Namespace: "rs_cm", Type: "networks"}
+	cloud := d.Get("cloud_href").(string)
+	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "", cmFilters(d))
+	res, err := client.List(loc, "instance_types", cmFilters(d))
 	if err != nil {
 		return err
 	}

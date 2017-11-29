@@ -2,26 +2,26 @@ package rs
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/rightscale/terraform-provider-rs/rs/rsc"
+	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // Example:
 //
-// data "rs_cm_subnet" "ssh" {
+// data "rightscale_cm_volume_snapshot" "mysql_master" {
 //     filter {
-//         name = "infra"
+//         name = "mysql_master"
 //     }
-//     cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
+//     cloud = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceCMSubnet() *schema.Resource {
+func dataSourceCMVolumeSnapshot() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceSubnetRead,
+		Read: resourceVolumeSnapshotRead,
 
 		Schema: map[string]*schema.Schema{
 			"cloud_href": {
 				Type:        schema.TypeString,
-				Description: "ID of the subnet cloud",
+				Description: "ID of the volume snapshot cloud",
 				Required:    true,
 				ForceNew:    true,
 			},
@@ -34,37 +34,37 @@ func dataSourceCMSubnet() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "name of subnet, uses partial match",
+							Description: "name of volume snapshot, uses partial match",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Description: "description of volume snapshot, uses partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"resource_uid": {
 							Type:        schema.TypeString,
-							Description: "cloud ID of subnet",
+							Description: "cloud ID of volume snapshot",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"datacenter_href": {
+						"state": {
 							Type:        schema.TypeString,
-							Description: "ID of the subnet datacenter resource",
+							Description: "state of the volume snapshot",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"instance_href": {
+						"deployment_href": {
 							Type:        schema.TypeString,
-							Description: "ID of instance resource attached to subnet",
+							Description: "ID of deployment resource that owns volume snapshot",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"network_href": {
+						"parent_volume_href": {
 							Type:        schema.TypeString,
-							Description: "ID of network resource that owns subnet",
-							Optional:    true,
-							ForceNew:    true,
-						},
-						"visibility": {
-							Type:        schema.TypeString,
-							Description: "Visibility of the subnet to filter by (private, shared, etc)",
+							Description: "ID of volume resource from which volume snapshot was created",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -73,16 +73,12 @@ func dataSourceCMSubnet() *schema.Resource {
 			},
 
 			// Read-only fields
-			"cidr_block": {
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"is_default": {
-				Type:     schema.TypeBool,
 				Computed: true,
 			},
 			"links": {
@@ -98,11 +94,15 @@ func dataSourceCMSubnet() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"size": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"state": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"visibility": {
+			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -110,12 +110,12 @@ func dataSourceCMSubnet() *schema.Resource {
 	}
 }
 
-func resourceSubnetRead(d *schema.ResourceData, m interface{}) error {
+func resourceVolumeSnapshotRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "subnets", cmFilters(d))
+	res, err := client.List(loc, "volume_snapshots", cmFilters(d))
 	if err != nil {
 		return err
 	}

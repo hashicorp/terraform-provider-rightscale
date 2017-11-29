@@ -2,13 +2,13 @@ package rs
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/rightscale/terraform-provider-rs/rs/rsc"
+	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // Example:
 //
-// resource "rs_cm_security_group" "ssh" {
-//     cloud_href = ${data.rs_cm_cloud.ec2_us_east_1.id}
+// resource "rightscale_cm_security_group" "ssh" {
+//     cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
 //     network_href = ${resource.network.my_network.id}
 //     description = "my security group"
 // }

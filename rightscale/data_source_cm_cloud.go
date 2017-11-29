@@ -3,12 +3,12 @@ package rs
 import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"github.com/rightscale/terraform-provider-rs/rs/rsc"
+	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // Example:
 //
-// data "rs_cm_cloud" "ec2_us_east_1" {
+// data "rightscale_cm_cloud" "ec2_us_east_1" {
 //     filter {
 //         name = "EC2 us-east-1"
 //         cloud_type = "amazon"

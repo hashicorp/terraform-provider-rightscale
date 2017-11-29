@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/rightscale/terraform-provider-rs/rs/rsc"
+	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
 func resourceCreateFunc(namespace, typ string, fieldsFunc func(*schema.ResourceData) rsc.Fields) func(d *schema.ResourceData, m interface{}) error {

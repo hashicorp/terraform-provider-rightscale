@@ -2,16 +2,16 @@ package rs
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/rightscale/terraform-provider-rs/rs/rsc"
+	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // Example:
 //
-// data "rs_cm_ssh_key" "ssh" {
+// data "rightscale_cm_ssh_key" "ssh" {
 //     filter {
 //         name = "infra"
 //     }
-//     cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
+//     cloud = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
 // }
 
 func dataSourceCMSSHKey() *schema.Resource {

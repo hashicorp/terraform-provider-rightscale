@@ -2,26 +2,26 @@ package rs
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/rightscale/terraform-provider-rs/rs/rsc"
+	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // Example:
 //
-// data "rs_cm_volume_snapshot" "mysql_master" {
+// data "rightscale_cm_volume" "mysql_master" {
 //     filter {
 //         name = "mysql_master"
 //     }
-//     cloud = ${data.rs_cm_cloud.ec2_us_east_1.id}
+//     cloud = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceCMVolumeSnapshot() *schema.Resource {
+func dataSourceCMVolume() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceVolumeSnapshotRead,
+		Read: resourceVolumeRead,
 
 		Schema: map[string]*schema.Schema{
 			"cloud_href": {
 				Type:        schema.TypeString,
-				Description: "ID of the volume snapshot cloud",
+				Description: "ID of the volume cloud",
 				Required:    true,
 				ForceNew:    true,
 			},
@@ -34,37 +34,37 @@ func dataSourceCMVolumeSnapshot() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "name of volume snapshot, uses partial match",
+							Description: "name of volume, uses partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"description": {
 							Type:        schema.TypeString,
-							Description: "description of volume snapshot, uses partial match",
+							Description: "description of volume, uses partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"resource_uid": {
 							Type:        schema.TypeString,
-							Description: "cloud ID of volume snapshot",
+							Description: "cloud ID of volume",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"state": {
+						"datacenter_href": {
 							Type:        schema.TypeString,
-							Description: "state of the volume snapshot",
+							Description: "ID of the volume datacenter resource",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"deployment_href": {
 							Type:        schema.TypeString,
-							Description: "ID of deployment resource that owns volume snapshot",
+							Description: "ID of deployment resource that owns volume",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"parent_volume_href": {
+						"parent_volume_snapshot_href": {
 							Type:        schema.TypeString,
-							Description: "ID of volume resource from which volume snapshot was created",
+							Description: "ID of volume snapshot that volume was created from",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -73,6 +73,10 @@ func dataSourceCMVolumeSnapshot() *schema.Resource {
 			},
 
 			// Read-only fields
+			"cloud_specific_attributes": {
+				Type:     schema.TypeMap,
+				Computed: true,
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -98,7 +102,7 @@ func dataSourceCMVolumeSnapshot() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"state": {
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -110,12 +114,12 @@ func dataSourceCMVolumeSnapshot() *schema.Resource {
 	}
 }
 
-func resourceVolumeSnapshotRead(d *schema.ResourceData, m interface{}) error {
+func resourceVolumeRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "volume_snapshots", cmFilters(d))
+	res, err := client.List(loc, "volumes", cmFilters(d))
 	if err != nil {
 		return err
 	}
@@ -124,6 +128,10 @@ func resourceVolumeSnapshotRead(d *schema.ResourceData, m interface{}) error {
 		return nil
 	}
 	for k, v := range res[0].Fields {
+		if k == "cloud_specific_attributes" {
+			d.Set(k, []interface{}{v})
+			continue
+		}
 		d.Set(k, v)
 	}
 	d.SetId(res[0].Locator.Href)
