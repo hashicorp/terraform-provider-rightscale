@@ -1,4 +1,4 @@
-package rs
+package rightscale
 
 import (
 	"encoding/json"
@@ -21,11 +21,13 @@ func resourceCWFProcess() *schema.Resource {
 				Type:        schema.TypeList,
 				Elem:        cwfParameterResource(),
 				Optional:    true,
+				ForceNew:    true,
 			},
 			"source": &schema.Schema{
 				Description: "process source code, must contain a definition called 'main'",
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 			},
 
 			// Read-only fields

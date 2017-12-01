@@ -1,4 +1,4 @@
-package rs
+package rightscale
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
@@ -75,5 +75,5 @@ func securityGroupWriteFields(d *schema.ResourceData) rsc.Fields {
 			fields[f] = v
 		}
 	}
-	return fields
+	return rsc.Fields{"security_group": fields}
 }

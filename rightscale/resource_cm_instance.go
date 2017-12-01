@@ -1,4 +1,4 @@
-package rs
+package rightscale
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"

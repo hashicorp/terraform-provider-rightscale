@@ -1,4 +1,4 @@
-package rs
+package rightscale
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
@@ -33,5 +33,5 @@ func resourceCMSSHKey() *schema.Resource {
 }
 
 func sshKeyWriteFields(d *schema.ResourceData) rsc.Fields {
-	return rsc.Fields{"name": d.Get("name")}
+	return rsc.Fields{"ssh_key": rsc.Fields{"name": d.Get("name")}}
 }

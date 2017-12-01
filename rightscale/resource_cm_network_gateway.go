@@ -1,4 +1,4 @@
-package rs
+package rightscale
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
@@ -72,5 +72,5 @@ func networkGatewayWriteFields(d *schema.ResourceData) rsc.Fields {
 	if desc, ok := d.GetOk("description"); ok {
 		fields["description"] = desc
 	}
-	return fields
+	return rsc.Fields{"network_gateway": fields}
 }

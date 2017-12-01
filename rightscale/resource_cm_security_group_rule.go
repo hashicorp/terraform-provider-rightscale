@@ -1,4 +1,4 @@
-package rs
+package rightscale
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
@@ -169,7 +169,7 @@ func securityGroupRuleCreateFields(d *schema.ResourceData) rsc.Fields {
 			fields[f] = v
 		}
 	}
-	return fields
+	return rsc.Fields{"security_group_rule": fields}
 }
 
 func securityGroupRuleUpdateFields(d *schema.ResourceData) rsc.Fields {
@@ -177,5 +177,5 @@ func securityGroupRuleUpdateFields(d *schema.ResourceData) rsc.Fields {
 	if v, ok := d.GetOk("description"); ok {
 		fields["description"] = v
 	}
-	return fields
+	return rsc.Fields{"security_group_rule": fields}
 }

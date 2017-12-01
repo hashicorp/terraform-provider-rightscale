@@ -227,16 +227,16 @@ func (rsc *client) List(l *Locator, link string, filters Fields) ([]*Resource, e
 			if l.Type == "" {
 				return nil, fmt.Errorf("resource locator is invalid: type is missing")
 			}
-			prefix = fmt.Sprintf("@res = %s.%s.get(%s)\n",
+			prefix = fmt.Sprintf("@res = %s.%s.get(%s)",
 				l.Namespace, l.Type, params)
 		}
 	}
 
 	rcl := prefix + `
-		$res    = to_object(@res)
-		$hrefs  = to_json($res["hrefs"])
-		$fields = to_json($res["details"])
-		$type   = $res["type"]`
+	$res    = to_object(@res)
+	$hrefs  = to_json($res["hrefs"])
+	$fields = to_json($res["details"])
+	$type   = $res["type"]`
 
 	outputs, err := rsc.runRCL(rcl, "$hrefs", "$fields", "$type")
 	if err != nil {
@@ -279,11 +279,10 @@ func (rsc *client) Get(l *Locator) (*Resource, error) {
 		return nil, fmt.Errorf("resource locator is invalid: href is missing")
 	}
 	rcl := fmt.Sprintf(`
-		@resource = %s.get(href: "%s")
-		$resource = to_object(@resource)
-		$fields = to_json($resource["details"][0])
-		$type = $resource["type"]
-		`, l.Namespace, l.Href)
+	@res = %s.get(href: "%s")
+	$res = to_object(@res)
+	$fields = to_json($res["details"][0])
+	$type = $res["type"]`, l.Namespace, l.Href)
 
 	outputs, err := rsc.runRCL(rcl, "$fields", "$type")
 	if err != nil {
@@ -316,8 +315,10 @@ func (rsc *client) Update(l *Locator, fields Fields) error {
 	if err != nil {
 		return err
 	}
-	rcl := fmt.Sprintf(`@resource = %s.get(href: "%s")
-		@resource.update(%s)`, l.Namespace, l.Href, js)
+	rcl := fmt.Sprintf(`
+	@resource = %s.get(href: "%s")
+	@resource.update(%s)
+	`, l.Namespace, l.Href, js)
 
 	_, err = rsc.runRCL(rcl)
 	return err
@@ -337,12 +338,12 @@ func (rsc *client) Create(namespace, typ string, fields Fields) (*Resource, erro
 	}
 
 	rcl := fmt.Sprintf(`
-		@res = %s
-		provision(@res)
-		$href = @res.href
-		$res = to_object(@res)
-		$fields = to_json($res["details"][0])
-		`, js)
+	@res = %s
+	provision(@res)
+	$href   = @res.href
+	$res    = to_object(@res)
+	$fields = to_json($res["details"][0])
+	`, js)
 
 	outputs, err := rsc.runRCL(rcl, "$href", "$fields")
 	if err != nil {
@@ -372,7 +373,10 @@ func (rsc *client) Delete(l *Locator) error {
 	if l.Href == "" {
 		return fmt.Errorf("resource locator is invalid: href is missing")
 	}
-	rcl := fmt.Sprintf("@res = %s.get(href: %q)\ndelete(@res)",
+	rcl := fmt.Sprintf(`
+	@res = %s.get(href: %q)
+	delete(@res)
+	`,
 		l.Namespace, l.Href)
 	_, err := rsc.runRCL(rcl)
 	return err
@@ -384,6 +388,7 @@ func (rsc *client) RunProcess(source string, params []*Parameter) (*Process, err
 	var (
 		projectID   = strconv.Itoa(rsc.ProjectID)
 		processHref string
+		processID   string
 	)
 	{
 		payload := rsapi.APIParams{
@@ -405,28 +410,41 @@ func (rsc *client) RunProcess(source string, params []*Parameter) (*Process, err
 		}
 		processHref = res.(map[string]interface{})["Location"].(string)
 		parts := strings.Split(processHref, "/")
-		processID := parts[len(parts)-1]
+		processID = parts[len(parts)-1]
+	}
 
-		// print link to CWF console if DEBUG is set, mainly useful for tests
-		if os.Getenv("DEBUG") != "" {
-			host := strings.Replace(rsc.rs.Host, "us-", "selfservice-", 1)
-			fmt.Printf("CWF process created: https://%s/designer/processes/%s\n", host, processID)
-		}
+	var (
+		process *Process
+		err     error
+	)
+
+	// print link to CWF console if DEBUG is set, mainly useful for tests
+	if os.Getenv("DEBUG") != "" {
+		host := strings.Replace(rsc.rs.Host, "us-", "selfservice-", 1)
+		fmt.Printf("RUNNING: https://%s/designer/processes/%s\n%s\n", host, processID, source)
+		then := time.Now()
+		defer func() {
+			if process != nil {
+				fmt.Printf("==> %s (in %v)\n\n", process.Status, time.Now().Sub(then))
+			}
+			if err != nil {
+				fmt.Printf("** ERROR: %s\n\n", err)
+			}
+		}()
 	}
 
 	timeout := time.NewTimer(1 * time.Hour)
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
 	defer timeout.Stop()
+
 	for {
 		select {
 		case <-ticker.C:
-			var (
-				res map[string]interface{}
-				err error
-			)
+			var res map[string]interface{}
 			{
-				r, err := rsc.requestCWF("get", processHref, rsapi.APIParams{"view": "expanded"}, nil)
+				var r interface{}
+				r, err = rsc.requestCWF("get", "/cwf/v1/"+processHref, rsapi.APIParams{"view": "expanded"}, nil)
 				if err == nil {
 					res = r.(map[string]interface{})
 				}
@@ -440,21 +458,24 @@ func (rsc *client) RunProcess(source string, params []*Parameter) (*Process, err
 				continue
 
 			case "completed":
-				return &Process{
+				process = &Process{
 					Href:    processHref,
 					Status:  res["status"].(string),
 					Outputs: processOutputs(res),
-				}, nil
+				}
+				return process, nil
 
 			default:
-				return &Process{
+				process = &Process{
 					Href:   processHref,
 					Status: res["status"].(string),
 					Error:  processErrors(res),
-				}, nil
+				}
+				return process, nil
 			}
 		case <-timeout.C:
-			return nil, fmt.Errorf("timed out after one hour")
+			err = fmt.Errorf("timed out after one hour")
+			return nil, err
 		}
 	}
 }
@@ -466,7 +487,7 @@ func (rsc *client) GetProcess(href string) (*Process, error) {
 		err error
 	)
 	{
-		r, err := rsc.requestCWF("get", href, rsapi.APIParams{"view": "expanded"}, nil)
+		r, err := rsc.requestCWF("get", "/cwf/v1"+href, rsapi.APIParams{"view": "expanded"}, nil)
 		if err == nil {
 			res = r.(map[string]interface{})
 		}
@@ -484,11 +505,17 @@ func (rsc *client) GetProcess(href string) (*Process, error) {
 
 // DeleteProcess deletes the process with the given href.
 func (rsc *client) DeleteProcess(href string) error {
-	_, err := rsc.requestCWF("delete", href, nil, nil)
+	_, err := rsc.requestCWF("delete", "/cwf/v1/"+href, nil, nil)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+// API returns the low level RightScale API. This is not exposed by the public
+// interface and is mainly intended for use by tests.
+func (rsc *client) API() *rsapi.API {
+	return rsc.rs
 }
 
 // runRCL provides a convenient method for running the given RCL code
@@ -500,7 +527,9 @@ func (rsc *client) runRCL(rcl string, outputs ...string) (map[string]interface{}
 	if len(outputs) > 0 {
 		source += "return " + strings.Join(outputs, ", ") + " "
 	}
-	source += "do\nsub timeout: 1h do\n" + rcl + "\nend\nend"
+	rcl = strings.Trim(rcl, "\n\t")
+	rcl = strings.Replace(rcl, "\t", "\t\t", -1)
+	source += "do\n\tsub timeout: 1h do\n\t\t" + rcl + "\n\tend\nend"
 	p, err := rsc.RunProcess(source, nil)
 	if err != nil {
 		return nil, err
@@ -563,7 +592,7 @@ func processOutputs(res interface{}) map[string]interface{} {
 	outputs := make(map[string]interface{}, len(outs))
 	for _, out := range outs {
 		om := out.(map[string]interface{})
-		outputs[om["name"].(string)] = om["value"]
+		outputs[om["name"].(string)] = om["value"].(map[string]interface{})["value"]
 	}
 	return outputs
 }

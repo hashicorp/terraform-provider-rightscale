@@ -1,4 +1,4 @@
-package rs
+package rightscale
 
 import (
 	"fmt"
@@ -67,22 +67,22 @@ func resourceCMDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
+	d.SetId(res.Locator.Namespace + ":" + res.Locator.Href)
 	for k, v := range res.Fields {
 		d.Set(k, v)
 	}
 
 	if mustLock {
+		d.Set("locked", true)
 		if err := updateLock(d, client); err != nil {
+			d.SetId("")
+			d.Set("locked", false)
 			// Attempt to delete previously created deployment, ignore errors
 			client.Delete(res.Locator)
 			return err
 		}
-		d.Set("locked", true)
 	}
 
-	// set ID last so Terraform does not assume the deployment has been
-	// created until all operations have completed successfully.
-	d.SetId(res.Locator.Namespace + ":" + res.Locator.Href)
 	return nil
 }
 
@@ -147,5 +147,5 @@ func deploymentWriteFields(d *schema.ResourceData) rsc.Fields {
 			fields[f] = v
 		}
 	}
-	return fields
+	return rsc.Fields{"deployment": fields}
 }

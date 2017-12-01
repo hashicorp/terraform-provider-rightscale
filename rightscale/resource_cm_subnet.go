@@ -1,4 +1,4 @@
-package rs
+package rightscale
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
@@ -123,5 +123,5 @@ func subnetWriteFields(d *schema.ResourceData) rsc.Fields {
 			fields[f] = v
 		}
 	}
-	return fields
+	return rsc.Fields{"subnet": fields}
 }

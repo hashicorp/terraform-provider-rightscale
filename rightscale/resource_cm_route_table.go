@@ -1,4 +1,4 @@
-package rs
+package rightscale
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
@@ -66,5 +66,5 @@ func routeTableWriteFields(d *schema.ResourceData) rsc.Fields {
 	if desc, ok := d.GetOk("description"); ok {
 		fields["description"] = desc
 	}
-	return fields
+	return rsc.Fields{"route_table": fields}
 }
