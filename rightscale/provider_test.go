@@ -47,7 +47,7 @@ func testAccPreCheck(t *testing.T) {
 }
 
 // getCMClient returns a low level API 1.5 client.
-func getCMClient(s *terraform.State) *cm15.API {
+func getCMClient() *cm15.API {
 	type cmClient interface {
 		API() *rsapi.API
 	}

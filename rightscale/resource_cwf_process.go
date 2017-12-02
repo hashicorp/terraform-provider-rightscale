@@ -79,7 +79,7 @@ func resourceCWFProcessCreate(d *schema.ResourceData, m interface{}) error {
 	{
 		p, ok := d.GetOk("parameters")
 		if ok {
-			params := make([]*rsc.Parameter, len(p.([]interface{})))
+			params = make([]*rsc.Parameter, len(p.([]interface{})))
 			for i, param := range p.([]interface{}) {
 				pa, err := parseParam(param.(map[string]interface{}))
 				if err != nil {
@@ -97,7 +97,9 @@ func resourceCWFProcessCreate(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("outputs", proc.Outputs)
 	d.Set("status", proc.Status)
-	d.Set("error", proc.Error.Error())
+	if proc.Error != nil {
+		d.Set("error", proc.Error.Error())
+	}
 	d.SetId(proc.Href)
 	return nil
 }
@@ -150,9 +152,13 @@ func parseParam(param map[string]interface{}) (*rsc.Parameter, error) {
 		}
 	}
 	var iv interface{}
-	err := json.Unmarshal([]byte(value), &iv)
-	if err != nil {
-		return nil, fmt.Errorf("parameter 'value' is not valid json: %s", err)
+	if kind == "string" {
+		iv = value
+	} else {
+		err := json.Unmarshal([]byte(value), &iv)
+		if err != nil {
+			return nil, fmt.Errorf("parameter 'value' is not valid json: %s", err)
+		}
 	}
 	if err := validateParameter("parameter", kind, iv); err != nil {
 		return nil, fmt.Errorf("parameter definition is not valid: %s", err)

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -426,6 +427,9 @@ func (rsc *client) RunProcess(source string, params []*Parameter) (*Process, err
 		defer func() {
 			if process != nil {
 				fmt.Printf("==> %s (in %v)\n\n", process.Status, time.Now().Sub(then))
+				if err == nil {
+					err = process.Error
+				}
 			}
 			if err != nil {
 				fmt.Printf("** ERROR: %s\n\n", err)
@@ -487,7 +491,8 @@ func (rsc *client) GetProcess(href string) (*Process, error) {
 		err error
 	)
 	{
-		r, err := rsc.requestCWF("get", "/cwf/v1"+href, rsapi.APIParams{"view": "expanded"}, nil)
+		var r interface{}
+		r, err = rsc.requestCWF("get", "/cwf/v1"+href, rsapi.APIParams{"view": "expanded"}, nil)
 		if err == nil {
 			res = r.(map[string]interface{})
 		}
@@ -553,6 +558,9 @@ func (rsc *client) requestCWF(method, url string, params, payload rsapi.APIParam
 		return nil, err
 	}
 	// simplistic handling should be enough for this one API
+	if res.StatusCode == http.StatusNotFound {
+		return nil, ErrNotFound
+	}
 	if res.StatusCode > 299 {
 		return nil, fmt.Errorf("unexpected response status code %q", res.Status)
 	}
@@ -603,7 +611,6 @@ func processErrors(res interface{}) error {
 	var msgs []string
 	{
 		ts := res.(map[string]interface{})["tasks"].([]interface{})
-		var msgs []string
 		for _, task := range ts {
 			if err, ok := task.(map[string]interface{})["error"]; ok {
 				msg := err.(map[string]interface{})["message"].(string)

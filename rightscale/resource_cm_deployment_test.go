@@ -17,7 +17,7 @@ const (
 	serverTagScope = "deployment"
 )
 
-func TestAccRightScaleCMDeployment(t *testing.T) {
+func TestAccRightScaleCMDeployment_basic(t *testing.T) {
 	t.Parallel()
 
 	var (
@@ -79,7 +79,7 @@ func testAccCheckCMDeploymentExists(n string, depl *cm15.Deployment) resource.Te
 			return fmt.Errorf("No ID is set")
 		}
 
-		loc := getCMClient(s).DeploymentLocator(getHrefFromID(rs.Primary.ID))
+		loc := getCMClient().DeploymentLocator(getHrefFromID(rs.Primary.ID))
 
 		found, err := loc.Show(nil)
 		if err != nil {
@@ -123,7 +123,7 @@ func testAccCheckCMDeploymentLocked(depl *cm15.Deployment) resource.TestCheckFun
 }
 
 func testAccCheckCMDeploymentDestroy(s *terraform.State) error {
-	c := getCMClient(s)
+	c := getCMClient()
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "rightscale_cm_deployment" {
