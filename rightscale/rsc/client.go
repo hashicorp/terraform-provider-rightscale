@@ -540,7 +540,7 @@ func (rsc *client) runRCL(rcl string, outputs ...string) (map[string]interface{}
 		return nil, err
 	}
 	if p.Status != "completed" {
-		return nil, fmt.Errorf("unexpected process status %q", p.Status)
+		return nil, fmt.Errorf("unexpected process status %q. Error: %s", p.Status, p.Error)
 	}
 	return p.Outputs, nil
 }
