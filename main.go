@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/hashicorp/terraform/plugin"
-	"github.com/rightscale/terraform-provider-rightscale/rightscale"
+	rs "github.com/rightscale/terraform-provider-rightscale/rightscale"
 )
 
 func main() {
