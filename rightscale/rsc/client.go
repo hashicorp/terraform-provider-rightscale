@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"gopkg.in/rightscale/rsc.v6/rsapi"
+	"github.com/rightscale/rsc/rsapi"
 )
 
 var (

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"gopkg.in/rightscale/rsc.v6/rsapi"
+	"github.com/rightscale/rsc/rsapi"
 )
 
 // NOTE: the tests below make "real" API requests to the RightScale platform.
