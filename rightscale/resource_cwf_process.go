@@ -90,7 +90,8 @@ func resourceCWFProcessCreate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	proc, err := client.RunProcess(d.Get("source").(string), params)
+	// TODO: allow terraform user to specify expectsOutputs in terraform config
+	proc, err := client.RunProcess(d.Get("source").(string), params, false)
 	if err != nil {
 		return err
 	}
