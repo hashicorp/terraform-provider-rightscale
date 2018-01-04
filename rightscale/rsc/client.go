@@ -52,8 +52,10 @@ type (
 		// given source code. The process runs synchronously and
 		// RunProcess returns after it completes or fails. The RCL code
 		// must define a definition called 'main' that accepts the given
-		// parameter values.
-		RunProcess(source string, parameters []*Parameter) (*Process, error)
+		// parameter values. The expectsOutputs parameter should be set to
+		// true when the source code specifies outputs and the calling code
+		// needs to ensure output values are available before RunProcess returns
+		RunProcess(source string, parameters []*Parameter, expectsOutputs bool) (*Process, error)
 		// GetProcess retrieves the process with the given href.
 		GetProcess(href string) (*Process, error)
 		// DeleteProcess deletes the process with the given href.
@@ -385,7 +387,7 @@ func (rsc *client) Delete(l *Locator) error {
 
 // RunProcess runs the given RCL code synchronously and returns the process outputs.
 // The code must contain a 'main' definition that accepts the given parameter values.
-func (rsc *client) RunProcess(source string, params []*Parameter) (*Process, error) {
+func (rsc *client) RunProcess(source string, params []*Parameter, expectsOutputs bool) (*Process, error) {
 	var (
 		projectID   = strconv.Itoa(rsc.ProjectID)
 		processHref string
@@ -467,6 +469,12 @@ func (rsc *client) RunProcess(source string, params []*Parameter) (*Process, err
 					Status:  res["status"].(string),
 					Outputs: processOutputs(res),
 				}
+
+				// Keep waiting if outputs aren't yet present
+				if expectsOutputs && len(process.Outputs) == 0 {
+					continue
+				}
+
 				return process, nil
 
 			default:
@@ -528,14 +536,16 @@ func (rsc *client) API() *rsapi.API {
 // names. The code must not include any definition, use RunProcess to run
 // definitions.
 func (rsc *client) runRCL(rcl string, outputs ...string) (map[string]interface{}, error) {
+	expectsOutputs := false
 	source := "define main() "
 	if len(outputs) > 0 {
 		source += "return " + strings.Join(outputs, ", ") + " "
+		expectsOutputs = true
 	}
 	rcl = strings.Trim(rcl, "\n\t")
 	rcl = strings.Replace(rcl, "\t", "\t\t", -1)
 	source += "do\n\tsub timeout: 1h do\n\t\t" + rcl + "\n\tend\nend"
-	p, err := rsc.RunProcess(source, nil)
+	p, err := rsc.RunProcess(source, nil, expectsOutputs)
 	if err != nil {
 		return nil, err
 	}
