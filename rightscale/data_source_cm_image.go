@@ -12,7 +12,7 @@ import (
 //     filter {
 //         name = "centos 5"
 //     }
-//     cloud = ${data.rightscale_cm_cloud.gce.id}
+//     cloud_href = ${data.rightscale_cm_cloud.gce.id}
 // }
 
 func dataSourceCMImage() *schema.Resource {

@@ -10,7 +10,7 @@ import (
 // data "rightscale_cm_network" "infra_vpc" {
 //     filter {
 //         resource_uid = "vpc-c31ee987"
-//         cloud = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
+//         cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
 //     }
 // }
 

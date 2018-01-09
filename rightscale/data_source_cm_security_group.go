@@ -11,7 +11,7 @@ import (
 //     filter {
 //         resource_uid = "sg-c31ee987"
 //     }
-//     cloud = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
+//     cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
 // }
 
 func dataSourceCMSecurityGroup() *schema.Resource {
