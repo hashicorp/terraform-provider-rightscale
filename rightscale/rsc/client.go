@@ -214,6 +214,7 @@ func (rsc *client) List(l *Locator, link string, filters Fields) ([]*Resource, e
 			if err != nil {
 				return nil, fmt.Errorf("invalid list filters: %s", err)
 			}
+			// ex: params = `filter: ["name==EC2 us-west-2"]`
 			params = string(f)
 		}
 	}
