@@ -19,6 +19,11 @@ func resourceCMSSHKey() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 			},
+			"cloud_href": &schema.Schema{
+				Description: "The ID of the cloud to operate against",
+				Type:        schema.TypeString,
+				Required:    true,
+			},
 			"resource_uid": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -33,5 +38,5 @@ func resourceCMSSHKey() *schema.Resource {
 }
 
 func sshKeyWriteFields(d *schema.ResourceData) rsc.Fields {
-	return rsc.Fields{"ssh_key": rsc.Fields{"name": d.Get("name")}}
+	return rsc.Fields{"ssh_key": rsc.Fields{"name": d.Get("name")}, "cloud_href": d.Get("cloud_href")}
 }

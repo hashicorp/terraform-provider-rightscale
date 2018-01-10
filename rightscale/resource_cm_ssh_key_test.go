@@ -1,0 +1,99 @@
+package rightscale
+
+import (
+	"fmt"
+	"strings"
+	"testing"
+
+	"github.com/rightscale/rsc/cm15"
+
+	"github.com/hashicorp/terraform/helper/acctest"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
+)
+
+func TestAccRightScaleSSHKey_basic(t *testing.T) {
+	t.Parallel()
+
+	var (
+		sshKeyName = "terraform-test-ssh-key-" + testString + "-" + acctest.RandString(10)
+		cloudHref  = getTestCloudFromEnv()
+		sshKey     cm15.SshKey
+	)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCMSSHKeyDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccCMSSHKey_basic(sshKeyName, cloudHref),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCMSSHKeyExists("rightscale_cm_ssh_key.ssh_key_test", &sshKey),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckCMSSHKeyExists(n string, sshKey *cm15.SshKey) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		loc := getCMClient().SshKeyLocator(getHrefFromID(rs.Primary.ID))
+
+		found, err := loc.Show(nil)
+		if err != nil {
+			return err
+		}
+
+		*sshKey = *found
+
+		return nil
+	}
+}
+
+func testAccCheckCMSSHKeyDestroy(s *terraform.State) error {
+	c := getCMClient()
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "rightscale_cm_ssh_key" {
+			continue
+		}
+
+		loc := c.SshKeyLocator(getHrefFromID(rs.Primary.ID))
+		sshKeys, err := loc.Index(nil)
+		if err != nil {
+			return fmt.Errorf("failed to check for existence of key: %s", err)
+		}
+		found := false
+		self := strings.Split(rs.Primary.ID, ":")[1]
+		for _, key := range sshKeys {
+			if string(key.Locator(c).Href) == self {
+				found = true
+				break
+			}
+		}
+		if found {
+			return fmt.Errorf("ssh key still exists")
+		}
+	}
+
+	return nil
+}
+
+func testAccCMSSHKey_basic(name string, cloud_href string) string {
+	return fmt.Sprintf(`
+resource "rightscale_cm_ssh_key" "ssh_key_test" {
+	name                = %q
+	cloud_href          = %q
+}
+`, name, cloud_href)
+}
