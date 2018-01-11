@@ -5,6 +5,13 @@ import (
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
+// Example:
+//
+// resource "rightscale_cm_ssh_key" "ssh" {
+//		 name = "infra"
+//     cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
+// }
+
 func resourceCMSSHKey() *schema.Resource {
 	return &schema.Resource{
 		Read:   resourceRead,

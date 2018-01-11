@@ -1,0 +1,38 @@
+<% wrap_layout :inner do %>
+  <% content_for :sidebar do %>
+    <div class="docs-sidebar hidden-print affix-top" role="complementary">
+      <ul class="nav docs-sidenav">
+        <li<%= sidebar_current("docs-home") %>>
+          <a href="/docs/providers/index.html">All Providers</a>
+        </li>
+
+        <li<%= sidebar_current("docs-rightscale-index") %>>
+          <a href="/docs/providers/rightscale/index.html"> Provider</a>
+        </li>
+
+        <li<%= sidebar_current("docs-rightscale-datasource") %>>
+          <a href="#">Data Sources</a>
+          <ul class="nav nav-visible">
+            <li<%= sidebar_current("docs-rightscale-datasource-cm-cloud") %>>
+              <a href="/docs/providers/rightscale/d/cm_cloud.html">rightscale_cm_cloud</a>
+            </li>
+            <li<%= sidebar_current("docs-rightscale-datasource-cm-ssh-key") %>>
+              <a href="/docs/providers/rightscale/d/cm_ssh_key.html">rightscale_cm_ssh_key</a>
+            </li>
+          </ul>
+        </li>
+
+        <li<%= sidebar_current("docs-rightscale-resource") %>>
+          <a href="#">Resources</a>
+          <ul class="nav nav-visible">
+            <li<%= sidebar_current("docs-rightscale-resource-cm-ssh-key") %>>
+              <a href="/docs/providers/rightscale/r/cm_ssh_key.html">rightscale_cm_ssh_key</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= yield %>
+<% end %>
