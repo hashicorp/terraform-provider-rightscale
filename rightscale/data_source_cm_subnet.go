@@ -8,10 +8,10 @@ import (
 // Example:
 //
 // data "rightscale_cm_subnet" "ssh" {
-//     filter {
-//         name = "infra"
-//     }
-//     cloud = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
+//   filter {
+//     name = "infra"
+//   }
+//   cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
 // }
 
 func dataSourceCMSubnet() *schema.Resource {

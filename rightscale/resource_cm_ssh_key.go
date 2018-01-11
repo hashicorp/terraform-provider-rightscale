@@ -5,6 +5,13 @@ import (
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
+// Example:
+//
+// resource "rightscale_cm_ssh_key" "ssh" {
+//   name = "infra"
+//   cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
+// }
+
 func resourceCMSSHKey() *schema.Resource {
 	return &schema.Resource{
 		Read:   resourceRead,
@@ -16,6 +23,11 @@ func resourceCMSSHKey() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Description: "name of SSH key",
+				Type:        schema.TypeString,
+				Required:    true,
+			},
+			"cloud_href": &schema.Schema{
+				Description: "The ID of the cloud to operate against",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
@@ -33,5 +45,5 @@ func resourceCMSSHKey() *schema.Resource {
 }
 
 func sshKeyWriteFields(d *schema.ResourceData) rsc.Fields {
-	return rsc.Fields{"ssh_key": rsc.Fields{"name": d.Get("name")}}
+	return rsc.Fields{"ssh_key": rsc.Fields{"name": d.Get("name")}, "cloud_href": d.Get("cloud_href")}
 }

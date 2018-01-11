@@ -8,10 +8,10 @@ import (
 // Example:
 //
 // data "rightscale_cm_multi_cloud_image" "centos_64" {
-//     filter {
-//         name = "RightImage_CentOS_6.4_x64_v13.5"
-//         revision = 43
-//     }
+//   filter {
+//     name = "RightImage_CentOS_6.4_x64_v13.5"
+//     revision = 43
+//   }
 // }
 
 func dataSourceCMMultiCloudImage() *schema.Resource {

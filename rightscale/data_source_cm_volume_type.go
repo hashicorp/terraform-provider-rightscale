@@ -8,10 +8,10 @@ import (
 // Example:
 //
 // data "rightscale_cm_volume_type" "standard" {
-//     filter {
-//         name = "standard"
-//     }
-//     cloud = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
+//   filter {
+//     name = "standard"
+//   }
+//   cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
 // }
 
 func dataSourceCMVolumeType() *schema.Resource {

@@ -9,10 +9,10 @@ import (
 // Example:
 //
 // data "rightscale_cm_cloud" "ec2_us_east_1" {
-//     filter {
-//         name = "EC2 us-east-1"
-//         cloud_type = "amazon"
-//     }
+//   filter {
+//     name = "EC2 us-east-1"
+//     cloud_type = "amazon"
+//   }
 // }
 
 func dataSourceCMCloud() *schema.Resource {

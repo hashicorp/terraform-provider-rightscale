@@ -8,10 +8,10 @@ import (
 // Example:
 //
 // data "rightscale_cm_datacenter" "ec2-us-east-1a" {
-//     cloud = ${data.rightscale_cm_cloud.ec2_us_east.id}
-//     filter {
-//         name = "us-east-1a"
-//     }
+//   cloud_href = ${data.rightscale_cm_cloud.ec2_us_east.id}
+//   filter {
+//     name = "us-east-1a"
+//   }
 // }
 
 func dataSourceCMDatacenter() *schema.Resource {
