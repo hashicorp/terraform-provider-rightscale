@@ -9,10 +9,10 @@ import (
 // Example:
 //
 // data "rightscale_cm_image" "centos_5" {
-//     filter {
-//         name = "centos 5"
-//     }
-//     cloud_href = ${data.rightscale_cm_cloud.gce.id}
+//   filter {
+//     name = "centos 5"
+//   }
+//   cloud_href = ${data.rightscale_cm_cloud.gce.id}
 // }
 
 func dataSourceCMImage() *schema.Resource {

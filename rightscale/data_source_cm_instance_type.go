@@ -8,10 +8,10 @@ import (
 // Example:
 //
 // data "rightscale_cm_instance_type" "n1-standard" {
-//     filter {
-//         name = "n1-standard"
-//     }
-//     cloud_href = ${data.rightscale_cm_cloud.gce.id}
+//   filter {
+//     name = "n1-standard"
+//   }
+//   cloud_href = ${data.rightscale_cm_cloud.gce.id}
 // }
 
 func dataSourceCMInstanceType() *schema.Resource {

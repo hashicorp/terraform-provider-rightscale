@@ -8,10 +8,10 @@ import (
 // Example:
 //
 // data "rightscale_cm_volume" "mysql_master" {
-//     filter {
-//         name = "mysql_master"
-//     }
-//     cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
+//   filter {
+//     name = "mysql_master"
+//   }
+//   cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
 // }
 
 func dataSourceCMVolume() *schema.Resource {

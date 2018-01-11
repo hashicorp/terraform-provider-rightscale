@@ -8,10 +8,10 @@ import (
 // Example:
 //
 // data "rightscale_cm_server_template" "mysql" {
-//     filter {
-//         name = "Database Manager for MySQL"
-//         revision = 24
-//     }
+//   filter {
+//     name = "Database Manager for MySQL"
+//     revision = 24
+//   }
 // }
 
 func dataSourceCMServerTemplate() *schema.Resource {
