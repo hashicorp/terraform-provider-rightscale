@@ -7,14 +7,14 @@ import (
 
 // Example:
 //
-// data "rightscale_cm_network" "infra_vpc" {
+// data "rightscale_network" "infra_vpc" {
 //   filter {
 //     resource_uid = "vpc-c31ee987"
-//     cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
+//     cloud_href = ${data.rightscale_cloud.ec2_us_east_1.id}
 //   }
 // }
 
-func dataSourceCMNetwork() *schema.Resource {
+func dataSourceNetwork() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceNetworkRead,
 
@@ -98,7 +98,7 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	loc := &rsc.Locator{Namespace: "rs_cm", Type: "networks"}
 
-	res, err := client.List(loc, "", cmFilters(d))
+	res, err := client.List(loc, "", filters(d))
 	if err != nil {
 		return err
 	}

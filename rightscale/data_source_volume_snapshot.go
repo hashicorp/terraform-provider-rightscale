@@ -7,14 +7,14 @@ import (
 
 // Example:
 //
-// data "rightscale_cm_volume_snapshot" "mysql_master" {
+// data "rightscale_volume_snapshot" "mysql_master" {
 //   filter {
 //     name = "mysql_master"
 //   }
-//   cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
+//   cloud_href = ${data.rightscale_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceCMVolumeSnapshot() *schema.Resource {
+func dataSourceVolumeSnapshot() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceVolumeSnapshotRead,
 
@@ -115,7 +115,7 @@ func resourceVolumeSnapshotRead(d *schema.ResourceData, m interface{}) error {
 	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "volume_snapshots", cmFilters(d))
+	res, err := client.List(loc, "volume_snapshots", filters(d))
 	if err != nil {
 		return err
 	}

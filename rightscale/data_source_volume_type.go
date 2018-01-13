@@ -7,14 +7,14 @@ import (
 
 // Example:
 //
-// data "rightscale_cm_volume_type" "standard" {
+// data "rightscale_volume_type" "standard" {
 //   filter {
 //     name = "standard"
 //   }
-//   cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
+//   cloud_href = ${data.rightscale_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceCMVolumeType() *schema.Resource {
+func dataSourceVolumeType() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceVolumeTypeRead,
 
@@ -87,7 +87,7 @@ func resourceVolumeTypeRead(d *schema.ResourceData, m interface{}) error {
 	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "volume_types", cmFilters(d))
+	res, err := client.List(loc, "volume_types", filters(d))
 	if err != nil {
 		return err
 	}

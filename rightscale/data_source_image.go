@@ -8,14 +8,14 @@ import (
 
 // Example:
 //
-// data "rightscale_cm_image" "centos_5" {
+// data "rightscale_image" "centos_5" {
 //   filter {
 //     name = "centos 5"
 //   }
-//   cloud_href = ${data.rightscale_cm_cloud.gce.id}
+//   cloud_href = ${data.rightscale_cloud.gce.id}
 // }
 
-func dataSourceCMImage() *schema.Resource {
+func dataSourceImage() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceImageRead,
 
@@ -133,7 +133,7 @@ func resourceImageRead(d *schema.ResourceData, m interface{}) error {
 	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "images", cmFilters(d))
+	res, err := client.List(loc, "images", filters(d))
 	if err != nil {
 		return err
 	}

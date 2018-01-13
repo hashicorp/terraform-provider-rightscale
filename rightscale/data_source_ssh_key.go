@@ -7,14 +7,14 @@ import (
 
 // Example:
 //
-// data "rightscale_cm_ssh_key" "ssh" {
+// data "rightscale_ssh_key" "ssh" {
 //   filter {
 //     name = "infra"
 //   }
-//   cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
+//   cloud_href = ${data.rightscale_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceCMSSHKey() *schema.Resource {
+func dataSourceSSHKey() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceSSHKeyRead,
 
@@ -71,7 +71,7 @@ func resourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
 	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "ssh_keys", cmFilters(d))
+	res, err := client.List(loc, "ssh_keys", filters(d))
 	if err != nil {
 		return err
 	}

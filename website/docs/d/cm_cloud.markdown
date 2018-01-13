@@ -1,12 +1,12 @@
 ---
 layout: "rightscale"
-page_title: "Rightscale: cm_cloud"
-sidebar_current: "docs-rightscale-datasource-cm-cloud"
+page_title: "Rightscale: cloud"
+sidebar_current: "docs-rightscale-datasource-cloud"
 description: |-
   Defines a cloud datasource to operate against. 
 ---
 
-# rightscale_cm_cloud
+# rightscale_cloud
 
 Use this data source to get the ID of a registered clouds for use in other
 resources.  Registration of clouds in a given RightScale account will need to have been executed ahead of time to define it as a cloud datasource. 
@@ -14,14 +14,14 @@ resources.  Registration of clouds in a given RightScale account will need to ha
 ## Example Usage
 
 ```hcl
-data "rightscale_cm_cloud" "ec2_us_oregon" {
+data "rightscale_cloud" "ec2_us_oregon" {
   filter {
     name = "EC2 us-west-2"
     cloud_type = "amazon"
   }
 }
 
-data "rightscale_cm_cloud" "azure_us_east" {
+data "rightscale_cloud" "azure_us_east" {
   filter {
     name = "Azure East US"
     cloud_type = "azure"
@@ -42,7 +42,7 @@ The `filter` block supports:
 
 * `description` - (Optional) Cloud description as displayed in cm platform.  Pattern match.
 
-* `cloud_type` - (Optional) Cloud type as referenced in cm platform.  Common types include: amazon, google, azure, and vscale.  See  [supportedCloudTypes](https://github.com/rightscale/terraform-provider-rightscale/blob/master/rightscale/data_source_cm_cloud.go#L95) for complete list.
+* `cloud_type` - (Optional) Cloud type as referenced in cm platform.  Common types include: amazon, google, azure, and vscale.  See  [supportedCloudTypes](https://github.com/rightscale/terraform-provider-rightscale/blob/master/rightscale/data_source_cloud.go#L95) for complete list.
 
 ## Attributes Reference
 

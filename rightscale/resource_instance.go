@@ -6,13 +6,13 @@ import (
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
-func resourceCMInstance() *schema.Resource {
+func resourceInstance() *schema.Resource {
 	return &schema.Resource{
 		Read:   resourceRead,
 		Exists: resourceExists,
 		Delete: resourceDelete,
-		Create: resourceCMInstanceCreate,
-		Update: resourceCMInstanceUpdate,
+		Create: resourceInstanceCreate,
+		Update: resourceInstanceUpdate,
 
 		// Note: none of the fields have "ForceNew" set because all
 		// fields can be modified as long as the instance is not
@@ -28,7 +28,7 @@ func resourceCMInstance() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"cloud_specific_attributes": cmInstanceCloudAttributes,
+			"cloud_specific_attributes": instanceCloudAttributes,
 			"datacenter_href": &schema.Schema{
 				Description: "The ID of the instance datacenter",
 				Type:        schema.TypeString,
@@ -142,7 +142,7 @@ func resourceCMInstance() *schema.Resource {
 	}
 }
 
-var cmInstanceCloudAttributes = &schema.Schema{
+var instanceCloudAttributes = &schema.Schema{
 	Description: "Cloud specific attributes that have no generic rightscale abstraction",
 	Type:        schema.TypeList,
 	MaxItems:    1,
@@ -281,7 +281,7 @@ var cmInstanceCloudAttributes = &schema.Schema{
 	},
 }
 
-func resourceCMInstanceCreate(d *schema.ResourceData, m interface{}) error {
+func resourceInstanceCreate(d *schema.ResourceData, m interface{}) error {
 	var mustLock bool
 	{
 		locked, ok := d.GetOk("locked")
@@ -312,7 +312,7 @@ func resourceCMInstanceCreate(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceCMInstanceUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceInstanceUpdate(d *schema.ResourceData, m interface{}) error {
 	d.Partial(true)
 
 	client := m.(rsc.Client)

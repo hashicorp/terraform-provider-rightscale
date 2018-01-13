@@ -6,12 +6,12 @@ import (
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
-func resourceCMSecurityGroupRule() *schema.Resource {
+func resourceSecurityGroupRule() *schema.Resource {
 	return &schema.Resource{
 		Read:   resourceRead,
 		Exists: resourceExists,
 		Delete: resourceDelete,
-		Create: resourceCMSecurityGroupRuleCreate,
+		Create: resourceSecurityGroupRuleCreate,
 		Update: resourceUpdateFunc(securityGroupRuleUpdateFields),
 
 		Schema: map[string]*schema.Schema{
@@ -119,7 +119,7 @@ func resourceCMSecurityGroupRule() *schema.Resource {
 	}
 }
 
-func resourceCMSecurityGroupRuleCreate(d *schema.ResourceData, m interface{}) error {
+func resourceSecurityGroupRuleCreate(d *schema.ResourceData, m interface{}) error {
 	var desc string
 	{
 		if de, ok := d.GetOk("description"); ok {

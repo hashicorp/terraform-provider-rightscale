@@ -1,12 +1,12 @@
 ---
 layout: "rightscale"
-page_title: "Rightscale: cm_ssh_key"
-sidebar_current: "docs-rightscale-datasource-cm-ssh-key"
+page_title: "Rightscale: ssh_key"
+sidebar_current: "docs-rightscale-datasource-ssh-key"
 description: |-
   Defines an ssh key datasource to operate against. 
 ---
 
-# rightscale_cm_ssh_key
+# rightscale_ssh_key
 
 Use this data source to get the ID of an existing ssh key for use in other
 resources.
@@ -14,11 +14,11 @@ resources.
 ## Example Usage
 
 ```hcl
-data "rightscale_cm_ssh_key" "infra-ssh-key" {
+data "rightscale_ssh_key" "infra-ssh-key" {
   filter {
     name = "infra"
   }
-  cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
+  cloud_href = ${data.rightscale_cloud.ec2_us_east_1.id}
 }
 ```
 

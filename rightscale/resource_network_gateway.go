@@ -6,7 +6,7 @@ import (
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
-func resourceCMNetworkGateway() *schema.Resource {
+func resourceNetworkGateway() *schema.Resource {
 	return &schema.Resource{
 		Read:   resourceRead,
 		Exists: resourceExists,

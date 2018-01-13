@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccRightScaleCMInstance_basic(t *testing.T) {
+func TestAccRightScaleInstance_basic(t *testing.T) {
 	t.Parallel()
 
 	var (
@@ -26,19 +26,19 @@ func TestAccRightScaleCMInstance_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCMInstanceDestroy,
+		CheckDestroy: testAccCheckInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCMInstance_basic(instanceName, cloudHref, imageHref, typeHref),
+				Config: testAccInstance_basic(instanceName, cloudHref, imageHref, typeHref),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCMInstanceExists("rightscale_cm_instance.test-instance", &inst),
+					testAccCheckInstanceExists("rightscale_instance.test-instance", &inst),
 				),
 			},
 		},
 	})
 }
 
-func TestAccRightScaleCMInstance_userdata(t *testing.T) {
+func TestAccRightScaleInstance_userdata(t *testing.T) {
 	t.Parallel()
 
 	var (
@@ -52,20 +52,20 @@ func TestAccRightScaleCMInstance_userdata(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCMInstanceDestroy,
+		CheckDestroy: testAccCheckInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCMInstance_userdata(instanceName, cloudHref, imageHref, typeHref, userData),
+				Config: testAccInstance_userdata(instanceName, cloudHref, imageHref, typeHref, userData),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCMInstanceExists("rightscale_cm_instance.test-instance", &inst),
-					testAccCheckCMInstanceUserdata(userData, &inst),
+					testAccCheckInstanceExists("rightscale_instance.test-instance", &inst),
+					testAccCheckInstanceUserdata(userData, &inst),
 				),
 			},
 		},
 	})
 }
 
-func TestAccRightScaleCMInstance_locked(t *testing.T) {
+func TestAccRightScaleInstance_locked(t *testing.T) {
 	t.Parallel()
 
 	var (
@@ -78,29 +78,29 @@ func TestAccRightScaleCMInstance_locked(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCMInstanceDestroy,
+		CheckDestroy: testAccCheckInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCMInstance_basic(instanceName, cloudHref, imageHref, typeHref),
+				Config: testAccInstance_basic(instanceName, cloudHref, imageHref, typeHref),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCMInstanceExists("rightscale_cm_instance.test-instance", &inst),
+					testAccCheckInstanceExists("rightscale_instance.test-instance", &inst),
 				),
 			},
 			resource.TestStep{
-				Config: testAccCMInstance_locked(instanceName, cloudHref, imageHref, typeHref),
+				Config: testAccInstance_locked(instanceName, cloudHref, imageHref, typeHref),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCMInstanceExists("rightscale_cm_instance.test-instance", &inst),
-					testAccCheckCMInstanceLocked(&inst),
+					testAccCheckInstanceExists("rightscale_instance.test-instance", &inst),
+					testAccCheckInstanceLocked(&inst),
 				),
 			},
 			resource.TestStep{
-				Config: testAccCMInstance_unlocked(instanceName, cloudHref, imageHref, typeHref),
+				Config: testAccInstance_unlocked(instanceName, cloudHref, imageHref, typeHref),
 			},
 		},
 	})
 }
 
-func testAccCheckCMInstanceExists(n string, inst *cm15.Instance) resource.TestCheckFunc {
+func testAccCheckInstanceExists(n string, inst *cm15.Instance) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -124,11 +124,11 @@ func testAccCheckCMInstanceExists(n string, inst *cm15.Instance) resource.TestCh
 	}
 }
 
-func testAccCheckCMInstanceDestroy(s *terraform.State) error {
+func testAccCheckInstanceDestroy(s *terraform.State) error {
 	c := getCMClient()
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "rightscale_cm_instance" {
+		if rs.Type != "rightscale_instance" {
 			continue
 		}
 
@@ -153,7 +153,7 @@ func testAccCheckCMInstanceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckCMInstanceLocked(inst *cm15.Instance) resource.TestCheckFunc {
+func testAccCheckInstanceLocked(inst *cm15.Instance) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// // unlock once we have checked so we can delete the instance.
 		if !inst.Locked {
@@ -163,7 +163,7 @@ func testAccCheckCMInstanceLocked(inst *cm15.Instance) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckCMInstanceUserdata(userData string, inst *cm15.Instance) resource.TestCheckFunc {
+func testAccCheckInstanceUserdata(userData string, inst *cm15.Instance) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if inst.UserData != userData {
 			return fmt.Errorf("Instance userdata does not match expectation. Got %q, expected %q", inst.UserData, userData)
@@ -173,9 +173,9 @@ func testAccCheckCMInstanceUserdata(userData string, inst *cm15.Instance) resour
 	}
 }
 
-func testAccCMInstance_basic(name string, cloud_href string, image_href string, instance_type_href string) string {
+func testAccInstance_basic(name string, cloud_href string, image_href string, instance_type_href string) string {
 	return fmt.Sprintf(`
-resource "rightscale_cm_instance" "test-instance" {
+resource "rightscale_instance" "test-instance" {
 	name                = %q
 	cloud_href          = %q
 	image_href          = %q
@@ -185,9 +185,9 @@ resource "rightscale_cm_instance" "test-instance" {
 `, name, cloud_href, image_href, instance_type_href)
 }
 
-func testAccCMInstance_locked(name string, cloud_href string, image_href string, instance_type_href string) string {
+func testAccInstance_locked(name string, cloud_href string, image_href string, instance_type_href string) string {
 	return fmt.Sprintf(`
-resource "rightscale_cm_instance" "test-instance" {
+resource "rightscale_instance" "test-instance" {
 	name                = %q
 	cloud_href          = %q
 	image_href          = %q
@@ -198,9 +198,9 @@ resource "rightscale_cm_instance" "test-instance" {
 `, name, cloud_href, image_href, instance_type_href)
 }
 
-func testAccCMInstance_unlocked(name string, cloud_href string, image_href string, instance_type_href string) string {
+func testAccInstance_unlocked(name string, cloud_href string, image_href string, instance_type_href string) string {
 	return fmt.Sprintf(`
-resource "rightscale_cm_instance" "test-instance" {
+resource "rightscale_instance" "test-instance" {
 	name                = %q
 	cloud_href          = %q
 	image_href          = %q
@@ -211,9 +211,9 @@ resource "rightscale_cm_instance" "test-instance" {
 `, name, cloud_href, image_href, instance_type_href)
 }
 
-func testAccCMInstance_userdata(name string, cloud_href string, image_href string, instance_type_href string, userdata string) string {
+func testAccInstance_userdata(name string, cloud_href string, image_href string, instance_type_href string, userdata string) string {
 	return fmt.Sprintf(`
-resource "rightscale_cm_instance" "test-instance" {
+resource "rightscale_instance" "test-instance" {
 	name                = %q
 	cloud_href          = %q
 	image_href          = %q

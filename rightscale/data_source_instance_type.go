@@ -7,14 +7,14 @@ import (
 
 // Example:
 //
-// data "rightscale_cm_instance_type" "n1-standard" {
+// data "rightscale_instance_type" "n1-standard" {
 //   filter {
 //     name = "n1-standard"
 //   }
-//   cloud_href = ${data.rightscale_cm_cloud.gce.id}
+//   cloud_href = ${data.rightscale_cloud.gce.id}
 // }
 
-func dataSourceCMInstanceType() *schema.Resource {
+func dataSourceInstanceType() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceInstanceTypeRead,
 
@@ -111,7 +111,7 @@ func resourceInstanceTypeRead(d *schema.ResourceData, m interface{}) error {
 	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "instance_types", cmFilters(d))
+	res, err := client.List(loc, "instance_types", filters(d))
 	if err != nil {
 		return err
 	}

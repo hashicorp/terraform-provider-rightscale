@@ -7,14 +7,14 @@ import (
 
 // Example:
 //
-// data "rightscale_cm_datacenter" "ec2-us-east-1a" {
-//   cloud_href = ${data.rightscale_cm_cloud.ec2_us_east.id}
+// data "rightscale_datacenter" "ec2-us-east-1a" {
+//   cloud_href = ${data.rightscale_cloud.ec2_us_east.id}
 //   filter {
 //     name = "us-east-1a"
 //   }
 // }
 
-func dataSourceCMDatacenter() *schema.Resource {
+func dataSourceDatacenter() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceDatacenterRead,
 
@@ -73,7 +73,7 @@ func resourceDatacenterRead(d *schema.ResourceData, m interface{}) error {
 	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "datacenters", cmFilters(d))
+	res, err := client.List(loc, "datacenters", filters(d))
 	if err != nil {
 		return err
 	}

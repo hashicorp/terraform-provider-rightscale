@@ -7,14 +7,14 @@ import (
 
 // Example:
 //
-// data "rightscale_cm_multi_cloud_image" "centos_64" {
+// data "rightscale_multi_cloud_image" "centos_64" {
 //   filter {
 //     name = "RightImage_CentOS_6.4_x64_v13.5"
 //     revision = 43
 //   }
 // }
 
-func dataSourceCMMultiCloudImage() *schema.Resource {
+func dataSourceMultiCloudImage() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceMultiCloudImageRead,
 
@@ -87,7 +87,7 @@ func resourceMultiCloudImageRead(d *schema.ResourceData, m interface{}) error {
 		loc.Type = "multi_cloud_images"
 	}
 
-	res, err := client.List(loc, link, cmFilters(d))
+	res, err := client.List(loc, link, filters(d))
 	if err != nil {
 		return err
 	}

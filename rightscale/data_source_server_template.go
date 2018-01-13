@@ -7,14 +7,14 @@ import (
 
 // Example:
 //
-// data "rightscale_cm_server_template" "mysql" {
+// data "rightscale_server_template" "mysql" {
 //   filter {
 //     name = "Database Manager for MySQL"
 //     revision = 24
 //   }
 // }
 
-func dataSourceCMServerTemplate() *schema.Resource {
+func dataSourceServerTemplate() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceServerTemplateRead,
 
@@ -90,7 +90,7 @@ func resourceServerTemplateRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	loc := &rsc.Locator{Namespace: "rs_cm", Type: "server_templates"}
 
-	res, err := client.List(loc, "", cmFilters(d))
+	res, err := client.List(loc, "", filters(d))
 	if err != nil {
 		return err
 	}

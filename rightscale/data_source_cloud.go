@@ -8,14 +8,14 @@ import (
 
 // Example:
 //
-// data "rightscale_cm_cloud" "ec2_us_east_1" {
+// data "rightscale_cloud" "ec2_us_east_1" {
 //   filter {
 //     name = "EC2 us-east-1"
 //     cloud_type = "amazon"
 //   }
 // }
 
-func dataSourceCMCloud() *schema.Resource {
+func dataSourceCloud() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceCloudRead,
 
@@ -77,7 +77,7 @@ func resourceCloudRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	loc := &rsc.Locator{Namespace: "rs_cm", Type: "clouds"}
 
-	res, err := client.List(loc, "", cmFilters(d))
+	res, err := client.List(loc, "", filters(d))
 	if err != nil {
 		return err
 	}

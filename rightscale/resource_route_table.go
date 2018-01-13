@@ -5,7 +5,7 @@ import (
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
-func resourceCMRouteTable() *schema.Resource {
+func resourceRouteTable() *schema.Resource {
 	return &schema.Resource{
 		Read:   resourceRead,
 		Exists: resourceExists,
