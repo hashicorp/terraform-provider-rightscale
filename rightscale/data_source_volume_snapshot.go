@@ -115,7 +115,7 @@ func resourceVolumeSnapshotRead(d *schema.ResourceData, m interface{}) error {
 	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "volume_snapshots", filters(d))
+	res, err := client.List(loc, "volume_snapshots", cmFilters(d))
 	if err != nil {
 		return err
 	}

@@ -87,7 +87,7 @@ func resourceMultiCloudImageRead(d *schema.ResourceData, m interface{}) error {
 		loc.Type = "multi_cloud_images"
 	}
 
-	res, err := client.List(loc, link, filters(d))
+	res, err := client.List(loc, link, cmFilters(d))
 	if err != nil {
 		return err
 	}

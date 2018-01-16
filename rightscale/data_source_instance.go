@@ -194,7 +194,7 @@ func resourceInstanceRead(d *schema.ResourceData, m interface{}) error {
 	} else {
 		return fmt.Errorf("instance data source must specify one of 'cloud' or 'server_array'")
 	}
-	res, err := client.List(loc, "instances", filters(d))
+	res, err := client.List(loc, "instances", cmFilters(d))
 	if err != nil {
 		return err
 	}

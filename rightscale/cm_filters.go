@@ -7,10 +7,10 @@ import (
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
-// filters is a helper function that returns fields representing valid
+// cmFilters is a helper function that returns fields representing valid
 // RightScale rcl filter parameters built from the resource data "filter"
 // field.
-func filters(d *schema.ResourceData) rsc.Fields {
+func cmFilters(d *schema.ResourceData) rsc.Fields {
 	var filters rsc.Fields
 	var arrify []string
 	if f, ok := d.GetOk("filter"); ok {

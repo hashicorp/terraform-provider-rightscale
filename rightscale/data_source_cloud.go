@@ -77,7 +77,7 @@ func resourceCloudRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	loc := &rsc.Locator{Namespace: "rs_cm", Type: "clouds"}
 
-	res, err := client.List(loc, "", filters(d))
+	res, err := client.List(loc, "", cmFilters(d))
 	if err != nil {
 		return err
 	}

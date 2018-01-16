@@ -87,7 +87,7 @@ func resourceSecurityGroupRead(d *schema.ResourceData, m interface{}) error {
 	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "security_groups", filters(d))
+	res, err := client.List(loc, "security_groups", cmFilters(d))
 	if err != nil {
 		return err
 	}

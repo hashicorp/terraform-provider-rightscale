@@ -133,7 +133,7 @@ func resourceImageRead(d *schema.ResourceData, m interface{}) error {
 	cloud := d.Get("cloud_href").(string)
 	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "images", filters(d))
+	res, err := client.List(loc, "images", cmFilters(d))
 	if err != nil {
 		return err
 	}
