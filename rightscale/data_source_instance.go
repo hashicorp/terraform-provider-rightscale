@@ -10,21 +10,21 @@ import (
 
 // Examples:
 //
-// data "rightscale_cm_instance" "mysql" {
+// data "rightscale_instance" "mysql" {
 //   filter {
 //     resource_uid = "vpc-c31ee987"
 //   }
-//   cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
+//   cloud_href = ${data.rightscale_cloud.ec2_us_east_1.id}
 // }
 //
-// data "rightscale_cm_instance" "worker_2" {
+// data "rightscale_instance" "worker_2" {
 //   filter {
 //     name = "Worker #2"
 //   }
-//   server_array = ${data.rightscale_cm_server_array.workers}
+//   server_array = ${data.rightscale_server_array.workers}
 // }
 
-func dataSourceCMInstance() *schema.Resource {
+func dataSourceInstance() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceInstanceRead,
 
@@ -130,7 +130,7 @@ func dataSourceCMInstance() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 			},
-			"cloud_specific_attributes": cmInstanceCloudAttributes,
+			"cloud_specific_attributes": instanceCloudAttributes,
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,

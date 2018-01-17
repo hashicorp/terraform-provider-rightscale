@@ -22,28 +22,28 @@ provider "rightscale" {
   rightscale_project_id = "${var.rightscale_account_id}"
 }
 
-data "rightscale_cm_cloud" "ec2_us_oregon" {
+data "rightscale_cloud" "ec2_us_oregon" {
   filter {
     name = "EC2 us-west-2"
     cloud_type = "amazon"
   }
 }
 
-data "rightscale_cm_cloud" "azure_us_east" {
+data "rightscale_cloud" "azure_us_east" {
   filter {
     name = "Azure East US"
     cloud_type = "azure"
   }
 }
 
-resource "rightscale_cm_instance" "test-instance-oregon" {
-  cloud_href = "${data.rightscale_cm_cloud.ec2_us_oregon.id}"
+resource "rightscale_instance" "test-instance-oregon" {
+  cloud_href = "${data.rightscale_cloud.ec2_us_oregon.id}"
   name = ...
   ...
 }
 
-resource "rightscale_cm_instance" "test-instance-east" {
-  cloud_href = "${data.rightscale_cm_cloud.azure_us_east.id}"
+resource "rightscale_instance" "test-instance-east" {
+  cloud_href = "${data.rightscale_cloud.azure_us_east.id}"
   name = ...
   ...
 }

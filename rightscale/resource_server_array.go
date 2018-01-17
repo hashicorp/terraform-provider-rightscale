@@ -6,7 +6,7 @@ import (
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
-func resourceCMServerArray() *schema.Resource {
+func resourceServerArray() *schema.Resource {
 	return &schema.Resource{
 		Read:   resourceRead,
 		Exists: resourceExists,
@@ -214,7 +214,7 @@ func resourceCMServerArray() *schema.Resource {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
-				Elem:        resourceCMInstance(),
+				Elem:        resourceInstance(),
 			},
 			"name": &schema.Schema{
 				Description: "name of server array",

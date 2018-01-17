@@ -7,18 +7,24 @@ import (
 
 // Example:
 //
-// data "rightscale_cm_multi_cloud_image" "centos_64" {
+// data "rightscale_security_group" "ssh" {
 //   filter {
-//     name = "RightImage_CentOS_6.4_x64_v13.5"
-//     revision = 43
+//     resource_uid = "sg-c31ee987"
 //   }
+//   cloud_href = ${data.rightscale_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceCMMultiCloudImage() *schema.Resource {
+func dataSourceSecurityGroup() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceMultiCloudImageRead,
+		Read: resourceSecurityGroupRead,
 
 		Schema: map[string]*schema.Schema{
+			"cloud_href": {
+				Type:        schema.TypeString,
+				Description: "ID of the security group cloud",
+				Required:    true,
+				ForceNew:    true,
+			},
 			"filter": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -28,30 +34,30 @@ func dataSourceCMMultiCloudImage() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "name of multi-cloud image, partial match",
+							Description: "name of security group, uses partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"revision": {
-							Type:        schema.TypeInt,
-							Description: "revision of multi-cloud image, use 0 to match latest non-committed version",
-							Optional:    true,
-							ForceNew:    true,
-						},
-						"description": {
+						"deployment_href": {
 							Type:        schema.TypeString,
-							Description: "description of multi-cloud image, partial match",
+							Description: "ID of deployment resource that owns security group",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"resource_uid": {
+							Type:        schema.TypeString,
+							Description: "cloud ID of security group, e.g. 'sg-c31ee987'",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"network_href": {
+							Type:        schema.TypeString,
+							Description: "ID of the security group network resource",
 							Optional:    true,
 							ForceNew:    true,
 						},
 					},
 				},
-			},
-			"server_template_href": {
-				Type:        schema.TypeString,
-				Description: "ID of image's server template resource",
-				Optional:    true,
-				ForceNew:    true,
 			},
 
 			// Read-only fields
@@ -68,26 +74,20 @@ func dataSourceCMMultiCloudImage() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"revision": {
-				Type:     schema.TypeInt,
+			"resource_uid": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
 	}
 }
 
-func resourceMultiCloudImageRead(d *schema.ResourceData, m interface{}) error {
+func resourceSecurityGroupRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
-	loc := &rsc.Locator{Namespace: "rs_cm"}
-	link := ""
-	if st, ok := d.GetOk("server_template_href"); ok {
-		loc.Href = st.(string)
-		link = "multi_cloud_images"
-	} else {
-		loc.Type = "multi_cloud_images"
-	}
+	cloud := d.Get("cloud_href").(string)
+	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, link, cmFilters(d))
+	res, err := client.List(loc, "security_groups", cmFilters(d))
 	if err != nil {
 		return err
 	}

@@ -72,11 +72,11 @@ func TestList(t *testing.T) {
 		ExpectedPrefix string
 		ExpectedError  string
 	}{
-		{"clouds", "rs_cm", "clouds", "", "", nil, "", ""},
-		{"filtered", "rs_cm", "clouds", "", "", Fields{"filter[]": "name==EC2"}, "EC2", ""},
-		{"linked", "rs_cm", "clouds", "/api/clouds/1", "datacenters", nil, "", ""},
-		{"linked-and-filtered", "rs_cm", "clouds", "/api/clouds/1", "datacenters", Fields{"filter[]": "name==us-east-1a"}, "us-east-1a", ""},
-		{"no-namespace", "", "clouds", "", "", nil, "", "resource locator is invalid: namespace is missing"},
+		{"clouds", namespace, typ, "", "", nil, "", ""},
+		{"filtered", namespace, typ, "", "", Fields{"filter[]": "name==EC2"}, "EC2", ""},
+		{"linked", namespace, typ, "/api/clouds/1", "datacenters", nil, "", ""},
+		{"linked-and-filtered", namespace, typ, "/api/clouds/1", "datacenters", Fields{"filter[]": "name==us-east-1a"}, "us-east-1a", ""},
+		{"no-namespace", "", typ, "", "", nil, "", "resource locator is invalid: namespace is missing"},
 		{"no-type-no-href", "", "", "", "", nil, "", "resource locator is invalid: namespace is missing"},
 	}
 
