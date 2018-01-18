@@ -8,14 +8,14 @@ import (
 
 // Example:
 //
-// data "rightscale_cm_image" "centos_5" {
+// data "rightscale_image" "centos_5" {
 //   filter {
 //     name = "centos 5"
 //   }
-//   cloud_href = ${data.rightscale_cm_cloud.gce.id}
+//   cloud_href = ${data.rightscale_cloud.gce.id}
 // }
 
-func dataSourceCMImage() *schema.Resource {
+func dataSourceImage() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceImageRead,
 

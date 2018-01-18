@@ -18,7 +18,7 @@ var (
 	// given locator could be found.
 	ErrNotFound = fmt.Errorf("resource not found")
 
-	// rshosts list the RightScale API hostnames.
+	// rshosts lists the RightScale API hostnames.
 	rshosts = []string{"us-3.rightscale.com", "us-4.rightscale.com"}
 )
 
@@ -134,7 +134,7 @@ type (
 		// Status is the process status, one of "completed", "failed",
 		// "canceled" or "aborted".
 		Status string
-		// Error is a synthetized error constructed when the process
+		// Error is a synthesized error constructed when the process
 		// fails. It may be ErrNotFound in case the process failed due
 		// to a "ResourceNotFound" RightScale API response.
 		Error error
@@ -197,7 +197,7 @@ func New(token string, projectID int) (Client, error) {
 }
 
 // List retrieves the list of resources pointed to by l optionally filtering the
-// results with the given filters. The supported filters differ dependending on
+// results with the given filters. The supported filters differ depending on
 // the underlying resource, refer to the RightScale API 1.5 docs for details on
 // the CM resources.
 //
@@ -272,7 +272,7 @@ func (rsc *client) List(l *Locator, link string, filters Fields) ([]*Resource, e
 }
 
 // Get retrieves the details of the resource pointed to by l.
-// The field 'Type' of the given Locator may be ommitted.
+// The field 'Type' of the given Locator may be omitted.
 //
 // Get returns nil if there is no resource for the given locator.
 func (rsc *client) Get(l *Locator) (*Resource, error) {
@@ -305,8 +305,8 @@ func (rsc *client) Get(l *Locator) (*Resource, error) {
 	return &Resource{Locator: &loc, Fields: fields}, nil
 }
 
-// Update overwrite the fields of the resource.
-// The field 'Type' of the resource Locator may be ommitted.
+// Update overwrites the fields of the resource.
+// The field 'Type' of the resource Locator may be omitted.
 func (rsc *client) Update(l *Locator, fields Fields) error {
 	if l.Namespace == "" {
 		return fmt.Errorf("resource locator is invalid: namespace is missing")
@@ -584,7 +584,7 @@ func (rsc *client) requestCWF(method, url string, params, payload rsapi.APIParam
 	return resp, nil
 }
 
-// checkProject verifies that the giveh project ID is one of the projects listed in the
+// checkProject verifies that the given project ID is one of the projects listed in the
 // session/accounts response 'as'. It returns nil if so, an error otherwise.
 func checkProject(as []interface{}, projectID int) error {
 	for _, a := range as {
@@ -605,7 +605,7 @@ func checkProject(as []interface{}, projectID int) error {
 }
 
 // processOutputs is a helper function that extracts the process outputs from an
-// unmarshaled "GET process" response.
+// unmarshalled "GET process" response.
 func processOutputs(res interface{}) map[string]interface{} {
 	outs := res.(map[string]interface{})["outputs"].([]interface{})
 	outputs := make(map[string]interface{}, len(outs))
@@ -617,7 +617,7 @@ func processOutputs(res interface{}) map[string]interface{} {
 }
 
 // processErrors is a helper function that extracts the process errors if any
-// from an unmarshaled "GET process" response.
+// from an unmarshalled "GET process" response.
 func processErrors(res interface{}) error {
 	var msgs []string
 	{

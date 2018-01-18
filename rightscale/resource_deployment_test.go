@@ -17,7 +17,7 @@ const (
 	serverTagScope = "deployment"
 )
 
-func TestAccRightScaleCMDeployment_basic(t *testing.T) {
+func TestAccRightScaleDeployment_basic(t *testing.T) {
 	t.Parallel()
 
 	var (
@@ -27,21 +27,21 @@ func TestAccRightScaleCMDeployment_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCMDeploymentDestroy,
+		CheckDestroy: testAccCheckDeploymentDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCMDeployment_basic(deploymentName),
+				Config: testAccDeployment_basic(deploymentName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCMDeploymentExists("rightscale_cm_deployment.foobar", &depl),
-					testAccCheckCMDeploymentDescription(&depl, description),
-					testAccCheckCMDeploymentServerTagScope(&depl, serverTagScope),
+					testAccCheckDeploymentExists("rightscale_deployment.foobar", &depl),
+					testAccCheckDeploymentDescription(&depl, description),
+					testAccCheckDeploymentServerTagScope(&depl, serverTagScope),
 				),
 			},
 		},
 	})
 }
 
-func TestAccRightScaleCMDeployment_locked(t *testing.T) {
+func TestAccRightScaleDeployment_locked(t *testing.T) {
 	t.Parallel()
 
 	var (
@@ -51,24 +51,24 @@ func TestAccRightScaleCMDeployment_locked(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCMDeploymentDestroy,
+		CheckDestroy: testAccCheckDeploymentDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCMDeployment_locked(deploymentName),
+				Config: testAccDeployment_locked(deploymentName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCMDeploymentExists("rightscale_cm_deployment.foobar", &depl),
-					testAccCheckCMDeploymentLocked(&depl),
+					testAccCheckDeploymentExists("rightscale_deployment.foobar", &depl),
+					testAccCheckDeploymentLocked(&depl),
 				),
 			},
 			// unlock so we can delete, also tests updates
 			resource.TestStep{
-				Config: testAccCMDeployment_unlocked(deploymentName),
+				Config: testAccDeployment_unlocked(deploymentName),
 			},
 		},
 	})
 }
 
-func testAccCheckCMDeploymentExists(n string, depl *cm15.Deployment) resource.TestCheckFunc {
+func testAccCheckDeploymentExists(n string, depl *cm15.Deployment) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -92,7 +92,7 @@ func testAccCheckCMDeploymentExists(n string, depl *cm15.Deployment) resource.Te
 	}
 }
 
-func testAccCheckCMDeploymentDescription(depl *cm15.Deployment, desc string) resource.TestCheckFunc {
+func testAccCheckDeploymentDescription(depl *cm15.Deployment, desc string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if depl.Description != desc {
 			return fmt.Errorf("got description %q, expected %q", depl.Description, desc)
@@ -102,7 +102,7 @@ func testAccCheckCMDeploymentDescription(depl *cm15.Deployment, desc string) res
 
 }
 
-func testAccCheckCMDeploymentServerTagScope(depl *cm15.Deployment, scope string) resource.TestCheckFunc {
+func testAccCheckDeploymentServerTagScope(depl *cm15.Deployment, scope string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if depl.ServerTagScope != scope {
 			return fmt.Errorf("got server tag scope %q, expected %q", depl.ServerTagScope, scope)
@@ -111,7 +111,7 @@ func testAccCheckCMDeploymentServerTagScope(depl *cm15.Deployment, scope string)
 	}
 }
 
-func testAccCheckCMDeploymentLocked(depl *cm15.Deployment) resource.TestCheckFunc {
+func testAccCheckDeploymentLocked(depl *cm15.Deployment) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// // unlock once we have checked so we can delete the deployment.
 		// defer depl.Locator(getCMClient(s)).Unlock()
@@ -122,11 +122,11 @@ func testAccCheckCMDeploymentLocked(depl *cm15.Deployment) resource.TestCheckFun
 	}
 }
 
-func testAccCheckCMDeploymentDestroy(s *terraform.State) error {
+func testAccCheckDeploymentDestroy(s *terraform.State) error {
 	c := getCMClient()
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "rightscale_cm_deployment" {
+		if rs.Type != "rightscale_deployment" {
 			continue
 		}
 
@@ -151,9 +151,9 @@ func testAccCheckCMDeploymentDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCMDeployment_basic(dep string) string {
+func testAccDeployment_basic(dep string) string {
 	return fmt.Sprintf(`
-resource "rightscale_cm_deployment" "foobar" {
+resource "rightscale_deployment" "foobar" {
 	name                = %q
 	description         = %q
 	server_tag_scope    = %q
@@ -161,9 +161,9 @@ resource "rightscale_cm_deployment" "foobar" {
 `, dep, description, serverTagScope)
 }
 
-func testAccCMDeployment_locked(dep string) string {
+func testAccDeployment_locked(dep string) string {
 	return fmt.Sprintf(`
-resource "rightscale_cm_deployment" "foobar" {
+resource "rightscale_deployment" "foobar" {
 	name             = "%s"
 	description      = "Terraform RightScale provider test deployment - locked"
 	server_tag_scope = %q
@@ -172,9 +172,9 @@ resource "rightscale_cm_deployment" "foobar" {
 `, dep, serverTagScope)
 }
 
-func testAccCMDeployment_unlocked(dep string) string {
+func testAccDeployment_unlocked(dep string) string {
 	return fmt.Sprintf(`
-resource "rightscale_cm_deployment" "foobar" {
+resource "rightscale_deployment" "foobar" {
 	name             = "%s"
 	description      = "Terraform RightScale provider test deployment - locked"
 	server_tag_scope = %q

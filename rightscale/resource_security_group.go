@@ -7,13 +7,13 @@ import (
 
 // Example:
 //
-// resource "rightscale_cm_security_group" "ssh" {
-//     cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
+// resource "rightscale_security_group" "ssh" {
+//     cloud_href = ${data.rightscale_cloud.ec2_us_east_1.id}
 //     network_href = ${resource.network.my_network.id}
 //     description = "my security group"
 // }
 
-func resourceCMSecurityGroup() *schema.Resource {
+func resourceSecurityGroup() *schema.Resource {
 	return &schema.Resource{
 		Read:   resourceRead,
 		Exists: resourceExists,

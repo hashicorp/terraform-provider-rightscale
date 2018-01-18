@@ -7,24 +7,18 @@ import (
 
 // Example:
 //
-// data "rightscale_cm_volume_type" "standard" {
+// data "rightscale_server_template" "mysql" {
 //   filter {
-//     name = "standard"
+//     name = "Database Manager for MySQL"
+//     revision = 24
 //   }
-//   cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceCMVolumeType() *schema.Resource {
+func dataSourceServerTemplate() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceVolumeTypeRead,
+		Read: resourceServerTemplateRead,
 
 		Schema: map[string]*schema.Schema{
-			"cloud_href": {
-				Type:        schema.TypeString,
-				Description: "ID of the volume type cloud",
-				Required:    true,
-				ForceNew:    true,
-			},
 			"filter": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -34,13 +28,31 @@ func dataSourceCMVolumeType() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "name of volume type, uses partial match",
+							Description: "name of ServerTemplate, partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"resource_uid": {
+						"revision": {
+							Type:        schema.TypeInt,
+							Description: "revision of ServerTemplate, use 0 to match latest non-committed version",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"description": {
 							Type:        schema.TypeString,
-							Description: "cloud ID of volume type",
+							Description: "description of ServerTemplate, partial match",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"lineage": {
+							Type:        schema.TypeString,
+							Description: "lineage of ServerTemplate",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"multi_cloud_image_href": {
+							Type:        schema.TypeString,
+							Description: "ID of ServerTemplate multi cloud image resource",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -49,11 +61,11 @@ func dataSourceCMVolumeType() *schema.Resource {
 			},
 
 			// Read-only fields
-			"created_at": {
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"description": {
+			"lineage": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -66,28 +78,19 @@ func dataSourceCMVolumeType() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"resource_uid": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"size": {
+			"revision": {
 				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"updated_at": {
-				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
 	}
 }
 
-func resourceVolumeTypeRead(d *schema.ResourceData, m interface{}) error {
+func resourceServerTemplateRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
-	cloud := d.Get("cloud_href").(string)
-	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
+	loc := &rsc.Locator{Namespace: "rs_cm", Type: "server_templates"}
 
-	res, err := client.List(loc, "volume_types", cmFilters(d))
+	res, err := client.List(loc, "", cmFilters(d))
 	if err != nil {
 		return err
 	}

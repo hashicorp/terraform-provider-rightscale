@@ -16,7 +16,7 @@ var testAccProviders map[string]terraform.ResourceProvider
 var testAccProvider *schema.Provider
 var testString string
 
-var envVars map[string]string = map[string]string{
+var envVars = map[string]string{
 	"cred":         "RIGHTSCALE_API_TOKEN",
 	"project":      "RIGHTSCALE_PROJECT_ID",
 	"cloud":        "RIGHTSCALE_CLOUD_HREF",

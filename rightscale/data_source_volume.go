@@ -7,18 +7,24 @@ import (
 
 // Example:
 //
-// data "rightscale_cm_network" "infra_vpc" {
+// data "rightscale_volume" "mysql_master" {
 //   filter {
-//     resource_uid = "vpc-c31ee987"
-//     cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
+//     name = "mysql_master"
 //   }
+//   cloud_href = ${data.rightscale_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceCMNetwork() *schema.Resource {
+func dataSourceVolume() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceNetworkRead,
+		Read: resourceVolumeRead,
 
 		Schema: map[string]*schema.Schema{
+			"cloud_href": {
+				Type:        schema.TypeString,
+				Description: "ID of the volume cloud",
+				Required:    true,
+				ForceNew:    true,
+			},
 			"filter": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -28,31 +34,37 @@ func dataSourceCMNetwork() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "name of network, uses partial match",
+							Description: "name of volume, uses partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"cloud_href": {
+						"description": {
 							Type:        schema.TypeString,
-							Description: "ID of the network cloud",
-							Optional:    true,
-							ForceNew:    true,
-						},
-						"deployment_href": {
-							Type:        schema.TypeString,
-							Description: "ID of deployment resource that owns network",
+							Description: "description of volume, uses partial match",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"resource_uid": {
 							Type:        schema.TypeString,
-							Description: "cloud ID of network, e.g. 'vpc-2124fe46'",
+							Description: "cloud ID of volume",
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"cidr_block": {
+						"datacenter_href": {
 							Type:        schema.TypeString,
-							Description: "CIDR of the network resource",
+							Description: "ID of the volume datacenter resource",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"deployment_href": {
+							Type:        schema.TypeString,
+							Description: "ID of deployment resource that owns volume",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"parent_volume_snapshot_href": {
+							Type:        schema.TypeString,
+							Description: "ID of volume snapshot that volume was created from",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -61,20 +73,16 @@ func dataSourceCMNetwork() *schema.Resource {
 			},
 
 			// Read-only fields
-			"cidr_block": {
+			"cloud_specific_attributes": {
+				Type:     schema.TypeMap,
+				Computed: true,
+			},
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"instance_tenancy": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"is_default": {
-				Type:     schema.TypeBool,
 				Computed: true,
 			},
 			"links": {
@@ -90,15 +98,28 @@ func dataSourceCMNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"size": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
 
-func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
+func resourceVolumeRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
-	loc := &rsc.Locator{Namespace: "rs_cm", Type: "networks"}
+	cloud := d.Get("cloud_href").(string)
+	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "", cmFilters(d))
+	res, err := client.List(loc, "volumes", cmFilters(d))
 	if err != nil {
 		return err
 	}
@@ -107,6 +128,10 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 		return nil
 	}
 	for k, v := range res[0].Fields {
+		if k == "cloud_specific_attributes" {
+			d.Set(k, []interface{}{v})
+			continue
+		}
 		d.Set(k, v)
 	}
 	d.SetId(res[0].Locator.Href)

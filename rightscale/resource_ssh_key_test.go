@@ -24,19 +24,19 @@ func TestAccRightScaleSSHKey_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCMSSHKeyDestroy,
+		CheckDestroy: testAccCheckSSHKeyDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCMSSHKey_basic(sshKeyName, cloudHref),
+				Config: testAccSSHKey_basic(sshKeyName, cloudHref),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCMSSHKeyExists("rightscale_cm_ssh_key.ssh_key_test", &sshKey),
+					testAccCheckSSHKeyExists("rightscale_ssh_key.ssh_key_test", &sshKey),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckCMSSHKeyExists(n string, sshKey *cm15.SshKey) resource.TestCheckFunc {
+func testAccCheckSSHKeyExists(n string, sshKey *cm15.SshKey) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -60,11 +60,11 @@ func testAccCheckCMSSHKeyExists(n string, sshKey *cm15.SshKey) resource.TestChec
 	}
 }
 
-func testAccCheckCMSSHKeyDestroy(s *terraform.State) error {
+func testAccCheckSSHKeyDestroy(s *terraform.State) error {
 	c := getCMClient()
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "rightscale_cm_ssh_key" {
+		if rs.Type != "rightscale_ssh_key" {
 			continue
 		}
 
@@ -89,9 +89,9 @@ func testAccCheckCMSSHKeyDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCMSSHKey_basic(name string, cloud_href string) string {
+func testAccSSHKey_basic(name string, cloud_href string) string {
 	return fmt.Sprintf(`
-resource "rightscale_cm_ssh_key" "ssh_key_test" {
+resource "rightscale_ssh_key" "ssh_key_test" {
 	name                = %q
 	cloud_href          = %q
 }

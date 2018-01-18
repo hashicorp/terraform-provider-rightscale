@@ -2,24 +2,29 @@ package rightscale
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // Example:
 //
-// data "rightscale_cm_cloud" "ec2_us_east_1" {
+// data "rightscale_datacenter" "ec2-us-east-1a" {
+//   cloud_href = ${data.rightscale_cloud.ec2_us_east.id}
 //   filter {
-//     name = "EC2 us-east-1"
-//     cloud_type = "amazon"
+//     name = "us-east-1a"
 //   }
 // }
 
-func dataSourceCMCloud() *schema.Resource {
+func dataSourceDatacenter() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceCloudRead,
+		Read: resourceDatacenterRead,
 
 		Schema: map[string]*schema.Schema{
+			"cloud_href": {
+				Type:        schema.TypeString,
+				Description: "ID of datacenter cloud resource",
+				Required:    true,
+				ForceNew:    true,
+			},
 			"filter": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -32,31 +37,21 @@ func dataSourceCMCloud() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
-						"description": {
+						"resource_uid": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-						},
-						"cloud_type": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice(supportedCloudTypes, false),
 						},
 					},
 				},
 			},
 
 			// Read-only fields
-			"cloud_type": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"display_name": {
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -65,7 +60,7 @@ func dataSourceCMCloud() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeMap},
 				Computed: true,
 			},
-			"name": {
+			"resource_uid": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -73,11 +68,12 @@ func dataSourceCMCloud() *schema.Resource {
 	}
 }
 
-func resourceCloudRead(d *schema.ResourceData, m interface{}) error {
+func resourceDatacenterRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
-	loc := &rsc.Locator{Namespace: "rs_cm", Type: "clouds"}
+	cloud := d.Get("cloud_href").(string)
+	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
 
-	res, err := client.List(loc, "", cmFilters(d))
+	res, err := client.List(loc, "datacenters", cmFilters(d))
 	if err != nil {
 		return err
 	}
@@ -90,11 +86,4 @@ func resourceCloudRead(d *schema.ResourceData, m interface{}) error {
 	}
 	d.SetId(res[0].Locator.Href)
 	return nil
-}
-
-var supportedCloudTypes = []string{
-	"aws", "blue_skies", "eucalyptus", "rackspace", "cloud_stack", "amazon",
-	"open_stack", "open_stack_grizzly", "open_stack_v2", "open_stack_v3",
-	"soft_layer", "google", "azure", "azure_v2", "hp", "rackspace_next_gen",
-	"vscale", "uca",
 }

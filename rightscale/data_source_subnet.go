@@ -7,14 +7,14 @@ import (
 
 // Example:
 //
-// data "rightscale_cm_subnet" "ssh" {
+// data "rightscale_subnet" "ssh" {
 //   filter {
 //     name = "infra"
 //   }
-//   cloud_href = ${data.rightscale_cm_cloud.ec2_us_east_1.id}
+//   cloud_href = ${data.rightscale_cloud.ec2_us_east_1.id}
 // }
 
-func dataSourceCMSubnet() *schema.Resource {
+func dataSourceSubnet() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceSubnetRead,
 

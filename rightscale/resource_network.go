@@ -6,12 +6,12 @@ import (
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
-func resourceCMNetwork() *schema.Resource {
+func resourceNetwork() *schema.Resource {
 	return &schema.Resource{
 		Read:   resourceRead,
 		Exists: resourceExists,
 		Delete: resourceDelete,
-		Create: resourceCMNetworkCreate,
+		Create: resourceNetworkCreate,
 		Update: resourceUpdateFunc(networkWriteFields),
 
 		Schema: map[string]*schema.Schema{
@@ -65,7 +65,7 @@ func resourceCMNetwork() *schema.Resource {
 	}
 }
 
-func resourceCMNetworkCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	var rt string
 	{
 		if r, ok := d.GetOk("route_table_href"); ok {
