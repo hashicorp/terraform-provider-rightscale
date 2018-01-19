@@ -13,6 +13,7 @@ import (
 //     name = "infra"
 //   }
 //   cloud_href = ${data.rightscale_cloud.ec2_us_east_1.id}
+//   # 'sensitive' view returns private key material with api call; assumes rs account privs sufficient to do so.
 //	 view = "sensitive"
 // }
 
@@ -68,8 +69,9 @@ func dataSourceSSHKey() *schema.Resource {
 				Computed: true,
 			},
 			"material": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"resource_uid": {
 				Type:     schema.TypeString,
