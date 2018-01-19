@@ -35,10 +35,6 @@ func resourceSSHKey() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"material": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"links": {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeMap},
@@ -59,8 +55,9 @@ func resourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	// set ActionParams Locator to always read this resource with 'view: "sensitive"' for access to private key material
-	loc.ActionParams = map[string]string{"view": "sensitive"}
+	// set ActionParams Locator to always read this resource (currently) with 'view: "default"'
+	// rs apis currently do not allow loading private key material - and the generation suffers from race condition
+	loc.ActionParams = map[string]string{"view": "default"}
 
 	res, err := client.Get(loc)
 	if err != nil {
