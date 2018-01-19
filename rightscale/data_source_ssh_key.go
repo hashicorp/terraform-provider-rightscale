@@ -82,10 +82,10 @@ func dataSourceSSHKey() *schema.Resource {
 func datasourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	cloud := d.Get("cloud_href").(string)
-	nsParams := make(map[string]string)
-	nsParams["view"] = d.Get("view").(string)
+	acParams := make(map[string]string)
+	acParams["view"] = d.Get("view").(string)
 
-	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud, ActionParams: nsParams}
+	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud, ActionParams: acParams}
 
 	res, err := client.List(loc, "ssh_keys", cmFilters(d))
 	if err != nil {
