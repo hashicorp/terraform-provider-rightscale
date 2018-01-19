@@ -59,10 +59,8 @@ func resourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	// set NamespaceParams Locator to always read this resource with 'view: "sensitive"' for access to private key material
-	nsParams := make(map[string]string)
-	nsParams["view"] = "sensitive"
-	loc.NamespaceParams = nsParams
+	// set ActionParams Locator to always read this resource with 'view: "sensitive"' for access to private key material
+	loc.ActionParams = map[string]string{"view": "sensitive"}
 
 	res, err := client.Get(loc)
 	if err != nil {

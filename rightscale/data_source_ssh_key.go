@@ -1,9 +1,8 @@
 package rightscale
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
@@ -29,9 +28,11 @@ func dataSourceSSHKey() *schema.Resource {
 				ForceNew:    true,
 			},
 			"view": {
-				Type:        schema.TypeString,
-				Description: "option to return private key material",
-				Optional:    true,
+				Type:         schema.TypeString,
+				Description:  "Filter at api level for the view: 'default' or 'sensitive' are valid options",
+				Optional:     true,
+				Default:      "default",
+				ValidateFunc: validation.StringInSlice([]string{"default", "sensitive"}, false),
 			},
 			"filter": {
 				Type:     schema.TypeList,
@@ -82,18 +83,9 @@ func datasourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	cloud := d.Get("cloud_href").(string)
 	nsParams := make(map[string]string)
-	view := d.Get("view").(string)
-	if len(view) == 0 {
-		nsParams["view"] = "default"
-	} else {
-		if view == "sensitive" {
-			nsParams["view"] = "sensitive"
-		} else {
-			return fmt.Errorf("view type is set but invalid: valid options are 'default' or 'sensitive'")
-		}
-	}
+	nsParams["view"] = d.Get("view").(string)
 
-	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud, NamespaceParams: nsParams}
+	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud, ActionParams: nsParams}
 
 	res, err := client.List(loc, "ssh_keys", cmFilters(d))
 	if err != nil {

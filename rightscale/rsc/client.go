@@ -84,10 +84,10 @@ type (
 		// Type is the name of the resource type scoped by the
 		// namespace, e.g. "servers".
 		Type string
-		// NamespaceParams allows for the passing of arbitrary extra parameters
+		// ActionParams allows for the passing of arbitrary extra parameters
 		// to the RightScale APIs.  These extra parameters are generally scoped
 		// to a given namespace and resource.
-		NamespaceParams map[string]string
+		ActionParams map[string]string
 	}
 
 	// Fields represent arbitrary resource fields as consumed by the
@@ -217,8 +217,8 @@ func (rsc *client) List(l *Locator, link string, filters Fields) ([]*Resource, e
 		options := make(map[string]interface{})
 
 		// possible api resource params eg 'view'
-		if len(l.NamespaceParams) > 0 {
-			for k, v := range l.NamespaceParams {
+		if len(l.ActionParams) > 0 {
+			for k, v := range l.ActionParams {
 				options[k] = v
 			}
 		}
@@ -311,8 +311,8 @@ func (rsc *client) Get(l *Locator) (*Resource, error) {
 		options["href"] = l.Href
 
 		// possible api resource params eg 'view' - add if we have any
-		if len(l.NamespaceParams) > 0 {
-			for k, v := range l.NamespaceParams {
+		if len(l.ActionParams) > 0 {
+			for k, v := range l.ActionParams {
 				options[k] = v
 			}
 		}
