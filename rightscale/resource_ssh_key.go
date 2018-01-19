@@ -14,7 +14,7 @@ import (
 
 func resourceSSHKey() *schema.Resource {
 	return &schema.Resource{
-		Read:   resourceRead,
+		Read:   resourceSSHKeyRead,
 		Exists: resourceExists,
 		Delete: resourceDelete,
 		Create: resourceCreateFunc("rs_cm", "ssh_keys", sshKeyWriteFields),
@@ -35,6 +35,10 @@ func resourceSSHKey() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"material": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"links": {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeMap},
@@ -46,4 +50,26 @@ func resourceSSHKey() *schema.Resource {
 
 func sshKeyWriteFields(d *schema.ResourceData) rsc.Fields {
 	return rsc.Fields{"ssh_key": rsc.Fields{"name": d.Get("name")}, "cloud_href": d.Get("cloud_href")}
+}
+
+func resourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
+	client := m.(rsc.Client)
+	loc, err := locator(d)
+	if err != nil {
+		return err
+	}
+
+	// set NamespaceParams Locator to always read this resource with 'view: "sensitive"' for access to private key material
+	nsParams := make(map[string]string)
+	nsParams["view"] = "sensitive"
+	loc.NamespaceParams = nsParams
+
+	res, err := client.Get(loc)
+	if err != nil {
+		return handleRSCError(d, err)
+	}
+	for k, v := range res.Fields {
+		d.Set(k, v)
+	}
+	return nil
 }

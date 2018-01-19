@@ -1,6 +1,8 @@
 package rightscale
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
@@ -12,11 +14,12 @@ import (
 //     name = "infra"
 //   }
 //   cloud_href = ${data.rightscale_cloud.ec2_us_east_1.id}
+//	 view = "sensitive"
 // }
 
 func dataSourceSSHKey() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceSSHKeyRead,
+		Read: datasourceSSHKeyRead,
 
 		Schema: map[string]*schema.Schema{
 			"cloud_href": {
@@ -24,6 +27,11 @@ func dataSourceSSHKey() *schema.Resource {
 				Description: "ID of the SSH key cloud",
 				Required:    true,
 				ForceNew:    true,
+			},
+			"view": {
+				Type:        schema.TypeString,
+				Description: "option to return private key material",
+				Optional:    true,
 			},
 			"filter": {
 				Type:     schema.TypeList,
@@ -58,6 +66,10 @@ func dataSourceSSHKey() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"material": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"resource_uid": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -66,10 +78,22 @@ func dataSourceSSHKey() *schema.Resource {
 	}
 }
 
-func resourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
+func datasourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	cloud := d.Get("cloud_href").(string)
-	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
+	nsParams := make(map[string]string)
+	view := d.Get("view").(string)
+	if len(view) == 0 {
+		nsParams["view"] = "default"
+	} else {
+		if view == "sensitive" {
+			nsParams["view"] = "sensitive"
+		} else {
+			return fmt.Errorf("view type is set but invalid: valid options are 'default' or 'sensitive'")
+		}
+	}
+
+	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud, NamespaceParams: nsParams}
 
 	res, err := client.List(loc, "ssh_keys", cmFilters(d))
 	if err != nil {
