@@ -359,7 +359,7 @@ func (rsc *client) Update(l *Locator, fields Fields) error {
 		return fmt.Errorf("resource locator is invalid: href is missing")
 	}
 
-	js, err := json.Marshal(fields)
+	js, err := json.Marshal(fields.onlyPopulated())
 	if err != nil {
 		return err
 	}
@@ -378,7 +378,7 @@ func (rsc *client) Create(namespace, typ string, fields Fields) (*Resource, erro
 	m := map[string]interface{}{
 		"namespace": namespace,
 		"type":      typ,
-		"fields":    fields,
+		"fields":    fields.onlyPopulated(),
 	}
 	js, err := json.Marshal(m)
 	if err != nil {
@@ -692,4 +692,33 @@ func rclError(err string) error {
 		return ErrNotFound
 	}
 	return nil
+}
+
+// onlyPopulated takes inFields and strips out all of the unpopulated parameters.
+// Unpopulated parameters sent to CWF result in empty parameter errors.
+func (inFields Fields) onlyPopulated() Fields {
+	outFields := Fields{}
+	for k, v := range inFields {
+		switch v.(type) {
+		case []interface{}:
+			if len(v.([]interface{})) > 0 {
+				outFields[k] = v.([]interface{})
+			}
+		case map[string]interface{}:
+			if len(v.([]interface{})) > 0 {
+				outFields[k] = Fields(v.(map[string]interface{})).onlyPopulated()
+			}
+		case Fields:
+			if len(v.(Fields)) > 0 {
+				outFields[k] = v.(Fields).onlyPopulated()
+			}
+		case string:
+			if v.(string) != "" {
+				outFields[k] = v
+			}
+		default:
+			outFields[k] = v
+		}
+	}
+	return outFields
 }

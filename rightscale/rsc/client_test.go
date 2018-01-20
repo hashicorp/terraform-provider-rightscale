@@ -3,6 +3,7 @@ package rsc
 import (
 	"net/http"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"testing"
@@ -260,5 +261,31 @@ func cleanDeployment(t *testing.T, depl string, rs *rsapi.API) {
 	}
 	if resp.StatusCode != http.StatusNoContent {
 		t.Fatalf("failed to delete deployment: destroy returned %q", resp.Status)
+	}
+}
+
+func TestOnlyPopulated(t *testing.T) {
+	var expectedResult Fields = map[string]interface{}{
+		"keyString": "value1",
+		"keyList":   []interface{}{0, 1, 2, 3},
+		"keyMap": Fields{
+			"subkey1": "subvalue1",
+		},
+		"keyInt": 0,
+	}
+	var testFields Fields = map[string]interface{}{
+		"keyString":      "value1",
+		"keyStringEmpty": "",
+		"keyList":        []interface{}{0, 1, 2, 3},
+		"keyListEmpty":   []interface{}{},
+		"keyMap": Fields{
+			"subkey1": "subvalue1",
+			"subkey2": "",
+		},
+		"keyMapEmpty": Fields{},
+		"keyInt":      0,
+	}
+	if !reflect.DeepEqual(testFields.onlyPopulated(), expectedResult) {
+		t.Errorf("Result of onlyPopulated was incorrect, got: %v, expected: %v", testFields.onlyPopulated(), expectedResult)
 	}
 }
