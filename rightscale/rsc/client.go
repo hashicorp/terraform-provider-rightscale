@@ -84,6 +84,10 @@ type (
 		// Type is the name of the resource type scoped by the
 		// namespace, e.g. "servers".
 		Type string
+		// ActionParams allows for the passing of arbitrary extra parameters
+		// to the RightScale APIs.  These extra parameters are generally scoped
+		// to a given namespace and resource.
+		ActionParams map[string]string
 	}
 
 	// Fields represent arbitrary resource fields as consumed by the
@@ -207,16 +211,31 @@ func (rsc *client) List(l *Locator, link string, filters Fields) ([]*Resource, e
 	if l.Namespace == "" {
 		return nil, fmt.Errorf("resource locator is invalid: namespace is missing")
 	}
+	// params can be filters, views, etc.
 	var params string
 	{
-		if len(filters) > 0 {
-			f, err := json.Marshal(filters)
-			if err != nil {
-				return nil, fmt.Errorf("invalid list filters: %s", err)
+		options := make(map[string]interface{})
+
+		// possible api resource params eg 'view'
+		if len(l.ActionParams) > 0 {
+			for k, v := range l.ActionParams {
+				options[k] = v
 			}
-			// ex: params = `filter: ["name==EC2 us-west-2"]`
-			params = string(f)
 		}
+
+		// possible api resource filters eg 'name'
+		if len(filters) > 0 {
+			for k, v := range filters {
+				options[k] = v
+			}
+		}
+
+		// marshal and convert to string
+		f, err := json.Marshal(options)
+		if err != nil {
+			return nil, fmt.Errorf("invalid list parameters: %s", err)
+		}
+		params = string(f)
 	}
 
 	var prefix string
@@ -282,11 +301,36 @@ func (rsc *client) Get(l *Locator) (*Resource, error) {
 	if l.Href == "" {
 		return nil, fmt.Errorf("resource locator is invalid: href is missing")
 	}
-	rcl := fmt.Sprintf(`
-	@res = %s.get(href: "%s")
+
+	// params can be views, etc.
+	var params string
+	{
+		options := make(map[string]interface{})
+
+		// for get Locator has Href - add href to options map
+		options["href"] = l.Href
+
+		// possible api resource params eg 'view' - add if we have any
+		if len(l.ActionParams) > 0 {
+			for k, v := range l.ActionParams {
+				options[k] = v
+			}
+		}
+
+		// marshal and convert to string
+		f, err := json.Marshal(options)
+		if err != nil {
+			return nil, fmt.Errorf("invalid get parameters: %s", err)
+		}
+		params = string(f)
+	}
+
+	// construct rcl for get call
+	prefix := fmt.Sprintf(`@res = %s.get(%s)`, l.Namespace, params)
+	rcl := prefix + `
 	$res = to_object(@res)
 	$fields = to_json($res["details"][0])
-	$type = $res["type"]`, l.Namespace, l.Href)
+	$type = $res["type"]`
 
 	outputs, err := rsc.runRCL(rcl, "$fields", "$type")
 	if err != nil {

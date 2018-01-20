@@ -2,6 +2,7 @@ package rightscale
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
@@ -12,11 +13,13 @@ import (
 //     name = "infra"
 //   }
 //   cloud_href = ${data.rightscale_cloud.ec2_us_east_1.id}
+//   # 'sensitive' view returns private key material with api call; assumes rs account privs sufficient to do so.
+//	 view = "sensitive"
 // }
 
 func dataSourceSSHKey() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceSSHKeyRead,
+		Read: datasourceSSHKeyRead,
 
 		Schema: map[string]*schema.Schema{
 			"cloud_href": {
@@ -24,6 +27,13 @@ func dataSourceSSHKey() *schema.Resource {
 				Description: "ID of the SSH key cloud",
 				Required:    true,
 				ForceNew:    true,
+			},
+			"view": {
+				Type:         schema.TypeString,
+				Description:  "Filter at api level for the view: 'default' or 'sensitive' are valid options",
+				Optional:     true,
+				Default:      "default",
+				ValidateFunc: validation.StringInSlice([]string{"default", "sensitive"}, false),
 			},
 			"filter": {
 				Type:     schema.TypeList,
@@ -58,6 +68,11 @@ func dataSourceSSHKey() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"material": {
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
+			},
 			"resource_uid": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -66,10 +81,13 @@ func dataSourceSSHKey() *schema.Resource {
 	}
 }
 
-func resourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
+func datasourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(rsc.Client)
 	cloud := d.Get("cloud_href").(string)
-	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud}
+	acParams := make(map[string]string)
+	acParams["view"] = d.Get("view").(string)
+
+	loc := &rsc.Locator{Namespace: "rs_cm", Href: cloud, ActionParams: acParams}
 
 	res, err := client.List(loc, "ssh_keys", cmFilters(d))
 	if err != nil {

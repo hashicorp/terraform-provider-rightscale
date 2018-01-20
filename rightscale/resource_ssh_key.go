@@ -14,7 +14,7 @@ import (
 
 func resourceSSHKey() *schema.Resource {
 	return &schema.Resource{
-		Read:   resourceRead,
+		Read:   resourceSSHKeyRead,
 		Exists: resourceExists,
 		Delete: resourceDelete,
 		Create: resourceCreateFunc("rs_cm", "ssh_keys", sshKeyWriteFields),
@@ -46,4 +46,25 @@ func resourceSSHKey() *schema.Resource {
 
 func sshKeyWriteFields(d *schema.ResourceData) rsc.Fields {
 	return rsc.Fields{"ssh_key": rsc.Fields{"name": d.Get("name")}, "cloud_href": d.Get("cloud_href")}
+}
+
+func resourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
+	client := m.(rsc.Client)
+	loc, err := locator(d)
+	if err != nil {
+		return err
+	}
+
+	// set ActionParams Locator to always read this resource (currently) with 'view: "default"'
+	// rs apis currently do not allow loading private key material - and the generation suffers from race condition
+	loc.ActionParams = map[string]string{"view": "default"}
+
+	res, err := client.Get(loc)
+	if err != nil {
+		return handleRSCError(d, err)
+	}
+	for k, v := range res.Fields {
+		d.Set(k, v)
+	}
+	return nil
 }
