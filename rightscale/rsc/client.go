@@ -705,7 +705,7 @@ func (inFields Fields) onlyPopulated() Fields {
 				outFields[k] = v.([]interface{})
 			}
 		case map[string]interface{}:
-			if len(v.([]interface{})) > 0 {
+			if len(v.(map[string]interface{})) > 0 {
 				outFields[k] = Fields(v.(map[string]interface{})).onlyPopulated()
 			}
 		case Fields:
