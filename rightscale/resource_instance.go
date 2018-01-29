@@ -80,6 +80,12 @@ func resourceInstance() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
 			},
+			"server_template_href": &schema.Schema{
+				Description: "The ID of the server template.",
+				Type:        schema.TypeString,
+				Optional:    true,
+			},
+
 			"ssh_key_href": &schema.Schema{
 				Description: "The ID of the SSH key to use",
 				Type:        schema.TypeString,
@@ -365,7 +371,7 @@ func instanceWriteFields(d *schema.ResourceData) rsc.Fields {
 		"ip_forwarding_enabled", "kernel_image_href", "name",
 		"placement_group_href", "ramdisk_image_href",
 		"security_group_hrefs", "ssh_key_href", "subnet_hrefs",
-		"user_data",
+		"user_data", "server_template_href",
 	} {
 		if v, ok := d.GetOk(f); ok {
 			fields[f] = v

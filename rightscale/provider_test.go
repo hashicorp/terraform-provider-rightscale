@@ -22,6 +22,8 @@ var envVars = map[string]string{
 	"cloud":        "RIGHTSCALE_CLOUD_HREF",
 	"instanceType": "RIGHTSCALE_INSTANCE_TYPE_HREF",
 	"image":        "RIGHTSCALE_IMAGE_HREF",
+	"template":     "RIGHTSCALE_TEMPLATE_HREF",
+	"deployment":   "RIGHTSCALE_DEPLOYMENT_HREF",
 }
 
 func init() {
@@ -60,6 +62,11 @@ func getCMClient() *cm15.API {
 	return &cm15.API{API: c.API()}
 }
 
+// getTestTemplateFromEnv returns the server template href environment variable.
+func getTestTemplateFromEnv() string {
+	return envSearch(envVars["template"])
+}
+
 // getTestProjectFromEnv returns the project ID environment variable.
 func getTestProjectFromEnv() string {
 	return envSearch(envVars["project"])
@@ -83,6 +90,11 @@ func getTestInstanceTypeFromEnv() string {
 // getTestImageFromEnv returns the image href environment variable.
 func getTestImageFromEnv() string {
 	return envSearch(envVars["image"])
+}
+
+// getTestDeploymentFromEnv returns the deployment href environment variable.
+func getTestDeploymentFromEnv() string {
+	return envSearch(envVars["deployment"])
 }
 
 func getHrefFromID(id string) string {
