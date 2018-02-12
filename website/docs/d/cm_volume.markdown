@@ -22,11 +22,11 @@ data "rightscale_volume" "a_volume" {
 }
 
 output "volume name" {
-  value = "${data.rightscale_volume.crunis_volume.name}"
+  value = "${data.rightscale_volume.a_volume.name}"
 }
 
 output "volume ID" {
-  value = "${data.rightscale_volume.crunis_volume.resource_uid}"
+  value = "${data.rightscale_volume.a_volume.resource_uid}"
 }
 ```
 
@@ -56,16 +56,18 @@ The following arguments are supported:
 
 The following attributes are exported:
 
+* `id` - The volume ID (e.g. /api/clouds/1/volumes/63NFHKF8B7RP4)
+
 * `name` - The name of the volume
 
 * `description` - The description of the volume
 
+* `resource_uid` - The resource_uid of the volume (e.g. vol-045e33fd28a746c45)
+
 * `links` - Hrefs of related API resources
 
-* `resource_uid` - The resource_uid of the volume
+* `size` - The volume size (in GB)
 
-* `size` - The volume size
-
-* `status` - The volume Status
+* `status` - The volume Status (e.g. available, in-use, ...)
 
 * `updated_at` - Last update of the volume
