@@ -5,6 +5,14 @@ import (
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
+// Example:
+//
+// data "rightscale_server" "web_server" {
+//   filter {
+//     name = "web"
+//   }
+// }
+
 func dataSourceServer() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceServerRead,
@@ -60,10 +68,11 @@ func dataSourceServer() *schema.Resource {
 				Type:        schema.TypeBool,
 				Computed:    true,
 			},
-			"links": {
-				Type:     schema.TypeList,
-				Elem:     &schema.Schema{Type: schema.TypeMap},
-				Computed: true,
+			"links": &schema.Schema{
+				Description: "Hrefs of related API resources",
+				Type:        schema.TypeList,
+				Elem:        &schema.Schema{Type: schema.TypeMap},
+				Computed:    true,
 			},
 		},
 	}
