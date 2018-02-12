@@ -34,19 +34,23 @@ output "volume ID" {
 
 The following arguments are supported:
 
-The `filter` block supports:
+* `cloud_href` (REQUIRED) - The cloud_href the volume belongs to
 
-* `name` - The name of the volume
+* `filter` (OPTIONAL) - The filter block supports:
 
-* `description` - The description of the volume
+  * `id` - The volume ID (e.g. /api/clouds/1/volumes/63NFHKF8B7RP4)
 
-* `resource_uid` - The resource_uid of the volume
+  * `name` - The name of the volume
 
-* `deployment_href` - The href of the deployment that contains de volume
+  * `description` - The description of the volume
 
-* `datacenter_href` - The href of the datacenter that holds the volume
+  * `resource_uid` - The resource_uid of the volume (e.g. vol-045e33fd28a746c45)
 
-* `parent_volume_snapshot_href` - The href of snapshot the volume was created of
+  * `deployment_href` - The href of the [deployment](http://docs.rightscale.com/cm/dashboard/manage/deployments/) that contains the volume (e.g. /api/deployments/594684003)
+
+  * `datacenter_href` - The href of the [datacenter](http://docs.rightscale.com/cm/dashboard/clouds/generic/datacenter_zones_concepts.html) that holds the volume (e.g. /api/clouds/6/datacenters/6IHONC8ANOUHI)
+
+  * `parent_volume_snapshot_href` - The href of snapshot the volume was created of
 
 ## Attributes Reference
 
