@@ -8,7 +8,7 @@ description: |-
 
 # rightscale_volume
 
-Use this data source to get the ID of an existing volume for use in other resources.
+Use this data source to get the ID or other attributes  of an existing volume for use in other resources.
 
 ## Example Usage 1: Basic configuration of a volume data source
 
@@ -26,7 +26,7 @@ output "volume name" {
 }
 
 output "volume ID" {
-  value = "${data.rightscale_volume.a_volume.resource_uid}"
+  value = "${data.rightscale_volume.a_volume.id}"
 }
 ```
 
