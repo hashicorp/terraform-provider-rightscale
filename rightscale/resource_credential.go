@@ -9,7 +9,7 @@ import (
 //
 // resource "rightscale_credential" "database_password" {
 //   name = "DATABASE_PASSWORD"
-//	 value = "password11"
+//	 value = "rightscale11"
 //	 description = "Top Secret database password"
 // }
 
