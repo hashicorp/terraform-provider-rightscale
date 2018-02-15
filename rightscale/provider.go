@@ -31,6 +31,7 @@ func Provider() terraform.ResourceProvider {
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"rightscale_cloud":             dataSourceCloud(),
+			"rightscale_credential":        dataSourceCredential(),
 			"rightscale_datacenter":        dataSourceDatacenter(),
 			"rightscale_image":             dataSourceImage(),
 			"rightscale_instance":          dataSourceInstance(),
@@ -59,6 +60,7 @@ func Provider() terraform.ResourceProvider {
 			"rightscale_ssh_key":             resourceSSHKey(),
 			"rightscale_subnet":              resourceSubnet(),
 			"rightscale_cwf_process":         resourceCWFProcess(),
+			"rightscale_credential":          resourceCredential(),
 		},
 
 		ConfigureFunc: providerConfigure,
