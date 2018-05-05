@@ -32,9 +32,9 @@ The following arguments are supported:
 
   * `name` - (Optional) Network gateway name.  Pattern match.
 
-  * `cloud_href` - (Optional) Cloud Href of network gateway.
+  * `cloud_href` - (Optional) Cloud href of network gateway.
 
-  * `network_href` - (Optional) Network HREF network gateways are attached to.
+  * `network_href` - (Optional) Network href that network gateway is attached to.
 
 ## Attributes Reference
 
@@ -42,12 +42,12 @@ The following attributes are exported:
 
 * `name` - Name of the network gateway.
 
-* `resource_uid` - Network gateway resource_uid as reported by cm platform.
+* `resource_uid` - Network gateway resource_uid from cloud.
 
 * `type` - Type of network gateway.  Options are "internet" or "vpc."
 
-* `state` - State of the network gateway as reported by cm platform.  ("available" means attached to a network)
+* `state` - State of the network gateway.  ("available" means attached to a network)
 
-* `description` - The description of the network.
+* `description` - The description of the network gateway.
 
 * `links` - Hrefs of related API resources.

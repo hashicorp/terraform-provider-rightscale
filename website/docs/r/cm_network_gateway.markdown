@@ -49,7 +49,7 @@ The following arguments are supported:
 
 * `description` - (Optional) Network gateway description.
 
-* `network_href` - (Optional) HREF of network you want to attach the network gateway to.
+* `network_href` - (Optional) Href of network you want to attach the network gateway to.
 
 ## Attributes Reference
 
@@ -61,8 +61,8 @@ The following attributes are exported:
 
 * `updated_at` - Date the network gateway was updated at.
 
-* `state` - State of the network gateway as reported by cm platform.  ("available" means attached to a network)
+* `state` - State of the network gateway.  ("available" means attached to a network)
 
-* `resource_uid` - Cloud resource_uid as reported by cm platform.
+* `resource_uid` - Cloud resource_uid.
 
 * `links` - Hrefs of related API resources.
