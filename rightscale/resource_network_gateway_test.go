@@ -52,7 +52,7 @@ func testAccCheckNetworkGatewayExists(n string, depl *cm15.NetworkGateway) resou
 			return fmt.Errorf("No ID is set")
 		}
 
-		loc := getCMClient().NetworkLocator(getHrefFromID(rs.Primary.ID))
+		loc := getCMClient().NetworkGatewayLocator(getHrefFromID(rs.Primary.ID))
 
 		found, err := loc.Show()
 		if err != nil {
@@ -83,7 +83,7 @@ func testAccCheckNetworkGatewayDestroy(s *terraform.State) error {
 			continue
 		}
 
-		loc := c.NetworkLocator(getHrefFromID(rs.Primary.ID))
+		loc := c.NetworkGatewayLocator(getHrefFromID(rs.Primary.ID))
 		depls, err := loc.Index(nil)
 		if err != nil {
 			return fmt.Errorf("failed to check for existence of Network: %s", err)
