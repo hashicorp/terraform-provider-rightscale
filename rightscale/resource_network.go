@@ -66,7 +66,7 @@ func resourceNetwork() *schema.Resource {
 				Optional:    true,
 			},
 
-			// Read-onyl fields
+			// Read-only fields
 			"links": {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeMap},

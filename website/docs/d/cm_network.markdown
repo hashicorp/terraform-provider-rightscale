@@ -20,7 +20,7 @@ data "rightscale_network" "infrastructure-us-east" {
 }
 
 output "prod-infra-us-east-aws-uid" {
-  value = "${data.rightscale_deployment.infrastructure.resource_uid}"
+  value = "${data.rightscale_network.infrastructure-us-east.resource_uid}"
 }
 ```
 

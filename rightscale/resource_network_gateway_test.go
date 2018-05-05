@@ -13,37 +13,35 @@ import (
 )
 
 const (
-	networkDescription = "Terraform RightScale provider test Network"
-	networkName        = "TerraformProviderTest"
-	networkCidrBlock   = "192.168.10.0/24"
+	networkGatewayDescription = "Terraform RightScale provider test Network Gateway"
+	networkGatewayType        = "internet"
 )
 
-func TestAccRightScaleNetwork(t *testing.T) {
+func TestAccRightScaleNetworkGateway(t *testing.T) {
 	t.Parallel()
 
 	var (
-		NetworkName = "terraform-test-" + testString + acctest.RandString(10)
-		depl        cm15.Network
-		cloudHref   = getTestCloudFromEnv()
+		NetworkGatewayName = "terraform-test-" + testString + acctest.RandString(10)
+		depl               cm15.NetworkGateway
+		cloudHref          = getTestCloudFromEnv()
 	)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkDestroy,
+		CheckDestroy: testAccCheckNetworkGatewayDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccNetwork(NetworkName, networkDescription, networkCidrBlock, cloudHref),
+				Config: testAccNetworkGateway(NetworkGatewayName, networkGatewayDescription, networkGatewayType, cloudHref),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkExists("rightscale_network.test_network", &depl),
-					testAccCheckNetworkDescription(&depl, networkDescription),
-					testAccCheckNetworkCidrBlock(&depl, networkCidrBlock),
+					testAccCheckNetworkGatewayExists("rightscale_network_gateway.test_network_gateway", &depl),
+					testAccCheckNetworkGatewayDescription(&depl, networkGatewayDescription),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckNetworkExists(n string, depl *cm15.Network) resource.TestCheckFunc {
+func testAccCheckNetworkGatewayExists(n string, depl *cm15.NetworkGateway) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -54,7 +52,7 @@ func testAccCheckNetworkExists(n string, depl *cm15.Network) resource.TestCheckF
 			return fmt.Errorf("No ID is set")
 		}
 
-		loc := getCMClient().NetworkLocator(getHrefFromID(rs.Primary.ID))
+		loc := getCMClient().NetworkGatewayLocator(getHrefFromID(rs.Primary.ID))
 
 		found, err := loc.Show()
 		if err != nil {
@@ -67,7 +65,7 @@ func testAccCheckNetworkExists(n string, depl *cm15.Network) resource.TestCheckF
 	}
 }
 
-func testAccCheckNetworkDescription(depl *cm15.Network, desc string) resource.TestCheckFunc {
+func testAccCheckNetworkGatewayDescription(depl *cm15.NetworkGateway, desc string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if depl.Description != desc {
 			return fmt.Errorf("got description %q, expected %q", depl.Description, desc)
@@ -77,24 +75,15 @@ func testAccCheckNetworkDescription(depl *cm15.Network, desc string) resource.Te
 
 }
 
-func testAccCheckNetworkCidrBlock(depl *cm15.Network, cidr string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if depl.CidrBlock != cidr {
-			return fmt.Errorf("got cidr_block %q, expected %q", depl.CidrBlock, cidr)
-		}
-		return nil
-	}
-}
-
-func testAccCheckNetworkDestroy(s *terraform.State) error {
+func testAccCheckNetworkGatewayDestroy(s *terraform.State) error {
 	c := getCMClient()
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "rightscale_network" {
+		if rs.Type != "rightscale_network_gateway" {
 			continue
 		}
 
-		loc := c.NetworkLocator(getHrefFromID(rs.Primary.ID))
+		loc := c.NetworkGatewayLocator(getHrefFromID(rs.Primary.ID))
 		depls, err := loc.Index(nil)
 		if err != nil {
 			return fmt.Errorf("failed to check for existence of Network: %s", err)
@@ -115,13 +104,13 @@ func testAccCheckNetworkDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccNetwork(name string, desc string, cidr string, cloud string) string {
+func testAccNetworkGateway(name string, desc string, typ string, cloud string) string {
 	return fmt.Sprintf(`
-		resource "rightscale_network" "test_network" {
+		resource "rightscale_network_gateway" "test_network_gateway" {
 		   name = %q
 		   description = %q
-		   cidr_block = %q
+		   type = %q
 		   cloud_href = %q
 		 }
-`, name, desc, cidr, cloud)
+`, name, desc, typ, cloud)
 }
