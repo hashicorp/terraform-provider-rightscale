@@ -1,9 +1,9 @@
 ---
 layout: "rightscale"
 page_title: "Rightscale: ssh_key"
-sidebar_current: "docs-rightscale-resource-ssh-key"
+sidebar_current: "docs-rightscale-resource-ssh_key"
 description: |-
-  Create and maintain an ssh key resource in a given cloud. 
+  Create and maintain an ssh key resource in a given cloud.
 ---
 
 # rightscale_ssh_key
@@ -25,7 +25,7 @@ The following arguments are supported:
 
 * `cloud_href` - (Required) The href of the cloud with the ssh key you want.
 
-* `name` - (Required) SSH Key name. 
+* `name` - (Required) SSH Key name.
 
 ## Attributes Reference
 
