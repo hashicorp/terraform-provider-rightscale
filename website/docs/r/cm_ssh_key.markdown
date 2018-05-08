@@ -23,7 +23,7 @@ resource "rightscale_ssh_key" "infra-ssh-key" {
 
 The following arguments are supported:
 
-* `cloud_href` - (Required) The ID of the cloud with the ssh key you want.
+* `cloud_href` - (Required) The href of the cloud with the ssh key you want.
 
 * `name` - (Required) SSH Key name. 
 
@@ -31,6 +31,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `resource_uid` - Href/ID of the SSH key.
+* `resource_uid` - Cloud resource_uid.
 
 * `links` - Hrefs of related API resources.

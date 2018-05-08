@@ -3,12 +3,12 @@ layout: "rightscale"
 page_title: "Rightscale: network_gateway"
 sidebar_current: "docs-rightscale-resource-network_gateway"
 description: |-
-  Create and maintain a rightscale cloud management network gateway.
+  Create and maintain a RightScale network gateway.
 ---
 
 # rightscale_network_gateway
 
-Use this resource to create, update or destroy rightscale [network gateways](http://reference.rightscale.com/api1.5/resources/ResourceNetworkGateways.html) in cloud management.
+Use this resource to create, update or destroy RightScale [network gateways](http://reference.rightscale.com/api1.5/resources/ResourceNetworkGateways.html) in cloud management.
 
 ## Example Usage #1 - Create an internet gateway
 

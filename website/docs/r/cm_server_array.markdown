@@ -3,12 +3,12 @@ layout: "rightscale"
 page_title: "Rightscale: server_array"
 sidebar_current: "docs-rightscale-datasource-server_array"
 description: |-
-  Create and maintain a server_array
+  Create and maintain a RightScale server_array
 ---
 
 # rightscale_server_array
 
-Use this resource to create, update or destroy a server_array
+Use this resource to create, update or destroy a RightScale server_array
 
 ## Example Usage : Basic configuration of a server_array resource
 

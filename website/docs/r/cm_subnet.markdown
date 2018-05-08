@@ -3,12 +3,12 @@ layout: "rightscale"
 page_title: "Rightscale: subnet"
 sidebar_current: "docs-rightscale-resource-subnet"
 description: |-
-  Create and maintain a rightscale cloud management subnet.
+  Create and maintain a RightScale subnet.
 ---
 
 # rightscale_subnet
 
-Use this resource to create, update or destroy rightscale [subnets](http://reference.rightscale.com/api1.5/resources/ResourceSubnets.html).
+Use this resource to create, update or destroy RightScale [subnets](http://reference.rightscale.com/api1.5/resources/ResourceSubnets.html).
 
 ## Example Usage
 
