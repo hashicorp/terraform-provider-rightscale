@@ -1,7 +1,7 @@
-GA Release 1.0
+Release 1.0
 ==================
 
-This is a version 1.0 of the Terraform provider for RightScale.  Acceptance into the terraform community and as an official provider is now in progress, but as of this version all tests, docs, and sufficient resources for full operational coverage is complete and tested. [ Note that instructions below are forward-looking for where this repo will move in the near future. ]
+This is version 1.0 of the Terraform provider for RightScale.  Acceptance into the terraform community and as an official provider is now in progress, but as of this version all tests, docs, and sufficient resources for full operational coverage is complete and tested. [ Note that instructions below are forward-looking for where this repo will move in the near future. ]
 
 Markdown (Documentation) is available here:
 - [Resources](https://github.com/rightscale/terraform-provider-rightscale/tree/master/website/docs/r)
