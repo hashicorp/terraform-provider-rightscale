@@ -3,12 +3,12 @@ layout: "rightscale"
 page_title: "Rightscale: network"
 sidebar_current: "docs-rightscale-resource-network"
 description: |-
-  Create and maintain a rightscale cloud management network.
+  Create and maintain a RightScale network.
 ---
 
 # rightscale_network
 
-Use this resource to create, update or destroy rightscale [networks](http://reference.rightscale.com/api1.5/resources/ResourceNetworks.html) in cloud management.
+Use this resource to create, update or destroy RightScale [networks](http://reference.rightscale.com/api1.5/resources/ResourceNetworks.html) in cloud management.
 
 ## Example Usage
 
@@ -41,7 +41,7 @@ The following arguments are supported:
 
 * `route_table_href` - (Optional) Sets the default route table for this network, useful if you create the route table with a different resource.
 
-* `deployment_href` - (Optional) HREF of the deployment that owns the network.  If you wish to use a deployment object as top level ownership construct, perhaps allocating the new network to a single deployment, then provide this href.
+* `deployment_href` - (Optional) Href of the deployment that owns the network.  If you wish to use a deployment object as top level ownership construct, perhaps allocating the new network to a single deployment, then provide this href.
 
 ## Attributes Reference
 

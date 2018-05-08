@@ -3,12 +3,12 @@ layout: "rightscale"
 page_title: "Rightscale: security_group"
 sidebar_current: "docs-rightscale-resource-security_group"
 description: |-
-  Create and maintain a rightscale cloud management security_group.
+  Create and maintain a RightScale security_group.
 ---
 
 # rightscale_security_group
 
-Use this resource to create, update or destroy rightscale [security groups](http://reference.rightscale.com/api1.5/resources/ResourceSecurityGroups.html).
+Use this resource to create, update or destroy RightScale [security groups](http://reference.rightscale.com/api1.5/resources/ResourceSecurityGroups.html).
 
 ## Example Usage - Create a security group
 

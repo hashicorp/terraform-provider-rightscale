@@ -34,7 +34,7 @@ The following arguments are supported:
 
  * `instance_type_href` - (Required) The href of the instance type
 
- * `server_template_href` - (Optional) The ID of the instance server template resource
+ * `server_template_href` - (Optional) The href of the instance server template resource
  
  * `associate_public_ip_address` - (Optional) Indicates if the instance will get a Public IP address
 
@@ -54,9 +54,9 @@ The following arguments are supported:
 
 * `placement_group_href` - (Optional) The href of the [placement_group](http://docs.rightscale.com/cm/dashboard/clouds/aws/ec2_placement_groups.html) that contains the instance (e.g. /api/placement_groups/512SV3FUJA7OO)
 
-* `ssh_key_href` - (Optional) The ID of the SSH key to use
+* `ssh_key_href` - (Optional) The href of the SSH key to use
 
-* `subnet_hrefs` - (Optional) The IDs of the instance subnet
+* `subnet_hrefs` - (Optional) The hrefs of the instance subnet
 
 * `user_data` - (Optional) User data that RightScale automatically passes to your instance at boot time
 
