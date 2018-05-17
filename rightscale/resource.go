@@ -2,13 +2,14 @@ package rightscale
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
-func resourceCreateFunc(namespace, typ string, fieldsFunc func(*schema.ResourceData) rsc.Fields) func(d *schema.ResourceData, m interface{}) error {
+func resourceCreateFunc(namespace, typ string, fieldsFunc func(*schema.ResourceData) rsc.Fields) func(*schema.ResourceData, interface{}) error {
 	return func(d *schema.ResourceData, m interface{}) error {
 		client := m.(rsc.Client)
 		res, err := client.Create(namespace, typ, fieldsFunc(d))
@@ -26,7 +27,7 @@ func resourceCreateFunc(namespace, typ string, fieldsFunc func(*schema.ResourceD
 	}
 }
 
-func resourceUpdateFunc(fieldsFunc func(*schema.ResourceData) rsc.Fields) func(d *schema.ResourceData, m interface{}) error {
+func resourceUpdateFunc(fieldsFunc func(*schema.ResourceData) rsc.Fields) func(*schema.ResourceData, interface{}) error {
 	return func(d *schema.ResourceData, m interface{}) error {
 		client := m.(rsc.Client)
 		loc, err := locator(d)
@@ -86,6 +87,7 @@ func resourceDelete(d *schema.ResourceData, m interface{}) error {
 // graceful handling by Terraform. Otherwise the original error is returned.
 func handleRSCError(d *schema.ResourceData, err error) error {
 	if err == rsc.ErrNotFound {
+		log.Printf("[WARN] Resource id %s not found in rightscale, removing from state", d.Id())
 		d.SetId("")
 		return nil
 	}

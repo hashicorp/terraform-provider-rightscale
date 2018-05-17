@@ -1,10 +1,20 @@
 package rightscale
 
 import (
+	"log"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
+
+// resource "rightscale_instance" "my_instance" {
+//   cloud_href = "/api/clouds/6"
+//   image_href = "/api/clouds/6/images/3TRNL47PJB97N"
+//   instance_type_href = "/api/clouds/6/instance_types/8SCHNH0JBHE1R"
+//   deployment_href = "/api/deployments/934588004"
+//   name = "My Instance"
+// }
 
 func resourceInstance() *schema.Resource {
 	return &schema.Resource{
@@ -21,6 +31,7 @@ func resourceInstance() *schema.Resource {
 			"associate_public_ip_address": &schema.Schema{
 				Description: "Specify whether or not you want a public IP assigned when this Instance is launched. Only applies to Network-enabled Instances. If this is not specified, it will default to true.",
 				Type:        schema.TypeBool,
+				Default:     true,
 				Optional:    true,
 			},
 			"cloud_href": &schema.Schema{
@@ -43,6 +54,15 @@ func resourceInstance() *schema.Resource {
 				Description: "The ID of the instance image",
 				Type:        schema.TypeString,
 				Required:    true,
+			},
+			"inputs": &schema.Schema{
+				Description: "Inputs associated with an instance when incarnated from a server or server array",
+				Type:        schema.TypeList,
+				Elem:        &schema.Schema{Type: schema.TypeMap},
+				Optional:    true,
+				ForceNew:    true,
+				// Uncomment validation when tf adds supported operation on lists or sets.
+				//ValidateFunc: validation.StringMatch(regexp.MustCompile("\\w+=\\w+:\\w+"), "values must be in format of 'key=type:value'"),
 			},
 			"instance_type_href": &schema.Schema{
 				Description: "The ID of the instance type",
@@ -85,7 +105,6 @@ func resourceInstance() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-
 			"ssh_key_href": &schema.Schema{
 				Description: "The ID of the SSH key to use",
 				Type:        schema.TypeString,
@@ -360,6 +379,8 @@ func instanceUpdateFields(d *schema.ResourceData) rsc.Fields {
 	if a, ok := d.GetOk("cloud_specific_attributes"); ok {
 		fields["cloud_specific_attributes"] = a.([]interface{})[0]
 	}
+	// Note that this function is used only for raw instances, which do not support inputs.
+	// Invoke instanceWriteFieldsFromMap from other resources for instances derived from rs objects that support inputs.
 	return rsc.Fields{"cloud_href": d.Get("cloud_href"), "instance": fields}
 }
 
@@ -380,6 +401,8 @@ func instanceWriteFields(d *schema.ResourceData) rsc.Fields {
 	if a, ok := d.GetOk("cloud_specific_attributes"); ok {
 		fields["cloud_specific_attributes"] = a.([]interface{})[0]
 	}
+	// Note that this function is used only for raw instances, which do not support inputs.
+	// Invoke instanceWriteFieldsFromMap from other resources for instances derived from rs objects that support inputs.
 	return rsc.Fields{"cloud_href": d.Get("cloud_href"), "instance": fields}
 }
 
@@ -399,6 +422,13 @@ func instanceWriteFieldsFromMap(d map[string]interface{}) rsc.Fields {
 	}
 	if a, ok := d["cloud_specific_attributes"]; ok && len(a.([]interface{})) > 0 {
 		fields["cloud_specific_attributes"] = a.([]interface{})[0]
+	}
+	if a, ok := d["inputs"]; ok && len(a.([]interface{})) > 0 {
+		if r, err := cmInputs(d["inputs"].([]interface{})); err != nil {
+			log.Printf("[ERROR]: %v", err)
+		} else {
+			fields["inputs"] = r["inputs"]
+		}
 	}
 	return fields
 }

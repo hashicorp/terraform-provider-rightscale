@@ -5,12 +5,30 @@ import (
 	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
 )
 
+// Example:
+//
+// resource "rightscale_server" "web_server" {
+//   name = "web_server"
+//   deployment_href = "/api/deployments/1234"
+//   instance {
+//     cloud_href = "/api/clouds/1234"
+//     image_href = "/api/clouds/1234/images/1234"
+//     instance_type_href = "/api/clouds/1234/instance_types/1234"
+//     name = "web_instance"
+//     server_template_href = "/api/server_templates/1234"
+//     inputs {
+//       FOO = "text:bar"
+//       BAZ = "cred:Bangarang"
+//     }
+//   }
+// }
+
 func resourceServer() *schema.Resource {
 	return &schema.Resource{
 		Read:   resourceRead,
 		Exists: resourceExists,
 		Delete: resourceDelete,
-		Create: resourceCreateFunc("rs_cm", "servers", serverWriteFields),
+		Create: resourceCreateServer(serverWriteFields),
 		Update: resourceUpdateFunc(serverWriteFields),
 
 		Schema: map[string]*schema.Schema{
@@ -27,8 +45,9 @@ func resourceServer() *schema.Resource {
 			"instance": &schema.Schema{
 				Description: "server instance details",
 				Type:        schema.TypeList,
+				MinItems:    1,
 				MaxItems:    1,
-				Optional:    true,
+				Required:    true,
 				Elem:        resourceInstance(),
 			},
 			"name": &schema.Schema{
@@ -43,10 +62,27 @@ func resourceServer() *schema.Resource {
 			},
 
 			// Read-only fields
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"links": {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeMap},
 				Computed: true,
+			},
+			"state": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"href": &schema.Schema{
+				Description: "href of server",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 		},
 	}
@@ -54,11 +90,9 @@ func resourceServer() *schema.Resource {
 
 func serverWriteFields(d *schema.ResourceData) rsc.Fields {
 	fields := rsc.Fields{}
+	// construct 'instance' hash so we end up with a server WITH a running instance
 	if i, ok := d.GetOk("instance"); ok {
-		fields["instance"] = i.([]interface{})[0].(map[string]interface{})
-		if fields["instance"].(map[string]interface{})["associate_public_ip_address"].(bool) == false {
-			delete(fields["instance"].(map[string]interface{}), "associate_public_ip_address")
-		}
+		fields["instance"] = instanceWriteFieldsFromMap(i.([]interface{})[0].(map[string]interface{}))
 	}
 	if o, ok := d.GetOk("optimized"); ok {
 		if o.(bool) {
@@ -76,4 +110,22 @@ func serverWriteFields(d *schema.ResourceData) rsc.Fields {
 		}
 	}
 	return rsc.Fields{"server": fields}
+}
+
+func resourceCreateServer(fieldsFunc func(*schema.ResourceData) rsc.Fields) func(*schema.ResourceData, interface{}) error {
+	return func(d *schema.ResourceData, m interface{}) error {
+		client := m.(rsc.Client)
+		res, err := client.Create("rs_cm", "servers", fieldsFunc(d))
+		if err != nil {
+			return err
+		}
+		for k, v := range res.Fields {
+			d.Set(k, v)
+		}
+		// Sets 'href' which is rightscale href (for stitching together cm resources IN rightscale) without namespace.
+		d.Set("href", res.Locator.Href)
+		// Sets 'id' which allows terraform to locate the objects created which includes namespace.
+		d.SetId(res.Locator.Namespace + ":" + res.Locator.Href)
+		return nil
+	}
 }
