@@ -29,6 +29,9 @@ type (
 		// Create creates a new resource given a namespace, type name
 		// and field values.
 		Create(string, string, Fields) (*Resource, error)
+		// CreateServer creates a new server resource given a namespace, type name
+		// and field values.
+		CreateServer(string, string, Fields) (*Resource, error)
 		// List lists resources given a root resource locator, an
 		// optional link to nested resources and optional filters. If
 		// the root locator contains a Href then a link must be provided
@@ -303,6 +306,7 @@ func (rsc *client) Get(l *Locator) (*Resource, error) {
 
 	// params can be views, etc.
 	var params string
+
 	{
 		options := make(map[string]interface{})
 
@@ -409,6 +413,127 @@ func (rsc *client) Create(namespace, typ string, fields Fields) (*Resource, erro
 		Href:      outputs["$href"].(string),
 	}
 	return &Resource{Locator: &loc, Fields: ofields}, nil
+}
+
+// CreateServer creates the given resource. The "Href" field of the resource locator
+// should not be set on input, it is set in the result.
+func (rsc *client) CreateServer(namespace, typ string, fields Fields) (*Resource, error) {
+	m := map[string]interface{}{
+		"namespace": namespace,
+		"type":      typ,
+		"fields":    fields.onlyPopulated(),
+	}
+	js, err := json.Marshal(m)
+	if err != nil {
+		return nil, err
+	}
+
+	rcl := fmt.Sprintf(`
+	@res = %s
+	call server_provision_tf(@res) retrieve @server
+	$href   = @server.href
+	$res    = to_object(@res)
+	`, js)
+
+	serverDef := `# custom provision that does not auto-cleanup on error
+	define server_provision_tf(@res) return @server do
+		# use RS canned provision to create
+		call rs__cwf_simple_provision(@res) retrieve @server
+		$object = to_object(@res)
+		# use custom launch to avoid cleanup on error
+		call tf_server_wait_for_provision(@server) retrieve @server
+	end
+
+	define tf_server_wait_for_provision(@server) return @server do
+		$server_name = to_s(@server.name)
+		sub on_error: tf_server_handle_launch_failure(@server) do
+			@server.launch()
+		end
+		$final_state = "launching"
+		# use RS canned logic to capture launching server state
+		sub on_error: rs__cwf_skip_any_error() do
+			sleep_until @server.state =~ "^(operational|stranded|stranded in booting|stopped|terminated|inactive|error)$"
+			$final_state = @server.state
+		end
+	end
+
+	# spit out error from launch call
+	define tf_server_handle_launch_failure(@server) do
+		$server_name = @server.name
+		if $_errors && $_errors[0] && $_errors[0]["response"]
+			raise "Error trying to launch server (" + $server_name + "): " + $_errors[0]["response"]["body"]
+		else
+			raise "Error trying to launch server (" + $server_name + ")"
+		end
+	end`
+
+	// construct a custom main() for server so we capture href EVEN on provision error
+	source := "define main() return $href, $fields do\n"
+	source += "\t" + `$href = ""`
+	source += "\n\t" + "@server = rs_cm.servers.empty()\n"
+	rcl = strings.Trim(rcl, "\n\t")
+	rcl = strings.Replace(rcl, "\t", "\t\t", -1)
+	source += "\tsub timeout: 1h do\n\t\t" + rcl + "\n\tend\n"
+	source += `$final_state = @server.state
+	if $final_state == "operational"
+		$res = to_object(@server)
+    $fields = to_json($res["details"][0])
+    @server = rs_cm.get(href: @server.href)
+  else
+    $server_name = @server.name
+    raise "Failed to provision server. Expected state 'operational' but got '" + $final_state + "' for server: " + $server_name + " at href: " + $href`
+	source += "\nend\nend"
+	source += "\n" + serverDef + "\n"
+	p, err := rsc.RunProcess(source, nil)
+	if err != nil {
+		return nil, err
+	}
+	if p.Status != "completed" {
+		outputs := p.Outputs
+		loc := Locator{
+			Namespace: namespace,
+			Type:      typ,
+			Href:      outputs["$href"].(string),
+		}
+		return &Resource{Locator: &loc, Fields: nil}, fmt.Errorf("unexpected process status %q. Error: %s", p.Status, p.Error)
+	}
+	outputs := p.Outputs
+	var ofields Fields
+	err = json.Unmarshal([]byte(outputs["$fields"].(string)), &ofields)
+	if err != nil {
+		return nil, err
+	}
+
+	loc := Locator{
+		Namespace: namespace,
+		Type:      typ,
+		Href:      outputs["$href"].(string),
+	}
+	return &Resource{Locator: &loc, Fields: ofields}, nil
+}
+
+// runRCLWithDefinitions provides a convenient method for running the given RCL code
+// synchronously including with any definations. It returns the outputs with the given variable or reference
+// names.  It executes from a simply constructed 'main' so this may not be sufficient depending on the resource.
+func (rsc *client) runRCLWithDefinitions(rcl string, defs string, outputs ...string) (map[string]interface{}, error) {
+	source := "define main() "
+	if len(outputs) > 0 {
+		source += "return " + strings.Join(outputs, ", ") + " "
+	}
+	rcl = strings.Trim(rcl, "\n\t")
+	rcl = strings.Replace(rcl, "\t", "\t\t", -1)
+	source += "do\n\tsub timeout: 1h do\n\t\t" + rcl + "\n\tend\nend"
+	if len(defs) > 0 {
+		source += "\n" + defs
+	}
+	p, err := rsc.RunProcess(source, nil)
+	if err != nil {
+		return nil, err
+	}
+	if p.Status != "completed" {
+		return p.Outputs, fmt.Errorf("unexpected process status %q. Error: %s", p.Status, p.Error)
+	}
+	return p.Outputs, nil
 }
 
 // Delete deletes the given resource.
@@ -531,6 +656,27 @@ func (rsc *client) RunProcess(source string, params []*Parameter) (*Process, err
 
 				return process, nil
 
+			// capture outputs on failed just in case we had artifacts - we want to record those IDs so we don't create orphans
+			case "failed":
+				process = &Process{
+					Href:    processHref,
+					Status:  res["status"].(string),
+					Outputs: processOutputs(res),
+					Error:   processErrors(res),
+				}
+
+				// Keep waiting if outputs aren't yet present
+				if expectsOutputs && len(process.Outputs) == 0 {
+					expectsOutputsTimeout--
+					if expectsOutputsTimeout == 0 {
+						err = fmt.Errorf("no Outputs received from your CWF process, check your return clause")
+						return nil, err
+					}
+					continue
+				}
+
+				return process, nil
+
 			default:
 				process = &Process{
 					Href:   processHref,
@@ -587,8 +733,8 @@ func (rsc *client) API() *rsapi.API {
 
 // runRCL provides a convenient method for running the given RCL code
 // synchronously. It returns the outputs with the given variable or reference
-// names. The code must not include any definition, use RunProcess to run
-// definitions.
+// names. The code must not include any definition (defaults), use runRCLWithDefinitions
+// or or RunProcess for including definitions.
 func (rsc *client) runRCL(rcl string, outputs ...string) (map[string]interface{}, error) {
 	source := "define main() "
 	if len(outputs) > 0 {

@@ -115,8 +115,15 @@ func serverWriteFields(d *schema.ResourceData) rsc.Fields {
 func resourceCreateServer(fieldsFunc func(*schema.ResourceData) rsc.Fields) func(*schema.ResourceData, interface{}) error {
 	return func(d *schema.ResourceData, m interface{}) error {
 		client := m.(rsc.Client)
-		res, err := client.Create("rs_cm", "servers", fieldsFunc(d))
+		res, err := client.CreateServer("rs_cm", "servers", fieldsFunc(d))
 		if err != nil {
+			// Depending on where this failed we may or may not have an active cloud instance attached to the server object
+			// Set partial for ID so we don't leave orphan instances for next apply operation.
+			if res.Locator != nil && res.Locator.Href != "" {
+				d.Partial(true)
+				d.SetId(res.Locator.Namespace + ":" + res.Locator.Href)
+				d.SetPartial("ID")
+			}
 			return err
 		}
 		for k, v := range res.Fields {
