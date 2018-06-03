@@ -48,6 +48,8 @@ The following arguments are supported:
 
 * `ip_forwarding_enabled` - (Optional) Allows this Instance to send and receive network traffic when the source and destination IP addresses do not match the IP address of this Instance.
 
+* `private_ip_address` - (Optional) The prviate ip address of this instance.
+
 * `kernel_image_href` - (Optional) The href of the instance kernel image.
 
 * `ramdisk_image_href` - (Optional) The href of the instance ramdisk image.
