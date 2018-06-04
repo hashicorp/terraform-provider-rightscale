@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -11,6 +12,9 @@ import (
 	"strings"
 	"time"
 
+	log15 "github.com/inconshreveable/log15"
+	"github.com/rightscale/rsc/httpclient"
+	rsclog "github.com/rightscale/rsc/log"
 	"github.com/rightscale/rsc/rsapi"
 )
 
@@ -62,6 +66,8 @@ type (
 		GetProcess(href string) (*Process, error)
 		// DeleteProcess deletes the process with the given href.
 		DeleteProcess(href string) error
+		// GetUser returns the user's information (name, surname, email, company, ...)
+		GetUser() (map[string]interface{}, error)
 	}
 
 	// Resource represents a resource managed by the RightScale platform.
@@ -156,6 +162,8 @@ type (
 		ProjectID int
 
 		rs *rsapi.API
+
+		user map[string]interface{}
 	}
 )
 
@@ -173,6 +181,15 @@ const (
 // New attempts to auth against all the RightScale hosts and initializes the
 //  RightScale client on success.
 func New(token string, projectID int) (Client, error) {
+	if strings.ToUpper(os.Getenv("TF_LOG")) == "TRACE" {
+		// Shows network dumps
+		httpclient.DumpFormat = httpclient.Debug // Add '| httpclient.Verbose' to see auth headers
+		// Links rsc's log15 with TF's log
+		rsclog.Logger.SetHandler(log15.FuncHandler(func(r *log15.Record) error {
+			log.Printf("%s", string(log15.LogfmtFormat().Format(r)))
+			return nil
+		}))
+	}
 	auth := rsapi.NewOAuthAuthenticator(token, projectID)
 	for _, host := range rshosts {
 		rs := rsapi.New(host, auth)
@@ -490,18 +507,32 @@ func (rsc *client) CreateServer(namespace, typ string, fields Fields) (*Resource
 		end
 	end`, js)
 
+	ts := time.Now().Add(-time.Second * 15)
 	p, err := rsc.RunProcess(serverSourceRcl, nil)
 	if err != nil {
 		return nil, err
 	}
 	if p.Status != "completed" {
+		te := time.Now().Add(time.Second * 15)
 		outputs := p.Outputs
 		loc := Locator{
 			Namespace: namespace,
 			Type:      typ,
 			Href:      outputs["$href"].(string),
 		}
-		return &Resource{Locator: &loc, Fields: nil}, fmt.Errorf("unexpected process status %q. Error: %s", p.Status, p.Error)
+		e := fmt.Errorf(
+			`unexpected process status %q. Error: %s.
+
+Check your account audit entries for more details with:
+rsc --refreshToken <refreshToken> --pp --account %d --host %s cm15 index /api/audit_entries  'start_date=%s' 'end_date=%s' 'limit=1000'`,
+			p.Status,
+			p.Error,
+			rsc.ProjectID,
+			rsc.rs.Host,
+			ts.Format("2006/01/02 15:04:05 -0700"),
+			te.Format("2006/01/02 15:04:05 -0700"),
+		)
+		return &Resource{Locator: &loc, Fields: nil}, e
 	}
 	outputs := p.Outputs
 	var ofields Fields
@@ -519,7 +550,7 @@ func (rsc *client) CreateServer(namespace, typ string, fields Fields) (*Resource
 }
 
 // runRCLWithDefinitions provides a convenient method for running the given RCL code
-// synchronously including with any definations. It returns the outputs with the given variable or reference
+// synchronously including with any definitions. It returns the outputs with the given variable or reference
 // names.  It executes from a simply constructed 'main' so this may not be sufficient depending on the resource.
 func (rsc *client) runRCLWithDefinitions(rcl string, defs string, outputs ...string) (map[string]interface{}, error) {
 	source := "define main() "
@@ -574,6 +605,7 @@ func (rsc *client) RunProcess(source string, params []*Parameter) (*Process, err
 		processID   string
 	)
 	{
+		u, _ := rsc.GetUser()
 		payload := rsapi.APIParams{
 			"source":      source,
 			"main":        "main",
@@ -582,8 +614,8 @@ func (rsc *client) RunProcess(source string, params []*Parameter) (*Process, err
 			"application": "cwfconsole",
 			"created_by": map[string]interface{}{
 				"id":    0,
-				"name":  "Terraform",
-				"email": "support@rightscale.com",
+				"name":  userString(u),
+				"email": u["email"],
 			},
 			"refresh_token": rsc.APIToken,
 		}
@@ -600,8 +632,8 @@ func (rsc *client) RunProcess(source string, params []*Parameter) (*Process, err
 		process *Process
 	)
 
-	// print link to CWF console if DEBUG is set, mainly useful for tests
-	if os.Getenv("DEBUG") != "" {
+	// print link to CWF console if TF_LOG=TRACE is set, mainly useful for tests
+	if strings.ToUpper(os.Getenv("TF_LOG")) == "TRACE" {
 		host := strings.Replace(rsc.rs.Host, "us-", "selfservice-", 1)
 		fmt.Printf("RUNNING: https://%s/designer/processes/%s\n%s\n", host, processID, source)
 		then := time.Now()
@@ -630,7 +662,7 @@ func (rsc *client) RunProcess(source string, params []*Parameter) (*Process, err
 			var res map[string]interface{}
 			{
 				var r interface{}
-				r, err = rsc.requestCWF("get", "/cwf/v1/"+processHref, rsapi.APIParams{"view": "expanded"}, nil)
+				r, err = rsc.requestCWF("get", "/cwf/v1"+processHref, rsapi.APIParams{"view": "expanded"}, nil)
 				if err == nil {
 					res = r.(map[string]interface{})
 				}
@@ -675,8 +707,8 @@ func (rsc *client) RunProcess(source string, params []*Parameter) (*Process, err
 				if expectsOutputs && len(process.Outputs) == 0 {
 					expectsOutputsTimeout--
 					if expectsOutputsTimeout == 0 {
-						err = fmt.Errorf("no Outputs received from your CWF process, check your return clause")
-						return nil, err
+						// Don't generate error because sometimes when failing we don't have outputs
+						return process, nil
 					}
 					continue
 				}
@@ -731,6 +763,21 @@ func (rsc *client) DeleteProcess(href string) error {
 	return nil
 }
 
+// GetUser returns the user's information (name, surname, email, company, ...)
+// The user is the one that generated the RefreshToken provided to authenticate
+// in RightScale
+func (rsc *client) GetUser() (user map[string]interface{}, err error) {
+	if rsc.user == nil {
+		ui := getCurrentUserID(rsc.rs)
+		if ui == "" {
+			err = fmt.Errorf("Couldn't retrieve information of user from credentials")
+			return nil, err
+		}
+		rsc.user = getUserInfo(rsc.rs, ui)
+	}
+	return rsc.user, nil
+}
+
 // API returns the low level RightScale API. This is not exposed by the public
 // interface and is mainly intended for use by tests.
 func (rsc *client) API() *rsapi.API {
@@ -749,12 +796,26 @@ func (rsc *client) runRCL(rcl string, outputs ...string) (map[string]interface{}
 	rcl = strings.Trim(rcl, "\n\t")
 	rcl = strings.Replace(rcl, "\t", "\t\t", -1)
 	source += "do\n\tsub timeout: 1h do\n\t\t" + rcl + "\n\tend\nend"
+	ts := time.Now().Add(-time.Second * 15)
 	p, err := rsc.RunProcess(source, nil)
 	if err != nil {
 		return nil, err
 	}
 	if p.Status != "completed" {
-		return nil, fmt.Errorf("unexpected process status %q. Error: %s", p.Status, p.Error)
+		te := time.Now().Add(time.Second * 15)
+		e := fmt.Errorf(
+			`unexpected process status %q. Error: %s.
+
+Check your account audit entries for more details with:
+rsc --refreshToken <refreshToken> --pp --account %d --host %s cm15 index /api/audit_entries  'start_date=%s' 'end_date=%s' 'limit=1000'`,
+			p.Status,
+			p.Error,
+			rsc.ProjectID,
+			rsc.rs.Host,
+			ts.Format("2006/01/02 15:04:05 -0700"),
+			te.Format("2006/01/02 15:04:05 -0700"),
+		)
+		return nil, e
 	}
 	return p.Outputs, nil
 }
@@ -905,4 +966,67 @@ func analyzeSource(source string) (expectsOutputs bool, err error) {
 
 	// if return capture group matched, expectOutputs = true
 	return m[1] != "", nil
+}
+
+// returns the user's ID via /api/sessions {view: whoami} call
+func getCurrentUserID(rs *rsapi.API) string {
+	req, err := rs.BuildHTTPRequest("GET", "/api/sessions", "1.5", rsapi.APIParams{"view": "whoami"}, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	resp, err := rs.PerformRequest(req)
+	if err != nil {
+		panic(err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		panic(fmt.Errorf("failed to retrieve user: index returned %q", resp.Status))
+	}
+	ms, err := rs.LoadResponse(resp)
+	if err != nil {
+		panic(err)
+	}
+	links := ms.(map[string]interface{})["links"]
+	for _, el := range links.([]interface{}) {
+		var kind, value string
+		for k, v := range el.(map[string]interface{}) {
+			if k == "rel" {
+				kind = v.(string)
+			}
+			if k == "href" {
+				value = v.(string)
+			}
+		}
+		if kind == "user" {
+			parts := strings.Split(value, "/")
+			return parts[len(parts)-1]
+		}
+	}
+	return ""
+}
+
+// retrieves user information providing the user ID via /api/users/<ID>
+func getUserInfo(rs *rsapi.API, uid string) map[string]interface{} {
+	req, err := rs.BuildHTTPRequest("GET", fmt.Sprintf("/api/users/%s", uid), "1.5", nil, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	resp, err := rs.PerformRequest(req)
+	if err != nil {
+		panic(err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		panic(fmt.Errorf("failed to retrieve user: index returned %q", resp.Status))
+	}
+	ms, err := rs.LoadResponse(resp)
+	if err != nil {
+		panic(err)
+	}
+	return ms.(map[string]interface{})
+}
+
+// generates a string from the user's map[string]interface{}
+func userString(u map[string]interface{}) string {
+	return fmt.Sprintf("%s %s via Terraform", u["first_name"], u["last_name"])
 }
