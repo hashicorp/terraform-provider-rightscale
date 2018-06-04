@@ -127,6 +127,12 @@ func resourceInstance() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 			},
+			"private_ip_address": &schema.Schema{
+				Type:        schema.TypeString,
+				Description: "The private ip address for the instance",
+				Optional:    true,
+				ForceNew:    true,
+			},
 
 			// Read-only fields
 			"created_at": {
@@ -393,7 +399,7 @@ func instanceWriteFields(d *schema.ResourceData) rsc.Fields {
 		"ip_forwarding_enabled", "kernel_image_href", "name",
 		"placement_group_href", "ramdisk_image_href",
 		"security_group_hrefs", "ssh_key_href", "subnet_hrefs",
-		"user_data", "server_template_href",
+		"user_data", "server_template_href", "private_ip_address",
 	} {
 		if v, ok := d.GetOk(f); ok {
 			fields[f] = v
@@ -415,7 +421,7 @@ func instanceWriteFieldsFromMap(d map[string]interface{}) rsc.Fields {
 		"ip_forwarding_enabled", "kernel_image_href", "name",
 		"placement_group_href", "ramdisk_image_href",
 		"security_group_hrefs", "ssh_key_href", "subnet_hrefs",
-		"user_data", "server_template_href", "cloud_href",
+		"user_data", "server_template_href", "cloud_href", "private_ip_address",
 	} {
 		if v, ok := d[f]; ok {
 			fields[f] = v
