@@ -1,0 +1,50 @@
+{
+  "name": "Service::MediaType::NamespaceType",
+  "attributes": {
+    "name": {
+      "description": "Namespace resource type name",
+      "required": true,
+      "example_definition": "containers",
+      "type": {
+        "name": "String"
+      }
+    },
+    "path": {
+      "description": "Namespace resource type path relative to namespace path, defaults to name",
+      "example_definition": "/Containers",
+      "type": {
+        "name": "String"
+      }
+    },
+    "provision": {
+      "description": "Resource type provision definition name",
+      "example_definition": "provision_dk",
+      "type": {
+        "name": "String"
+      }
+    },
+    "delete": {
+      "description": "Resource type delete definition name",
+      "example_definition": "delete_dk",
+      "type": {
+        "name": "String"
+      }
+    },
+    "fields": {
+      "description": "Type fields",
+      "type": {
+        "name": "Hash"
+      }
+    }
+  },
+  "example": {
+    "name": "containers",
+    "path": "/Containers",
+    "provision": "provision_dk",
+    "delete": "delete_dk",
+    "fields": {
+      "sorbic": "#<Service::MediaType::NamespaceTypeField:0x007fe8aaaf3d28>",
+      "gedder": "#<Service::MediaType::NamespaceTypeField:0x007fe8aaaf3260>"
+    }
+  }
+}
