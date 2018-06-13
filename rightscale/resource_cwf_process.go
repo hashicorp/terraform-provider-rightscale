@@ -201,9 +201,9 @@ func validateParameter(ctx string, k string, iv interface{}) error {
 		if _, ok := iv.(float64); !ok {
 			return fmt.Errorf("%sentity with kind 'number' is not a number: %v", pref, iv)
 		}
-	case "bool":
+	case "boolean":
 		if _, ok := iv.(bool); !ok {
-			return fmt.Errorf("%sentity with kind 'bool' is not a boolean value: %v", pref, iv)
+			return fmt.Errorf("%sentity with kind 'boolean' is not a boolean value: %v", pref, iv)
 		}
 	case "null":
 		if iv != nil {
@@ -234,26 +234,26 @@ func validateParameter(ctx string, k string, iv interface{}) error {
 
 		n, ok := m["namespace"]
 		if !ok {
-			return fmt.Errorf("%scollection is missing 'namespace' key", pref)
+			return fmt.Errorf("%sdeclaration is missing 'namespace' key", pref)
 		}
 		if _, ok := n.(string); !ok {
-			return fmt.Errorf("%scollection 'namespace' key must have a string value, got %v", pref, n)
+			return fmt.Errorf("%sdeclaration 'namespace' key must have a string value, got %v", pref, n)
 		}
 
 		t, ok := m["type"]
 		if !ok {
-			return fmt.Errorf("%scollection is missing 'type' key", pref)
+			return fmt.Errorf("%sdeclaration is missing 'type' key", pref)
 		}
 		if _, ok := t.(string); !ok {
-			return fmt.Errorf("%scollection 'type' key must have a string value, got %v", pref, t)
+			return fmt.Errorf("%sdeclaration 'type' key must have a string value, got %v", pref, t)
 		}
 
 		ds, ok := m["fields"]
 		if !ok {
-			return fmt.Errorf("%scollection is missing 'fields' key", pref)
+			return fmt.Errorf("%sdeclaration is missing 'fields' key", pref)
 		}
 		if _, ok := ds.(map[string]interface{}); !ok {
-			return fmt.Errorf("%scollection 'fields' key must be an object, got %v", pref, n)
+			return fmt.Errorf("%sdeclaration 'fields' key must be an object, got %v", pref, ds)
 		}
 
 	case "collection":
@@ -284,11 +284,11 @@ func validateParameter(ctx string, k string, iv interface{}) error {
 		}
 		hrefs, ok := hs.([]interface{})
 		if !ok {
-			return fmt.Errorf("%scollection 'hrefs' key must be a slice of strings value, got %v", pref, n)
+			return fmt.Errorf("%scollection 'hrefs' key must be a slice of strings value, got %v", pref, hrefs)
 		}
 		for _, href := range hrefs {
 			if _, ok := href.(string); !ok {
-				return fmt.Errorf("%scollection 'hrefs' key must be a slice of strings value, got %v", pref, n)
+				return fmt.Errorf("%scollection 'hrefs' key must be a slice of strings value, got %v", pref, href)
 			}
 		}
 
@@ -298,11 +298,11 @@ func validateParameter(ctx string, k string, iv interface{}) error {
 		}
 		details, ok := ds.([]interface{})
 		if !ok {
-			return fmt.Errorf("%scollection 'details' key must be a slice of objects, got %v", pref, n)
+			return fmt.Errorf("%scollection 'details' key must be a slice of objects, got %v", pref, details)
 		}
 		for _, href := range details {
 			if _, ok := href.(map[string]interface{}); !ok {
-				return fmt.Errorf("%scollection 'details' key must be a slice of objects, got %v", pref, n)
+				return fmt.Errorf("%selement of 'details' must be a TypeMap, got %v", pref, href)
 			}
 		}
 
