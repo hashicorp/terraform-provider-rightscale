@@ -2,6 +2,7 @@ package rightscale
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
 	"testing"
@@ -40,10 +41,6 @@ end
 
 func TestAccRightScaleCWFProcess_params(t *testing.T) {
 	t.Parallel()
-
-	const src = `
-
-`
 	var process rsc.Process
 
 	resource.Test(t, resource.TestCase{
@@ -56,6 +53,29 @@ func TestAccRightScaleCWFProcess_params(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCWFProcessExists("rightscale_cwf_process.foobar", &process),
 					testAccCheckCWFProcessOutput(&process, []string{"$out1", "$out2", "$out3"}, []interface{}{"foobared", "42", "true"}),
+					testAccCheckCWFProcessStatus(&process, "completed"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccRightScaleCWFProcess_collection(t *testing.T) {
+	t.Parallel()
+	var process rsc.Process
+
+	sgHref := os.Getenv("RIGHTSCALE_SECURITY_GROUP_HREF")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCWFProcessDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccCWFProcess_collection(sgHref),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCWFProcessExists("rightscale_cwf_process.collection", &process),
+					testAccCheckCWFProcessOutput(&process, []string{"$out"}, []interface{}{sgHref}),
 					testAccCheckCWFProcessStatus(&process, "completed"),
 				),
 			},
@@ -183,6 +203,37 @@ EOF
 	]
 }
 `)
+}
+
+func testAccCWFProcess_collection(sgHref string) string {
+	return fmt.Sprintf(`
+		variable "sec_group" {
+			type    = "map"
+			default = {
+			  "namespace" = "rs_cm"
+			  "type" = "security_groups"
+			  "hrefs" = ["%s"]
+			  "details" = [{
+					"description" = "A security group"
+			  }]
+			}
+		  }
+
+resource "rightscale_cwf_process" "collection" {
+	source     = <<EOF
+	define main(@collection) return $out do
+		$json = to_object(@collection)
+		$out = $json["hrefs"][0]
+	end
+EOF
+	parameters = [
+		{
+			kind = "collection"
+			value = "${jsonencode(var.sec_group)}"
+		},
+	]
+}
+`, sgHref)
 }
 
 func testAccCheckCWFProcessDestroy(s *terraform.State) error {
