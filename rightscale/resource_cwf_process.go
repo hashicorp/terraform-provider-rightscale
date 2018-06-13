@@ -201,9 +201,9 @@ func validateParameter(ctx string, k string, iv interface{}) error {
 		if _, ok := iv.(float64); !ok {
 			return fmt.Errorf("%sentity with kind 'number' is not a number: %v", pref, iv)
 		}
-	case "bool":
+	case "boolean":
 		if _, ok := iv.(bool); !ok {
-			return fmt.Errorf("%sentity with kind 'bool' is not a boolean value: %v", pref, iv)
+			return fmt.Errorf("%sentity with kind 'boolean' is not a boolean value: %v", pref, iv)
 		}
 	case "null":
 		if iv != nil {

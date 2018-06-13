@@ -42,9 +42,7 @@ func TestAccRightScaleCWFProcess_params(t *testing.T) {
 	t.Parallel()
 
 	const src = `
-define main($p) return $out do
-    $out = $p
-end
+
 `
 	var process rsc.Process
 
@@ -54,10 +52,10 @@ end
 		CheckDestroy: testAccCheckCWFProcessDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCWFProcess_params(src, []string{"foobar"}),
+				Config: testAccCWFProcess_params(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCWFProcessExists("rightscale_cwf_process.foobar", &process),
-					testAccCheckCWFProcessOutput(&process, []string{"$out"}, []interface{}{"foobar"}),
+					testAccCheckCWFProcessOutput(&process, []string{"$out1", "$out2", "$out3"}, []interface{}{"foobared", "42", "true"}),
 					testAccCheckCWFProcessStatus(&process, "completed"),
 				),
 			},
@@ -157,22 +155,34 @@ EOF
 `, src)
 }
 
-func testAccCWFProcess_params(src string, pvals []string) string {
-	vs := make([]string, len(pvals))
-	for i, pv := range pvals {
-		vs[i] = fmt.Sprintf(`{
-    kind = "string"
-    value = %q
-}`, pv)
-	}
+func testAccCWFProcess_params() string {
 	return fmt.Sprintf(`
 resource "rightscale_cwf_process" "foobar" {
 	source     = <<EOF
-%s
+	define main($s, $list, $bool) return $out1, $out2, $out3 do
+	$out1 = $s + "ed"
+	$out2 = $list[0] + $list[1]
+	if $bool
+	  $out3 = "true"
+	end
+end
 EOF
-	parameters = [%s]
+	parameters = [
+		{
+			kind = "string"
+			value = "foobar"
+		},
+		{
+			kind = "array"
+			value = "[ 11, 31 ]"
+		},
+		{
+			kind = "boolean"
+			value = "true"
+		}
+	]
 }
-`, src, strings.Join(vs, ", "))
+`)
 }
 
 func testAccCheckCWFProcessDestroy(s *terraform.State) error {
