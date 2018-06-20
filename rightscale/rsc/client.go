@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"regexp"
@@ -198,7 +199,7 @@ func New(token string, projectID int) (Client, error) {
 			if err != nil {
 				return nil, fmt.Errorf("failed to make session accounts request: %s", err)
 			}
-			resp, err := rs.PerformRequest(req)
+			resp, err := performRequestWithRetries(rs, req)
 			if err != nil {
 				return nil, fmt.Errorf("failed to retrieve accounts: %s", err)
 			}
@@ -825,7 +826,7 @@ func (rsc *client) requestCWF(method, url string, params, payload rsapi.APIParam
 	}
 	req.Host = strings.Replace(rsc.rs.Host, "us-", "cloud-workflow", 1)
 
-	res, err := rsc.rs.PerformRequest(req)
+	res, err := performRequestWithRetries(rsc.rs, req)
 	if err != nil {
 		return nil, err
 	}
@@ -968,7 +969,7 @@ func getCurrentUserID(rs *rsapi.API) string {
 		panic(err)
 	}
 
-	resp, err := rs.PerformRequest(req)
+	resp, err := performRequestWithRetries(rs, req)
 	if err != nil {
 		panic(err)
 	}
@@ -1005,7 +1006,7 @@ func getUserInfo(rs *rsapi.API, uid string) map[string]interface{} {
 		panic(err)
 	}
 
-	resp, err := rs.PerformRequest(req)
+	resp, err := performRequestWithRetries(rs, req)
 	if err != nil {
 		panic(err)
 	}
@@ -1022,4 +1023,44 @@ func getUserInfo(rs *rsapi.API, uid string) map[string]interface{} {
 // generates a string from the user's map[string]interface{}
 func userString(u map[string]interface{}) string {
 	return fmt.Sprintf("%s %s via Terraform", u["first_name"], u["last_name"])
+}
+
+// performRequestWithRetries executes PerformRequest and retries up to 3 times only in the scenarios
+// considered in shouldRetry()
+func performRequestWithRetries(rs *rsapi.API, req *http.Request) (resp *http.Response, err error) {
+	const retries = 3
+
+	for i := 1; i < retries+2; i++ {
+		resp, err = rs.PerformRequest(req)
+		if !shouldRetry(resp, err) {
+			break
+		}
+		sc := "none"
+		if resp != nil {
+			sc = strconv.Itoa(resp.StatusCode)
+		}
+		et := "none"
+		if err != nil {
+			et = err.Error()
+		}
+		log.Printf("[WARN] Sleeping %d seconds and retrying failed request (retry %d, status code: %s, error: %s)\n", 10*i, i, sc, et)
+		time.Sleep(time.Duration(i) * 10 * time.Second)
+	}
+	return
+}
+
+// shouldRetry returns true if the network error is worth retrying
+// currently Timeout or 500 or 503
+func shouldRetry(resp *http.Response, err error) bool {
+	if err != nil {
+		if neterr, ok := err.(net.Error); ok && neterr.Timeout() {
+			return true
+		}
+	}
+	if resp != nil {
+		if resp.StatusCode == 500 || resp.StatusCode == 502 || resp.StatusCode == 503 {
+			return true
+		}
+	}
+	return false
 }
