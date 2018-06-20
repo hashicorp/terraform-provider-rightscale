@@ -1,7 +1,15 @@
 # Change Log
 
-## [v1.2.1](https://github.com/rightscale/terraform-provider-rightscale/tree/v1.2.1)
+## [v1.3.0](https://github.com/rightscale/terraform-provider-rightscale/tree/v1.3.0) (2018-06-20)
+[Full Changelog](https://github.com/rightscale/terraform-provider-rightscale/compare/v1.2.1...v1.3.0)
 
+**Merged pull requests:**
+
+- STEEL-288 Retry API requests [\#68](https://github.com/rightscale/terraform-provider-rightscale/pull/68) ([crunis](https://github.com/crunis))
+- STEEL-296 Update documentation about href field [\#67](https://github.com/rightscale/terraform-provider-rightscale/pull/67) ([crunis](https://github.com/crunis))
+- STEEL-293 add datasource tests, add namespace to datasource id [\#64](https://github.com/rightscale/terraform-provider-rightscale/pull/64) ([crunis](https://github.com/crunis))
+
+## [v1.2.1](https://github.com/rightscale/terraform-provider-rightscale/tree/v1.2.1) (2018-06-15)
 [Full Changelog](https://github.com/rightscale/terraform-provider-rightscale/compare/v1.2.0...v1.2.1)
 
 **Merged pull requests:**
