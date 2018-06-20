@@ -8,7 +8,7 @@ description: |-
 
 # rightscale_instance
 
-Use this data source to get the ID or other attributes of an existing instance for use in other resources.
+Use this data source to locate and extract info about an existing [instance](http://reference.rightscale.com/api1.5/resources/ResourceInstances.html) to pass to other rightscale resources.
 
 Filter block is optional - ommitting it will result in the first available instance in a given cloud.
 
@@ -16,7 +16,7 @@ Filter block is optional - ommitting it will result in the first available insta
 
 ```hcl
 data "rightscale_instance" "an_instance" {
-  cloud_href = "/api/clouds/1"
+  cloud_href = "${data.rightscale_cloud.ec2_us_oregon.href}"
 
   filter {
     name = "my_instance"
@@ -27,8 +27,15 @@ output "instance name" {
   value = "${data.rightscale_instance.an_instance.name}"
 }
 
-output "instance ID" {
-  value = "${data.rightscale_instance.an_instance.id}"
+output "instance href" {
+  value = "${data.rightscale_instance.an_instance.href}"
+}
+
+data "rightscale_cloud" "ec2_us_oregon" {
+  filter {
+    name = "EC2 us-west-2"
+    cloud_type = "amazon"
+  }
 }
 ```
 
@@ -42,17 +49,15 @@ The following arguments are supported:
 
 * `filter` (OPTIONAL) - The filter block supports:
 
-  * `id` - The instance ID (e.g. /api/clouds/1/instances/63NFHKF8B7RP4)
-
   * `name` - The name of the instance
 
   * `state` - The state of the instance (e.g.: operational, terminated, stranded, ...)
 
   * `os_platform` - The OS platform of the instance. One of "linux" or "windows"
 
-  * `parent_href` - The ID of instance server or server array parent resource.
+  * `parent_href` - The Href of instance server or server array parent resource.
 
-  * `server_template_href` - The ID of the instance server template resource
+  * `server_template_href` - The Href of the instance server template resource
 
   * `public_dns_name` - The public DNS name of the instance
 
@@ -82,8 +87,6 @@ The following attributes are exported:
 
 * `cloud_specific_attributes` - Attributes specific to the cloud the instance belongs to
 
-* `id` - The instance ID (e.g. /api/clouds/1/instances/63NFHKF8B7RP4)
-
 * `name` - The name of the instance
 
 * `pricing_type` - Pricing type of the instance (e.g. fixed, spot)
@@ -104,4 +107,6 @@ The following attributes are exported:
 
 * `updated_at` - Last update of the instance
 
-* `href` - Href of the instance
+* `id` - The instance ID (e.g. rs_cm:/api/clouds/1/instances/63NFHKF8B7RP4)
+
+* `href` - Href of the instance (e.g. /api/clouds/1/instances/63NFHKF8B7RP4)

@@ -8,11 +8,18 @@ description: |-
 
 # rightscale_instance_type
 
-Use this data source to get the ID (rightscale href) of an instance type (eg "m4.large" vs "n1-standard" vs "DSv2") in a specific cloud for use in other resources.
+Use this data source to locate and extract info about an existing [instance type](http://reference.rightscale.com/api1.5/resources/ResourceInstanceTypes.html) (eg "m4.large" vs "n1-standard" vs "DSv2") to pass to other rightscale resources.
 
 ## Example Usage - Get href for instance type "m4.large" in aws us-oregon cloud
 
 ```hcl
+data "rightscale_instance_type" "m4_large" {
+  cloud_href = "${data.rightscale_cloud.ec2_us_oregon.href}"
+  filter {
+    name = "m4.large"
+  }
+}
+
 data "rightscale_cloud" "ec2_us_oregon" {
   filter {
     name = "EC2 us-west-2"
@@ -20,10 +27,10 @@ data "rightscale_cloud" "ec2_us_oregon" {
   }
 }
 
-data "rightscale_instance_type" "m4_large" {
-  cloud_href = "${data.rightscale_cloud.ec2_us_oregon.id}"
+data "rightscale_cloud" "ec2_us_oregon" {
   filter {
-    name = "m4.large"
+    name = "EC2 us-west-2"
+    cloud_type = "amazon"
   }
 }
 ...
@@ -35,7 +42,7 @@ data "rightscale_instance_type" "m4_large" {
 
 The following arguments are supported:
 
-* `cloud_href` - (Required) The ID of the cloud with the instance type you want.
+* `cloud_href` - (Required) The Href of the cloud with the instance type you want.
 
 * `filter` - (Optional) block supports:
 

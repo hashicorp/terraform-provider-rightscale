@@ -8,7 +8,7 @@ description: |-
 
 # rightscale_volume_snapshot
 
-Use this data source to get the ID or other attributes of an existing volume snapshot for use in other resources.
+Use this data source to locate and extract info about an existing [volume snapshot](http://reference.rightscale.com/api1.5/resources/ResourceVolumeSnapshots.html) to pass to other rightscale resources.
 
 Filter block is optional - ommitting it will result in the first available volume snapshot in a given cloud.
 
@@ -19,15 +19,22 @@ data "rightscale_volume_snapshot" "mysql_master" {
    filter {
      name = "mysql_master"
    }
-   cloud_href = "/api/clouds/1"
+   cloud_href = "${data.rightscale_cloud.ec2_us_oregon.href}"
  }
 
 output "snapshot name" {
   value = "${data.rightscale_volume_snapshot.mysql_master.name}"
 }
 
-output "snapshot ID" {
-  value = "${data.rightscale_volume_snapshot.mysql_master.id}"
+output "snapshot href" {
+  value = "${data.rightscale_volume_snapshot.mysql_master.href}"
+}
+
+data "rightscale_cloud" "ec2_us_oregon" {
+  filter {
+    name = "EC2 us-west-2"
+    cloud_type = "amazon"
+  }
 }
 ```
 
@@ -39,15 +46,13 @@ The following arguments are supported:
 
 * `filter` (OPTIONAL) - The filter block supports:
 
-  * `id` - The volume snapshot ID (e.g. /api/clouds/1/volume_snapshots/4VODPN6TQ60RC)
-
   * `name` - The name of the volume snapshot
 
   * `description` - The description of the volume snapshot
 
   * `state` - The state of the volume snapshot (e.g.: available, pending, ...)
 
-  * `parent_volume_href` - The ID of the parent resource
+  * `parent_volume_href` - The Href of the parent resource
 
   * `resource_uid` - The resource_uid of the volume snapshot.  If this filter option is set, additional retry logic will be enabled to wait up to 5 minutes for cloud resources to be polled and populated for use.
 
@@ -65,7 +70,7 @@ The following attributes are exported:
 
 * `state` - The state of the volume snapshot (e.g.: available, pending, ...)
 
-* `resource_uid` - The resource_uid of the volume snapshot (e.g. /api/clouds/1/volume_snapshots/4VODPN6TQ60RC)
+* `resource_uid` - The resource_uid of the volume snapshot (e.g. snap-08287ed6c8bce9ab4)
 
 * `links` - Hrefs of related API resources
 
@@ -73,4 +78,4 @@ The following attributes are exported:
 
 * `updated_at` - Last update of the volume snapshot
 
-* `href` - Href of the volume snapshot
+* `href` - Href of the volume snapshot (e.g. /api/clouds/1/volume_snapshots/4VODPN6TQ60RC)

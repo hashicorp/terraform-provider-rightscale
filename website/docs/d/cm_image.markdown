@@ -8,24 +8,24 @@ description: |-
 
 # rightscale_image
 
-Use this data source to get the ID (rightscale href) of a registered image in a specific cloud for use in other resources.  Sets default filter scope to own account, but allows for public searching if specified in filter block.
+Use this data source to locate and extract info about an existing [image](http://reference.rightscale.com/api1.5/resources/ResourceImages.html) to pass to other rightscale resources. Sets default filter scope to own account, but allows for public searching if specified in filter block.
 
 Beware that searching a very popular cloud (say aws us-east) based on name with 'visibility = "public"' is gonna be slow...
 
 ## Example Usage #1 - Finding specific AMI in own account based on resource_uid
 
 ```hcl
+data "rightscale_image" "my_sweet_ami" {
+  cloud_href = "${data.rightscale_cloud.ec2_us_oregon.href}"
+  filter {
+    resource_uid = "ami-abcdefg"
+  }
+}
+
 data "rightscale_cloud" "ec2_us_oregon" {
   filter {
     name = "EC2 us-west-2"
     cloud_type = "amazon"
-  }
-}
-
-data "rightscale_image" "my_sweet_ami" {
-  cloud_href = "${data.rightscale_cloud.ec2_us_oregon.id}"
-  filter {
-    resource_uid = "ami-abcdefg"
   }
 }
 ...
@@ -44,7 +44,7 @@ data "rightscale_cloud" "ec2_us_oregon" {
 }
 
 data "rightscale_image" "my_sweet_ami" {
-  cloud_href = "${data.rightscale_cloud.ec2_us_oregon.id}"
+  cloud_href = "${data.rightscale_cloud.ec2_us_oregon.href}"
   visibility = "public"
   filter {
     name = "My Super Great AMI"
@@ -61,7 +61,7 @@ data "rightscale_image" "my_sweet_ami" {
 
 The following arguments are supported:
 
-* `cloud_href` - (Required) The ID of the cloud with the image you want.
+* `cloud_href` - (Required) The Href of the cloud with the image you want.
 
 * `filter` - (Optional) block supports:
 

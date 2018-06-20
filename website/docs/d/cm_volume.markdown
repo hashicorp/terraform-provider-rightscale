@@ -8,13 +8,13 @@ description: |-
 
 # rightscale_volume
 
-Use this data source to get the ID or other attributes  of an existing volume for use in other resources.
+Use this data source to locate and extract info about an existing [volume](http://reference.rightscale.com/api1.5/resources/ResourceVolumes.html) to pass to other rightscale resources.
 
 ## Example Usage 1: Basic configuration of a volume data source
 
 ```hcl
 data "rightscale_volume" "a_volume" {
-  cloud_href = "/api/clouds/1"
+  cloud_href = "${data.rightscale_cloud.ec2_us_oregon.href}"
 
   filter {
     name = "my_volume"
@@ -25,8 +25,15 @@ output "volume name" {
   value = "${data.rightscale_volume.a_volume.name}"
 }
 
-output "volume ID" {
-  value = "${data.rightscale_volume.a_volume.id}"
+output "volume href" {
+  value = "${data.rightscale_volume.a_volume.href}"
+}
+
+data "rightscale_cloud" "ec2_us_oregon" {
+  filter {
+    name = "EC2 us-west-2"
+    cloud_type = "amazon"
+  }
 }
 ```
 
@@ -37,8 +44,6 @@ The following arguments are supported:
 * `cloud_href` (REQUIRED) - The cloud_href the volume belongs to
 
 * `filter` (OPTIONAL) - The filter block supports:
-
-  * `id` - The volume ID (e.g. /api/clouds/1/volumes/63NFHKF8B7RP4)
 
   * `name` - The name of the volume
 
@@ -56,8 +61,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `id` - The volume ID (e.g. /api/clouds/1/volumes/63NFHKF8B7RP4)
-
 * `name` - The name of the volume
 
 * `description` - The description of the volume
@@ -72,4 +75,6 @@ The following attributes are exported:
 
 * `updated_at` - Last update of the volume
 
-* `href` - Href of the volume
+* `id` - The volume ID (e.g. rs_cm:/api/clouds/1/volumes/63NFHKF8B7RP4)
+
+* `href` - Href of the volume (e.g. /api/clouds/1/volumes/63NFHKF8B7RP4)

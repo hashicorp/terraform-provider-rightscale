@@ -1,6 +1,6 @@
 # Change Log
 
-## [v1.2.1](https://github.com/rightscale/terraform-provider-rightscale/tree/HEAD)
+## [v1.2.1](https://github.com/rightscale/terraform-provider-rightscale/tree/v1.2.1)
 
 [Full Changelog](https://github.com/rightscale/terraform-provider-rightscale/compare/v1.2.0...v1.2.1)
 
