@@ -35,9 +35,9 @@ output "multi cloud image href" {
 
 The following arguments are supported:
 
-* `server_template_href` (OPTIONAL) - The server_template_href the multi cloud image appears in
+* `server_template_href` (Optional) - The server_template_href the multi cloud image appears in
 
-* `filter` (OPTIONAL) - The filter block supports:
+* `filter` (Optional) - The filter block supports:
 
   * `name` - The name of the multi cloud image
 

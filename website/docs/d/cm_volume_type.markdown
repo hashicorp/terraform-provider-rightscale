@@ -29,9 +29,9 @@ data "rightscale_volume_type" "aws_us_east_ebs_gp2" {
 
 The following arguments are supported:
 
-* `cloud_href` (REQUIRED) - The cloud_href the volume type belongs to
+* `cloud_href` (Required) - The cloud_href the volume type belongs to
 
-* `filter` (OPTIONAL) - The filter block supports:
+* `filter` (Optional) - The filter block supports:
 
   * `name` - The name of the volume type as reported by the rightscale platform
 

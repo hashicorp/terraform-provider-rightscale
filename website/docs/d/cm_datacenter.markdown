@@ -42,9 +42,9 @@ data "rightscale_cloud" "ec2_us_oregon" {
 
 The following arguments are supported:
 
-* `cloud_href` (REQUIRED) - The Href of the cloud the datacenter belongs to
+* `cloud_href` (Required) - The Href of the cloud the datacenter belongs to
 
-* `filter` (OPTIONAL) - The filter block supports:
+* `filter` (Optional) - The filter block supports:
 
   * `name` - The name of the datacenter
 

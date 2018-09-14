@@ -3,13 +3,12 @@ layout: "rightscale"
 page_title: "Rightscale: cloud"
 sidebar_current: "docs-rightscale-datasource-cloud"
 description: |-
-  Defines a cloud datasource to operate against. 
+  Defines a cloud datasource to operate against.
 ---
 
 # rightscale_cloud
 
 Use this data source to locate and extract info about an existing [cloud](http://reference.rightscale.com/api1.5/resources/ResourceClouds.html) to pass to other rightscale resources.
-Registration of clouds in a given RightScale account will need to have been executed ahead of time to define it as a cloud datasource. 
 
 ## Example Usage
 
@@ -38,7 +37,7 @@ The following arguments are supported:
 
 The `filter` block supports:
 
-* `name` - (Optional) Cloud name as displayed in cm platform.  Pattern match. 
+* `name` - (Optional) Cloud name as displayed in cm platform.  Pattern match.
 
 * `description` - (Optional) Cloud description as displayed in cm platform.  Pattern match.
 
@@ -54,7 +53,7 @@ The following attributes are exported:
 
 * `description` - Cloud description as displayed in cm platform.
 
-* `cloud_type` - Cloud type as referenced in cm platform. 
+* `cloud_type` - Cloud type as referenced in cm platform.
 
 * `links` - Hrefs of related API resources.
 

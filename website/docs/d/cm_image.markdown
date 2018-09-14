@@ -10,8 +10,6 @@ description: |-
 
 Use this data source to locate and extract info about an existing [image](http://reference.rightscale.com/api1.5/resources/ResourceImages.html) to pass to other rightscale resources. Sets default filter scope to own account, but allows for public searching if specified in filter block.
 
-Beware that searching a very popular cloud (say aws us-east) based on name with 'visibility = "public"' is gonna be slow...
-
 ## Example Usage #1 - Finding specific AMI in own account based on resource_uid
 
 ```hcl
@@ -65,7 +63,7 @@ The following arguments are supported:
 
 * `filter` - (Optional) block supports:
 
-  * `visibility` (Optional) Image visibility as displayed in cm platform.  Options are "private" or "public."  Defaults to "private."
+  * `visibility` (Optional) Image visibility as displayed in cm platform.  Options are "private" or "public."  Defaults to "private."  A public search will greatly increase execution time and result set size, so care should be taken when toggling this argument.
 
   * `resource_uid` (Optional) Image resource_uid.  If this filter option is set, additional retry logic will be enabled to wait up to 5 minutes for cloud resources to be polled and populated for use.
 

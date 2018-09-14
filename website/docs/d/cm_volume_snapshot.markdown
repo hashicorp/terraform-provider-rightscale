@@ -42,9 +42,9 @@ data "rightscale_cloud" "ec2_us_oregon" {
 
 The following arguments are supported:
 
-* `cloud_href` (REQUIRED) - The cloud_href the volume snapshot belongs to
+* `cloud_href` (Required) - The cloud_href the volume snapshot belongs to
 
-* `filter` (OPTIONAL) - The filter block supports:
+* `filter` (Optional) - The filter block supports:
 
   * `name` - The name of the volume snapshot
 
