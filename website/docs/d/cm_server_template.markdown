@@ -35,7 +35,7 @@ output "server template href" {
 
 The following arguments are supported:
 
-* `filter` (OPTIONAL) - The filter block supports:
+* `filter` (Optional) - The filter block supports:
 
   * `name` - The name of the server template
   
