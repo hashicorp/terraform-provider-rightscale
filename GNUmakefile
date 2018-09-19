@@ -1,22 +1,20 @@
 TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
-DEP := $(shell command -v dep 2> /dev/null)
+WEBSITE_REPO=github.com/hashicorp/terraform-website
+PKG_NAME=rightscale
 
 default: build
 
-sanitycheck:
-	$(MAKE) depensure
-	$(MAKE) fmtcheck
 
-build: sanitycheck
+build: 
 	go install
 
-test: sanitycheck
+test: 
 	go test -i $(TEST) || exit 1
 	echo $(TEST) | \
 		xargs -t -n4 go test $(TESTARGS) -timeout=300s -parallel=4
 
-testacc: sanitycheck
+testacc: 
 	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m -parallel=8
 
 vet:
@@ -34,19 +32,13 @@ fmt:
 fmtcheck:
 	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
 
-depensure:
-ifndef DEP
-  $(error "No dep in $(PATH), install: https://github.com/golang/dep#setup")
-endif
-	@sh -c "dep ensure"
-
 errcheck:
 	@sh -c "'$(CURDIR)/scripts/errcheck.sh'"
 
 vendor-status:
 	@govendor status
 
-test-compile: depensure
+test-compile: 
 	@if [ "$(TEST)" = "./..." ]; then \
 		echo "ERROR: Set TEST to a specific package. For example,"; \
 		echo "  make test-compile TEST=./aws"; \
@@ -68,5 +60,5 @@ ifeq (,$(wildcard $(GOPATH)/src/$(WEBSITE_REPO)))
 endif
 	@$(MAKE) -C $(GOPATH)/src/$(WEBSITE_REPO) website-provider-test PROVIDER_PATH=$(shell pwd) PROVIDER_NAME=$(PKG_NAME)
 
-.PHONY: build sanitycheck depensure test testacc vet fmt fmtcheck errcheck vendor-status test-compile
+.PHONY: build test testacc vet fmt fmtcheck errcheck vendor-status test-compile
 
