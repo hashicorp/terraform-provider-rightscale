@@ -36,7 +36,7 @@ The following arguments are supported:
 
 * `server_template_href` - (Optional) The href of the instance server template resource.
 
-* `inputs` - (Optional) Inputs associated with an instance when incarnated from a [server](https://github.com/rightscale/terraform-provider-rightscale/blob/master/website/docs/r/cm_server.markdown) or [server_array](https://github.com/rightscale/terraform-provider-rightscale/blob/master/website/docs/r/cm_server_array.markdown).
+* `inputs` - (Optional) Inputs associated with an instance when incarnated from a [server](https://github.com/terraform-providers/terraform-provider-rightscale/blob/master/website/docs/r/cm_server.markdown) or [server_array](https://github.com/terraform-providers/terraform-provider-rightscale/blob/master/website/docs/r/cm_server_array.markdown).
 
 * `associate_public_ip_address` - (Optional) Indicates if the instance will get a Public IP address.
 

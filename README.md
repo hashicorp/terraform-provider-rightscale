@@ -4,10 +4,10 @@ terraform-provider-rightscale
 This is the Terraform provider for RightScale.  Acceptance into the terraform community and as an official provider is now in progress, but as of this version all tests, docs, and sufficient resources for full operational coverage is complete and tested. [ Note that instructions below are forward-looking for where this repo will move in the near future. ]
 
 Markdown (Documentation) is available here:
-- [Resources](https://github.com/rightscale/terraform-provider-rightscale/tree/master/website/docs/r)
-- [Datasources](https://github.com/rightscale/terraform-provider-rightscale/tree/master/website/docs/d)
+- [Resources](https://github.com/terraform-providers/terraform-provider-rightscale/tree/master/website/docs/r)
+- [Datasources](https://github.com/terraform-providers/terraform-provider-rightscale/tree/master/website/docs/d)
 
-Please [open an issue](https://github.com/rightscale/terraform-provider-rightscale/issues/new) if you find a bug or otherwise are interested in contributing to this open source effort.  PRs accepted!
+Please [open an issue](https://github.com/terraform-providers/terraform-provider-rightscale/issues/new) if you find a bug or otherwise are interested in contributing to this open source effort.  PRs accepted!
 
 Terraform Provider
 ==================
@@ -45,7 +45,7 @@ $ make build
 Using the provider
 ----------------------
 
-See the [RightScale Provider documentation](https://github.com/rightscale/terraform-provider-rightscale/blob/master/website/docs/index.html.markdown) to get started using the RightScale provider.
+See the [RightScale Provider documentation](https://github.com/terraform-providers/terraform-provider-rightscale/blob/master/website/docs/index.html.markdown) to get started using the RightScale provider.
 
 Developing the Provider
 ---------------------------

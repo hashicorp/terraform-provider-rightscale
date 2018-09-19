@@ -55,7 +55,7 @@ The following attributes are exported:
 
 * `description` - A description of the server
 
-* `instance` - See [rightscale_instance](https://github.com/rightscale/terraform-provider-rightscale/blob/master/rightscale/website/docs/r/cm_server.markdown)
+* `instance` - See [rightscale_instance](https://github.com/terraform-providers/terraform-provider-rightscale/blob/master/rightscale/website/docs/r/cm_server.markdown)
 
 * `optimized` - A flag indicating whether instances of this server should be optimized for high-performance volumes
 

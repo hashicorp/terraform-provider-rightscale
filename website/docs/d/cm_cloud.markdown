@@ -41,7 +41,7 @@ The `filter` block supports:
 
 * `description` - (Optional) Cloud description as displayed in cm platform.  Pattern match.
 
-* `cloud_type` - (Optional) Cloud type as referenced in cm platform.  Common types include: amazon, google, azure, and vscale.  See  [supportedCloudTypes](https://github.com/rightscale/terraform-provider-rightscale/blob/master/rightscale/data_source_cloud.go#L95) for complete list.
+* `cloud_type` - (Optional) Cloud type as referenced in cm platform.  Common types include: amazon, google, azure, and vscale.  See  [supportedCloudTypes](https://github.com/terraform-providers/terraform-provider-rightscale/blob/master/rightscale/data_source_cloud.go#L95) for complete list.
 
 ## Attributes Reference
 
