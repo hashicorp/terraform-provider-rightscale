@@ -1,3 +1,4 @@
+## 1.3.1 (Unreleased)
 ## 1.3.0 (September 19, 2018)
 
 [Full Changelog](https://github.com/terraform-providers/terraform-provider-rightscale/compare/v1.2.1...v1.3.0)
