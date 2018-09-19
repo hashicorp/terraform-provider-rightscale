@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
+	"github.com/terraform-providers/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // Provider returns the RightScale terraform provider.

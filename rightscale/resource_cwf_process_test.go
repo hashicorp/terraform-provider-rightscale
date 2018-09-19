@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
+	"github.com/terraform-providers/terraform-provider-rightscale/rightscale/rsc"
 )
 
 func TestAccRightScaleCWFProcess_basic(t *testing.T) {

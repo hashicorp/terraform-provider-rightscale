@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
+	"github.com/terraform-providers/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // Example:

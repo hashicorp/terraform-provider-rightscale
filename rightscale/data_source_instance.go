@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"github.com/rightscale/terraform-provider-rightscale/rightscale/rsc"
+	"github.com/terraform-providers/terraform-provider-rightscale/rightscale/rsc"
 )
 
 // Examples:
