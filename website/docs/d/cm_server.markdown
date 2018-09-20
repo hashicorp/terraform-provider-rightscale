@@ -31,7 +31,7 @@ data "rightscale_server" "web_server" {
 resource "rightscale_security_group" "sg_web_out" {
   name = "${data.rigthscale_server.web_server.name}"
   cloud_href = "/api/clouds/1234"
-  deployment_href = "/api/deployments/1234
+  deployment_href = "/api/deployments/1234"
   description = "Web server security group"
   network_href = "/api/clouds/1234/networks/1234"
 }
