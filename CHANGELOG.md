@@ -3,6 +3,7 @@
 **Closed issues:**
 
 - Missing Endquotes, Issue [\#4](https://github.com/terraform-providers/terraform-provider-rightscale/issues/4) ([mastamark](https://github.com/mastamark))
+- Fixes in documentation index page, Issue [\#7](https://github.com/terraform-providers/terraform-provider-rightscale/issues/7) ([crunis](https://github.com/crunis))
 
 ## 1.3.0 (September 19, 2018)
 
