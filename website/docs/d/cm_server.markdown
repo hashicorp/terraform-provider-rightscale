@@ -31,7 +31,7 @@ data "rightscale_server" "web_server" {
 resource "rightscale_security_group" "sg_web_out" {
   name = "${data.rigthscale_server.web_server.name}"
   cloud_href = "/api/clouds/1234"
-  deployment_href = "/api/deployments/1234
+  deployment_href = "/api/deployments/1234"
   description = "Web server security group"
   network_href = "/api/clouds/1234/networks/1234"
 }
@@ -55,7 +55,7 @@ The following attributes are exported:
 
 * `description` - A description of the server
 
-* `instance` - See [rightscale_instance](https://github.com/terraform-providers/terraform-provider-rightscale/blob/master/rightscale/website/docs/r/cm_server.markdown)
+* `instance` - See [rightscale_instance](https://github.com/terraform-providers/terraform-provider-rightscale/blob/master/website/docs/r/cm_server.markdown)
 
 * `optimized` - A flag indicating whether instances of this server should be optimized for high-performance volumes
 

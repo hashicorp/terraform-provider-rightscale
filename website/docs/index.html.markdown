@@ -3,7 +3,7 @@ layout: "rightscale"
 page_title: "Provider: Rightscale"
 sidebar_current: "docs-rightscale-index"
 description: |-
-  The Rightscale provider is used to interact with the the RightScale Cloud Management Platform. The provider needs to be configured with the proper credentials before it can be used.
+  The RightScale provider is used to interact with the RightScale Cloud Management Platform. The provider needs to be configured with the proper credentials before it can be used.
 ---
 
 # RightScale Provider
