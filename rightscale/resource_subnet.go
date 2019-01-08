@@ -25,32 +25,32 @@ func resourceSubnet() *schema.Resource {
 		Update: resourceUpdateFunc(subnetWriteFields),
 
 		Schema: map[string]*schema.Schema{
-			"cidr_block": &schema.Schema{
+			"cidr_block": {
 				Description: "range of IP addresses for subnet, this parameter is required for Amazon clouds",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"datacenter_href": &schema.Schema{
+			"datacenter_href": {
 				Description: "ID of subnet datacenter",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Description: "description of subnet",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Description: "name of subnet",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"network_href": &schema.Schema{
+			"network_href": {
 				Description: "ID of subnet network",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"route_table_href": &schema.Schema{
+			"route_table_href": {
 				Description: "ID of subnet route table",
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -63,7 +63,7 @@ func resourceSubnet() *schema.Resource {
 			},
 
 			// Read-only fields
-			"is_default": &schema.Schema{
+			"is_default": {
 				Description: "whether the subnet is the network default subnet",
 				Type:        schema.TypeBool,
 				Computed:    true,
@@ -73,7 +73,7 @@ func resourceSubnet() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeMap},
 				Computed: true,
 			},
-			"resource_uid": &schema.Schema{
+			"resource_uid": {
 				Description: "cloud ID of subnet resource",
 				Type:        schema.TypeString,
 				Computed:    true,

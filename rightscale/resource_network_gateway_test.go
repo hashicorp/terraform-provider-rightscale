@@ -30,7 +30,7 @@ func TestAccRightScaleNetworkGateway(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkGatewayDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccNetworkGateway(NetworkGatewayName, networkGatewayDescription, networkGatewayType, cloudHref),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkGatewayExists("rightscale_network_gateway.test_network_gateway", &depl),

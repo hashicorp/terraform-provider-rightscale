@@ -24,7 +24,7 @@ func TestAccRightScaleCredential_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCredentialDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccCredential_basic(credentialName, credentialValue, credentialDescription),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCredential("rightscale_credential.credential_test", "data.rightscale_credential.credential_test"),

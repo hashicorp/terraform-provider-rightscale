@@ -32,7 +32,7 @@ func TestAccRightScaleServer_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckServerDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccServer_basic(serverName, instanceName, cloudHref, imageHref, typeHref, deploymentHref, templateHref, subnetHref),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckServerExists("rightscale_server.test-server", &server),
@@ -62,7 +62,7 @@ func TestAccRightScaleServer_inputs(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckServerDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccServer_inputs(serverName, instanceName, cloudHref, imageHref, typeHref, deploymentHref, templateHref, subnetHref),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckServerExists("rightscale_server.test-server-inputs", &server),

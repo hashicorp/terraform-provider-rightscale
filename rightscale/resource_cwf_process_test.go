@@ -27,7 +27,7 @@ end
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCWFProcessDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccCWFProcess_basic(src),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCWFProcessExists("rightscale_cwf_process.foobar", &process),
@@ -48,7 +48,7 @@ func TestAccRightScaleCWFProcess_params(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCWFProcessDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccCWFProcess_params(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCWFProcessExists("rightscale_cwf_process.foobar", &process),
@@ -71,7 +71,7 @@ func TestAccRightScaleCWFProcess_collection(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCWFProcessDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccCWFProcess_collection(sgHref),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCWFProcessExists("rightscale_cwf_process.collection", &process),
@@ -98,7 +98,7 @@ end
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCWFProcessDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config:      testAccCWFProcess_basic(src),
 				ExpectError: regexp.MustCompile("test error"),
 			},

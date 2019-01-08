@@ -29,7 +29,7 @@ func TestAccRSDatacenterDatasource(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRSDatacenterDatasource(cloudHref),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRSDatacenterExists("data.rightscale_datacenter.a_dc", &datacenterHref),

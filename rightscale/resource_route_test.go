@@ -31,7 +31,7 @@ func TestAccRightScaleRoute(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRouteDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRoute(routeDescription, routeFinalDestination, routeNextHopType, networkGateway, routeTable),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRouteExists("rightscale_route.test_route", &depl),

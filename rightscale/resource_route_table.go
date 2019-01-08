@@ -23,22 +23,22 @@ func resourceRouteTable() *schema.Resource {
 		Update: resourceUpdateFunc(routeTableWriteFields),
 
 		Schema: map[string]*schema.Schema{
-			"cloud_href": &schema.Schema{
+			"cloud_href": {
 				Description: "Href of cloud in which to create route table",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Description: "Description of route table",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Description: "Name of route table",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"network_href": &schema.Schema{
+			"network_href": {
 				Description: "Href of network in which to create route table",
 				Type:        schema.TypeString,
 				Required:    true,

@@ -22,17 +22,17 @@ func resourceCredential() *schema.Resource {
 		Update: resourceUpdateFunc(credentialWriteFields),
 
 		Schema: map[string]*schema.Schema{
-			"description": &schema.Schema{
+			"description": {
 				Description: "description of the credential object",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Description: "name of the credential object",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"value": &schema.Schema{
+			"value": {
 				Description: "value of the credential object",
 				Type:        schema.TypeString,
 				Required:    true,
