@@ -29,7 +29,7 @@ func TestAccRightScaleDeployment_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDeploymentDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDeployment_basic(deploymentName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDeploymentExists("rightscale_deployment.foobar", &depl),
@@ -54,7 +54,7 @@ func TestAccRightScaleDeployment_locked(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDeploymentDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDeployment_locked(deploymentName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDeploymentExists("rightscale_deployment.foobar", &depl),
@@ -62,7 +62,7 @@ func TestAccRightScaleDeployment_locked(t *testing.T) {
 				),
 			},
 			// unlock so we can delete, also tests updates
-			resource.TestStep{
+			{
 				Config: testAccDeployment_unlocked(deploymentName),
 			},
 		},

@@ -31,7 +31,7 @@ func TestAccRightScaleRouteTable(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRouteTableDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRouteTable(routeTableName, routeTableDescription, cloudHref, networkHref),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRouteTableExists("rightscale_route_table.test_route_table", &depl),

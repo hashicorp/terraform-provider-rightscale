@@ -82,7 +82,7 @@ func dataSourceServerTemplate() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"href": &schema.Schema{
+			"href": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

@@ -26,28 +26,28 @@ func resourceNetworkGateway() *schema.Resource {
 		Update: resourceUpdateFunc(networkGatewayWriteFields),
 
 		Schema: map[string]*schema.Schema{
-			"cloud_href": &schema.Schema{
+			"cloud_href": {
 				Description: "ID of cloud in which to create network gateway",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Description: "description of network gateway",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Description: "name of network gateway",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"type": &schema.Schema{
+			"type": {
 				Description:  "type of network gateway",
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"internet", "vpc"}, false),
 			},
-			"network_href": &schema.Schema{
+			"network_href": {
 				Description: "network href to attach to",
 				Type:        schema.TypeString,
 				Optional:    true,

@@ -60,29 +60,29 @@ func resourceServerArray() *schema.Resource {
 		Update: resourceUpdateFunc(serverArrayWriteFields),
 
 		Schema: map[string]*schema.Schema{
-			"array_type": &schema.Schema{
+			"array_type": {
 				Description:  "The array type for the Server Array.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"alert", "queue"}, false),
 			},
-			"datacenter_policy": &schema.Schema{
+			"datacenter_policy": {
 				Type:     schema.TypeList,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"datacenter_href": &schema.Schema{
+						"datacenter_href": {
 							Description: "The href of the Datacenter / Zone.",
 							Type:        schema.TypeString,
 							Required:    true,
 						},
-						"max": &schema.Schema{
+						"max": {
 							Description: "Max instances (0 for unlimited).",
 							Type:        schema.TypeInt,
 							Required:    true,
 						},
-						"weight": &schema.Schema{
+						"weight": {
 							Description: "Instance allocation (should total 100%).",
 							Type:        schema.TypeInt,
 							Required:    true,
@@ -90,35 +90,35 @@ func resourceServerArray() *schema.Resource {
 					},
 				},
 			},
-			"deployment_href": &schema.Schema{
+			"deployment_href": {
 				Description: "ID of deployment in which to create server_array",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Description: "description of server_array",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"elasticity_params": &schema.Schema{
+			"elasticity_params": {
 				Type:     schema.TypeList,
 				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"alert_specific_params": &schema.Schema{
+						"alert_specific_params": {
 							Type:        schema.TypeList,
 							Description: "Alert based server array params, required if 'array_type' is 'alert'",
 							Optional:    true,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"decision_threshold": &schema.Schema{
+									"decision_threshold": {
 										Description: "The percentage of servers that must agree in order to trigger an alert before an action is taken.",
 										Type:        schema.TypeInt,
 										Optional:    true,
 									},
-									"voters_tag_predicate": &schema.Schema{
+									"voters_tag_predicate": {
 										Description: "The Voters Tag that RightScale will use in order to determine when to scale up/down.",
 										Type:        schema.TypeString,
 										Optional:    true,
@@ -126,18 +126,18 @@ func resourceServerArray() *schema.Resource {
 								},
 							},
 						},
-						"bounds": &schema.Schema{
+						"bounds": {
 							Type:     schema.TypeList,
 							Required: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"max_count": &schema.Schema{
+									"max_count": {
 										Description: "The maximum number of servers that can be operational at the same time in the server array.",
 										Type:        schema.TypeInt,
 										Required:    true,
 									},
-									"min_count": &schema.Schema{
+									"min_count": {
 										Description: "The minimum number of servers that must be operational at all times in the server array.",
 										Type:        schema.TypeInt,
 										Required:    true,
@@ -145,23 +145,23 @@ func resourceServerArray() *schema.Resource {
 								},
 							},
 						},
-						"pacing": &schema.Schema{
+						"pacing": {
 							Type:     schema.TypeList,
 							Required: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"resize_calm_time": &schema.Schema{
+									"resize_calm_time": {
 										Description: "The time (in minutes) on how long you want to wait before you repeat another action.",
 										Type:        schema.TypeInt,
 										Optional:    true,
 									},
-									"resize_down_by": &schema.Schema{
+									"resize_down_by": {
 										Description: "The number of servers to scale down by.",
 										Type:        schema.TypeInt,
 										Optional:    true,
 									},
-									"resize_up_by": &schema.Schema{
+									"resize_up_by": {
 										Description: "The number of servers to scale up by.",
 										Type:        schema.TypeInt,
 										Optional:    true,
@@ -169,35 +169,35 @@ func resourceServerArray() *schema.Resource {
 								},
 							},
 						},
-						"queue_specific_params": &schema.Schema{
+						"queue_specific_params": {
 							Type:     schema.TypeList,
 							Optional: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"collect_audit_entries": &schema.Schema{
+									"collect_audit_entries": {
 										Description: "The audit SQS queue that will store audit entries.",
 										Type:        schema.TypeString,
 										Optional:    true,
 									},
-									"item_age": &schema.Schema{
+									"item_age": {
 										Type:     schema.TypeList,
 										Required: true,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"algorithm": &schema.Schema{
+												"algorithm": {
 													Description:  "The algorithm that defines how an item's age will be determined, either by the average age or max (oldest) age.",
 													Type:         schema.TypeString,
 													Optional:     true,
 													ValidateFunc: validation.StringInSlice([]string{"max_10", "avg_10"}, false),
 												},
-												"max_age": &schema.Schema{
+												"max_age": {
 													Description: "The threshold (in seconds) before a resize action occurs on the server array.",
 													Type:        schema.TypeInt,
 													Optional:    true,
 												},
-												"regexp": &schema.Schema{
+												"regexp": {
 													Description: "The regexp that helps the system determine an item's \"age\" in the queue. Example: created_at: (\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d UTC)",
 													Type:        schema.TypeString,
 													Optional:    true,
@@ -205,13 +205,13 @@ func resourceServerArray() *schema.Resource {
 											},
 										},
 									},
-									"queue_size": &schema.Schema{
+									"queue_size": {
 										Type:     schema.TypeList,
 										Required: true,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"items_per_instance": &schema.Schema{
+												"items_per_instance": {
 													Description: "Defines the ratio of worker instances per items in the queue. Example: If there are 50 items in the queue and \"Items per instance\" is set to 10, the server array will resize to 5 worker instances (50/10). Default = 1",
 													Type:        schema.TypeInt,
 													Optional:    true,
@@ -222,28 +222,28 @@ func resourceServerArray() *schema.Resource {
 								},
 							},
 						},
-						"schedule": &schema.Schema{
+						"schedule": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"day": &schema.Schema{
+									"day": {
 										Description:  "Specifies the day when an alert-based array resizes.",
 										Type:         schema.TypeString,
 										Required:     true,
 										ValidateFunc: validation.StringInSlice([]string{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}, false),
 									},
-									"max_count": &schema.Schema{
+									"max_count": {
 										Description: "The maximum number of servers that must be operational at all times in the server array. NOTE: Any changes that are made to the min/max count in the server array schedule will overwrite the array's default min/max count settings.",
 										Type:        schema.TypeInt,
 										Required:    true,
 									},
-									"min_count": &schema.Schema{
+									"min_count": {
 										Description: "The minimum number of servers that must be operational at all times in the server array. NOTE: Any changes that are made to the min/max count in the server array schedule will overwrite the array's default min/max count settings.",
 										Type:        schema.TypeInt,
 										Required:    true,
 									},
-									"time": &schema.Schema{
+									"time": {
 										Description: "Specifies the time when an alert-based array resizes.",
 										Type:        schema.TypeString,
 										Required:    true,
@@ -254,24 +254,24 @@ func resourceServerArray() *schema.Resource {
 					},
 				},
 			},
-			"instance": &schema.Schema{
+			"instance": {
 				Description: "server array instance details",
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Required:    true,
 				Elem:        resourceInstance(),
 			},
-			"name": &schema.Schema{
+			"name": {
 				Description: "name of server array",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"optimized": &schema.Schema{
+			"optimized": {
 				Description: "A flag indicating whether Instances of this ServerArray should be optimized for high-performance volumes (e.g. Volumes supporting a specified number of IOPS). Not supported in all Clouds.",
 				Type:        schema.TypeBool,
 				Optional:    true,
 			},
-			"state": &schema.Schema{
+			"state": {
 				Description:  "The status of the server array. If active, the server array is enabled for scaling actions.",
 				Type:         schema.TypeString,
 				Required:     true,
@@ -284,7 +284,7 @@ func resourceServerArray() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeMap},
 				Computed: true,
 			},
-			"href": &schema.Schema{
+			"href": {
 				Description: "href of array",
 				Type:        schema.TypeString,
 				Computed:    true,

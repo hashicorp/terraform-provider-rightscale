@@ -26,27 +26,27 @@ func resourceDeployment() *schema.Resource {
 		Update: resourceDeploymentUpdate,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Description: "name of deployment",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Description: "description of deployment",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"resource_group_href": &schema.Schema{
+			"resource_group_href": {
 				Description: "ID of the Windows Azure Resource Group attached to the deployment",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"locked": &schema.Schema{
+			"locked": {
 				Description: "whether deployment is locked",
 				Type:        schema.TypeBool,
 				Optional:    true,
 			},
-			"server_tag_scope": &schema.Schema{
+			"server_tag_scope": {
 				Description:  "routing scope for tags for servers in the deployment",
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -60,7 +60,7 @@ func resourceDeployment() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeMap},
 				Computed: true,
 			},
-			"href": &schema.Schema{
+			"href": {
 				Description: "href of deployment",
 				Type:        schema.TypeString,
 				Computed:    true,

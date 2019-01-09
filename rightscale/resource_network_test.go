@@ -31,7 +31,7 @@ func TestAccRightScaleNetwork(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccNetwork(NetworkName, networkDescription, networkCidrBlock, cloudHref),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkExists("rightscale_network.test_network", &depl),

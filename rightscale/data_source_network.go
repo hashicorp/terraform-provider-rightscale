@@ -90,7 +90,7 @@ func dataSourceNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"href": &schema.Schema{
+			"href": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

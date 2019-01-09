@@ -27,7 +27,7 @@ func TestAccRSRouteTableatasource(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRSRouteTableDatasource("amazon"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRSRouteTableExists("data.rightscale_route_table.a_route_table", &objHref),

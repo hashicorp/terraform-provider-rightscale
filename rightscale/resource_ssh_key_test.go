@@ -26,7 +26,7 @@ func TestAccRightScaleSSHKey_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSSHKeyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccSSHKey_basic(sshKeyName, cloudHref),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSSHKeyExists("rightscale_ssh_key.ssh_key_test", &sshKey),

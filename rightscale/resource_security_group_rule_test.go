@@ -27,7 +27,7 @@ func TestAccRightScaleSecurityRuleGroup(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSecurityGroupRuleDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccSecurityGroupRule(securityGroup, sgCidrIps),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSecurityGroupRuleExists("rightscale_security_group_rule.test_sg_rule", &depl),

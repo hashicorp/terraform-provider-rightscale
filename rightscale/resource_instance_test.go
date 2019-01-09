@@ -29,7 +29,7 @@ func TestAccRightScaleInstance_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccInstance_basic(instanceName, cloudHref, subnetHref, imageHref, typeHref),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceExists("rightscale_instance.test-instance", &inst),
@@ -57,7 +57,7 @@ func TestAccRightScaleInstance_userdata(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccInstance_userdata(instanceName, cloudHref, subnetHref, imageHref, typeHref, userData),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceExists("rightscale_instance.test-instance", &inst),
@@ -84,21 +84,21 @@ func TestAccRightScaleInstance_locked(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccInstance_basic(instanceName, cloudHref, subnetHref, imageHref, typeHref),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceExists("rightscale_instance.test-instance", &inst),
 					testAccCheckInstanceDatasource("rightscale_instance.test-instance", "data.rightscale_instance.test-instance"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccInstance_locked(instanceName, cloudHref, subnetHref, imageHref, typeHref),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceExists("rightscale_instance.test-instance", &inst),
 					testAccCheckInstanceLocked(&inst),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccInstance_unlocked(instanceName, cloudHref, subnetHref, imageHref, typeHref),
 			},
 		},

@@ -16,14 +16,14 @@ func resourceCWFProcess() *schema.Resource {
 		Create: resourceCWFProcessCreate,
 
 		Schema: map[string]*schema.Schema{
-			"parameters": &schema.Schema{
+			"parameters": {
 				Description: "main definition parameter values in order of declaration",
 				Type:        schema.TypeList,
 				Elem:        cwfParameterResource(),
 				Optional:    true,
 				ForceNew:    true,
 			},
-			"source": &schema.Schema{
+			"source": {
 				Description: "process source code, must contain a definition called 'main'",
 				Type:        schema.TypeString,
 				Required:    true,
