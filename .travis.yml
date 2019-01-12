@@ -1,7 +1,7 @@
 dist: trusty
 language: go
 go:
-  - 1.11
+  - "1.11.x"
 git:
   depth: 100000 # will need to find the most recent tag for pkg.VERSION
 cache:
