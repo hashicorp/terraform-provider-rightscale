@@ -1,0 +1,42 @@
+dist: trusty
+language: go
+go:
+  - "1.11.x"
+git:
+  depth: 100000 # will need to find the most recent tag for pkg.VERSION
+cache:
+  directories:
+    - $GOPATH/pkg
+    - .autoconf
+    - vendor
+env:
+  global:
+    - ROOT_DIR=$PWD
+    - NAMESPACE="travis-$TRAVIS_BUILD_ID-`date -u '+%Y-%m-%d'`"
+before_install:
+  - mkdir -p tmp
+  - curl -s https://raw.githubusercontent.com/rightscale/ci/v1/travis-setup.sh > tmp/travis-setup.sh && DOCKER=false source tmp/travis-setup.sh
+  - curl -o tmp/dep -L https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-amd64 && chmod +x tmp/dep && sudo mv tmp/dep /usr/local/bin/
+before_script:
+  # try `dep ensure` multiple times -- can fail intermittently when fetching
+  - travis_retry dep ensure
+  - if [ "`git status -s | wc -l`" -gt "0" ]; then
+      echo "[ERROR] files changed, dirtying workspace; verify that committed files are up to date:";
+      echo; git status -s; git --no-pager diff; echo; false;
+    fi
+script:
+  # always run tests for every push
+  - make test;
+  # Only run acceptance tests if :
+  #   RIGHTSCALE_API_TOKEN is set up (encrypted variable not available from external PRs, avoids false red builds)
+  #   ... and only for master / merge to master builds - launching instances and stuff is pricy!
+  # Output something every 10 minutes or Travis kills the job
+  - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
+  - |
+    if [[ ! -z "$RIGHTSCALE_API_TOKEN" && $TRAVIS_BRANCH =~ ^master$ ]]; then
+      make testacc;
+    else
+      echo "SKIPPING acceptance tests since RIGHTSCALE_API_TOKEN not set and/or TRAVIS_BRANCH is not master";
+    fi
+  # Killing background sleep loop
+  - kill %1
