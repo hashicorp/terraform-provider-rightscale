@@ -11,6 +11,7 @@ cache:
     - vendor
 env:
   global:
+    - GOFLAGS=-mod=vendor GO111MODULE=on
     - ROOT_DIR=$PWD
     - NAMESPACE="travis-$TRAVIS_BUILD_ID-`date -u '+%Y-%m-%d'`"
 before_install:
