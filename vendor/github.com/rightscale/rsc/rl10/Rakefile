@@ -1,4 +1,0 @@
-require 'praxis'
-require 'praxis/tasks'
-
-task :default => 'praxis:docs:generate'
