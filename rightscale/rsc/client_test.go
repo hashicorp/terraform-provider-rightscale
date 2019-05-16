@@ -3,10 +3,12 @@ package rsc
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -25,6 +27,10 @@ import (
 //     * RIGHTSCALE_API_TOKEN is the API token used to auth API requests made to RightScale.
 //     * RIGHTSCALE_PROJECT_ID is the RightScale project used to run the tests.
 //     * DEBUG causes additional output useful to troubleshoot issues.
+
+var (
+	serverDescriptionJSONEscapeRE = regexp.MustCompile(`"description":"([^"]+)"`)
+)
 
 type mockServer struct {
 	or        []string // rshosts previous value
@@ -124,6 +130,15 @@ func (ms *mockServer) launch(t *testing.T, testCase string) Client {
 				case "runProcess", "getProcess":
 					writer.Header().Set("Location", fmt.Sprintf("/accounts/%d/processes/5b06d1b51c028800360030f9", ms.projectID))
 				case "createServer", "createServerNoOutputs":
+					b, _ := ioutil.ReadAll(request.Body)
+					p := &struct {
+						Source string
+					}{}
+					json.Unmarshal(b, p)
+					matches := serverDescriptionJSONEscapeRE.FindStringSubmatch(p.Source)
+					if matches[1] != "< & >" {
+						t.Errorf(`got description: %#v, expected: "< & >"`, matches[1])
+					}
 					writer.Header().Set("Location", fmt.Sprintf("/accounts/%d/processes/5b082948a17cac6ee9ece729", ms.projectID))
 				case "runRCLWithDefinitions":
 					writer.Header().Set("Location", fmt.Sprintf("/accounts/%d/processes/5b11716f1c02882cf0fdaa84", ms.projectID))
@@ -548,6 +563,7 @@ func TestList(t *testing.T) {
 		{"linked-and-filtered", namespace, typ, "/api/clouds/1", "datacenters", Fields{"filter[]": "name==us-east-1a"}, "us-east-1a", ""},
 		{"no-namespace", "", typ, "", "", nil, "", "resource locator is invalid: namespace is missing"},
 		{"no-type-no-href", "", "", "", "", nil, "", "resource locator is invalid: namespace is missing"},
+		{"no-escape-html", namespace, typ, "", "", Fields{"filter[]": "name<>EC2"}, "", ""},
 	}
 
 	for _, c := range cases {
@@ -585,7 +601,7 @@ func TestCreate(t *testing.T) {
 	const (
 		namespace = "rs_cm"
 		typ       = "deployment"
-		deplDesc  = "Created by tests"
+		deplDesc  = "Created by tests < & >"
 	)
 	depl := "Terraform Provider Test Deployment " + acctest.RandString(4)
 	token := validToken(t)
@@ -646,7 +662,8 @@ func TestCreateServer(t *testing.T) {
 				],
 				"user_data": ""
 			},
-			"name": "terraform-test-server-7hcxelcntc-8k8ae2u7ia"
+			"name": "terraform-test-server-7hcxelcntc-8k8ae2u7ia",
+			"description": "< & >"
 		}
 	}`
 
