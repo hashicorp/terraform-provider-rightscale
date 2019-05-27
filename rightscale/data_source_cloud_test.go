@@ -5,10 +5,9 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/rightscale/rsc/rsapi"
-
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"github.com/rightscale/rsc/rsapi"
 )
 
 func TestAccRSCloudDatasource(t *testing.T) {
@@ -42,7 +41,7 @@ func TestAccRSCloudDatasource(t *testing.T) {
 func testAccRSCloudDatasource(ct string) string {
 	return fmt.Sprintf(`
 data "rightscale_cloud" "a_cloud" {
-	filter = {
+	filter {
 		cloud_type = "%s"
 	}
 }

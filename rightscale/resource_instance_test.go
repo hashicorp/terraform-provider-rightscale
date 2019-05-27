@@ -238,7 +238,7 @@ resource "rightscale_instance" "test-instance" {
 
 data "rightscale_instance" "test-instance" {
 	cloud_href = %q
-	filter = {
+	filter {
 		name = "${rightscale_instance.test-instance.name}"
 	}
 }
