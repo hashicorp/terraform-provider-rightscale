@@ -1,4 +1,4 @@
-## 1.3.1 (Unreleased)
+## 1.3.1 (July 03, 2019)
 
 **Closed issues:**
 
