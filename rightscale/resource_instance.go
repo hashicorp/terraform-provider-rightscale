@@ -28,34 +28,34 @@ func resourceInstance() *schema.Resource {
 		// fields can be modified as long as the instance is not
 		// running.
 		Schema: map[string]*schema.Schema{
-			"associate_public_ip_address": &schema.Schema{
+			"associate_public_ip_address": {
 				Description: "Specify whether or not you want a public IP assigned when this Instance is launched. Only applies to Network-enabled Instances. If this is not specified, it will default to true.",
 				Type:        schema.TypeBool,
 				Default:     true,
 				Optional:    true,
 			},
-			"cloud_href": &schema.Schema{
+			"cloud_href": {
 				Description: "The ID of the instance cloud",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
 			"cloud_specific_attributes": instanceCloudAttributes,
-			"datacenter_href": &schema.Schema{
+			"datacenter_href": {
 				Description: "The ID of the instance datacenter",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"deployment_href": &schema.Schema{
+			"deployment_href": {
 				Description: "The ID of the instance deployment",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"image_href": &schema.Schema{
+			"image_href": {
 				Description: "The ID of the instance image",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"inputs": &schema.Schema{
+			"inputs": {
 				Description: "Inputs associated with an instance when incarnated from a server or server array",
 				Type:        schema.TypeList,
 				Elem:        &schema.Schema{Type: schema.TypeMap},
@@ -64,60 +64,60 @@ func resourceInstance() *schema.Resource {
 				// Uncomment validation when tf adds supported operation on lists or sets.
 				//ValidateFunc: validation.StringMatch(regexp.MustCompile("\\w+=\\w+:\\w+"), "values must be in format of 'key=type:value'"),
 			},
-			"instance_type_href": &schema.Schema{
+			"instance_type_href": {
 				Description: "The ID of the instance type",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"ip_forwarding_enabled": &schema.Schema{
+			"ip_forwarding_enabled": {
 				Description: "Allows this Instance to send and receive network traffic when the source and destination IP addresses do not match the IP address of this Instance.",
 				Type:        schema.TypeBool,
 				Optional:    true,
 			},
-			"kernel_image_href": &schema.Schema{
+			"kernel_image_href": {
 				Description: "The ID of the instance kernel image.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Description: "The name of the instance",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"placement_group_href": &schema.Schema{
+			"placement_group_href": {
 				Description: "The placement group to launch the instance in. Not supported by all clouds & instance types.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"ramdisk_image_href": &schema.Schema{
+			"ramdisk_image_href": {
 				Description: "The ID of the ramdisk image",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"security_group_hrefs": &schema.Schema{
+			"security_group_hrefs": {
 				Description: "The IDs of the security groups",
 				Type:        schema.TypeList,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
 			},
-			"server_template_href": &schema.Schema{
+			"server_template_href": {
 				Description: "The ID of the server template.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
 			},
-			"ssh_key_href": &schema.Schema{
+			"ssh_key_href": {
 				Description: "The ID of the SSH key to use",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"subnet_hrefs": &schema.Schema{
+			"subnet_hrefs": {
 				Description: "The IDs of the instance subnets",
 				Type:        schema.TypeList,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
 			},
-			"user_data": &schema.Schema{
+			"user_data": {
 				Description: "User data that RightScale automatically passes to your instance at boot time",
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -127,7 +127,7 @@ func resourceInstance() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 			},
-			"private_ip_address": &schema.Schema{
+			"private_ip_address": {
 				Type:        schema.TypeString,
 				Description: "The private ip address for the instance",
 				Optional:    true,
@@ -181,130 +181,130 @@ var instanceCloudAttributes = &schema.Schema{
 	Optional:    true,
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"admin_username": &schema.Schema{
+			"admin_username": {
 				Description: "The user that will be granted administrative privileges. Supported by AzureRM cloud only. For more information, review the documentation.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"automatic_instance_store_mapping": &schema.Schema{
+			"automatic_instance_store_mapping": {
 				Description:  "A flag indicating whether instance store mapping should be enabled. Not supported in all Clouds.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 			},
-			"availability_set": &schema.Schema{
+			"availability_set": {
 				Description: "Availability set for raw instance. Supported by Azure v2 cloud only.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"create_boot_volume": &schema.Schema{
+			"create_boot_volume": {
 				Description:  "If enabled, the instance will launch into volume storage. Otherwise, it will boot to local storage.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 			},
-			"create_default_port_forwarding_rules": &schema.Schema{
+			"create_default_port_forwarding_rules": {
 				Description:  "Automatically create default port forwarding rules (enabled by default). Supported by Azure cloud only.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 			},
-			"delete_boot_volume": &schema.Schema{
+			"delete_boot_volume": {
 				Description:  "If enabled, the associated volume will be deleted when the instance is terminated.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 			},
-			"disk_gb": &schema.Schema{
+			"disk_gb": {
 				Description: "The size of root disk. Supported by UCA cloud only.",
 				Type:        schema.TypeInt,
 				Optional:    true,
 			},
-			"ebs_optimized": &schema.Schema{
+			"ebs_optimized": {
 				Description:  "Whether the instance is able to connect to IOPS-enabled volumes.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 			},
-			"iam_instance_profile": &schema.Schema{
+			"iam_instance_profile": {
 				Description: "The name or ARN of the IAM Instance Profile (IIP) to associate with the instance (Amazon only)",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"keep_alive_id": &schema.Schema{
+			"keep_alive_id": {
 				Description: "The id of keep alive. Supported by UCA cloud only.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"keep_alive_url": &schema.Schema{
+			"keep_alive_url": {
 				Description: "he ulr of keep alive. Supported by UCA cloud only.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"local_ssd_count": &schema.Schema{
+			"local_ssd_count": {
 				Description: "Additional local SSDs. Supported by GCE cloud only",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"local_ssd_interface": &schema.Schema{
+			"local_ssd_interface": {
 				Description: "The type of SSD(s) to be created. Supported by GCE cloud only",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"max_spot_price": &schema.Schema{
+			"max_spot_price": {
 				Description: "Specify the max spot price you will pay for. Required when 'pricing_type' is 'spot'. Only applies to clouds which support spot-pricing and when 'spot' is chosen as the 'pricing_type'. Should be a Float value >= 0.001, eg: 0.095, 0.123, 1.23, etc...",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"memory_mb": &schema.Schema{
+			"memory_mb": {
 				Description: "The size of instance memory. Supported by UCA cloud only.",
 				Type:        schema.TypeInt,
 				Optional:    true,
 			},
-			"metadata": &schema.Schema{
+			"metadata": {
 				Description: "Extra data used for configuration, in query string format.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"num_cores": &schema.Schema{
+			"num_cores": {
 				Description: "The number of instance cores. Supported by UCA cloud only.",
 				Type:        schema.TypeInt,
 				Optional:    true,
 			},
-			"placement_tenancy": &schema.Schema{
+			"placement_tenancy": {
 				Description:  "The tenancy of the server you want to launch. A server with a tenancy of dedicated runs on single-tenant hardware and can only be launched into a VPC.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"default", "dedicated"}, false),
 			},
-			"preemptible": &schema.Schema{
+			"preemptible": {
 				Description:  "Launch a preemptible instance. A preemptible instance costs much less, but lasts only 24 hours. It can be terminated sooner due to system demands. Supported by GCE cloud only.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 			},
-			"pricing_type": &schema.Schema{
+			"pricing_type": {
 				Description:  "Specify whether or not you want to utilize 'fixed' (on-demand) or 'spot' pricing. Defaults to 'fixed' and only applies to clouds which support spot instances. Can only be set on when creating a new Instance, Server, or ServerArray, or when updating a Server or ServerArray's next_instance.WARNING: By using spot pricing, you acknowledge that your instance/server/array may not be able to be launched (and arrays may be unable to grow) as newly launched instances might be stuck in bidding, and/or existing instances may be terminated at any time, due to the cloud's spot pricing changes and availability.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"fixed", "spot"}, false),
 			},
-			"root_volume_performance": &schema.Schema{
+			"root_volume_performance": {
 				Description: "The number of IOPS (I/O Operations Per Second) this root volume should support. Only available on clouds supporting performance provisioning.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"root_volume_size": &schema.Schema{
+			"root_volume_size": {
 				Description: "The size for root disk. Not supported in all Clouds.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"root_volume_type_uid": &schema.Schema{
+			"root_volume_type_uid": {
 				Description: "The type of root volume for instance. Only available on clouds supporting root volume type.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"service_account": &schema.Schema{
+			"service_account": {
 				Description: "Email of service account for instance. Scope will default to cloud-platform. Supported by GCE cloud only.",
 				Type:        schema.TypeString,
 				Optional:    true,

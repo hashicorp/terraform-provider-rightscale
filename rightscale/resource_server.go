@@ -37,24 +37,24 @@ func resourceServer() *schema.Resource {
 		Update: resourceUpdateFunc(serverWriteFields),
 
 		Schema: map[string]*schema.Schema{
-			"deployment_href": &schema.Schema{
+			"deployment_href": {
 				Description: "ID of deployment in which to create server",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"tags": &schema.Schema{
+			"tags": {
 				Description: "Tags to apply to server and associated instance",
 				Type:        schema.TypeList,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
 				ForceNew:    true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Description: "description of server",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"instance": &schema.Schema{
+			"instance": {
 				Description: "server instance details",
 				Type:        schema.TypeList,
 				MinItems:    1,
@@ -62,12 +62,12 @@ func resourceServer() *schema.Resource {
 				Required:    true,
 				Elem:        resourceInstance(),
 			},
-			"name": &schema.Schema{
+			"name": {
 				Description: "name of server",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"optimized": &schema.Schema{
+			"optimized": {
 				Description: "A flag indicating whether Instances of this Server should be optimized for high-performance volumes (e.g. Volumes supporting a specified number of IOPS). Not supported in all Clouds.",
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -91,7 +91,7 @@ func resourceServer() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"href": &schema.Schema{
+			"href": {
 				Description: "href of server",
 				Type:        schema.TypeString,
 				Computed:    true,

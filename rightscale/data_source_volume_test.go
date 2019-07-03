@@ -29,7 +29,7 @@ func TestAccRSVolumeDatasource(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRSVolumeDatasource(cloudHref),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRSVolumeExists("data.rightscale_volume.a_volume", &objHref),

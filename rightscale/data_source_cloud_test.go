@@ -27,7 +27,7 @@ func TestAccRSCloudDatasource(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRSCloudDatasource("amazon"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRSCloudExists("data.rightscale_cloud.a_cloud", &cloudHref),

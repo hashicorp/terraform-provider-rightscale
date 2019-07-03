@@ -27,7 +27,7 @@ func TestAccRSServerTemplateDatasource(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRSServerTemplateDatasource("amazon"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRSServerTemplateExists("data.rightscale_server_template.a_server_template", &objHref),

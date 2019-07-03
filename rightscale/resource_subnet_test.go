@@ -31,7 +31,7 @@ func TestAccRightScalesubnet(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSubnetDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccSubnet(subnetName, subnetDescription, subnetCidrBlock, cloudHref, networkHref),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSubnetExists("rightscale_subnet.test_subnet", &depl),

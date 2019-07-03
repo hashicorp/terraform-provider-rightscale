@@ -1,6 +1,7 @@
 package rsc
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -251,11 +252,14 @@ func (rsc *client) List(l *Locator, link string, filters Fields) ([]*Resource, e
 		}
 
 		// marshal and convert to string
-		f, err := json.Marshal(options)
+		f := &bytes.Buffer{}
+		e := json.NewEncoder(f)
+		e.SetEscapeHTML(false)
+		err := e.Encode(options)
 		if err != nil {
 			return nil, fmt.Errorf("invalid list parameters: %s", err)
 		}
-		params = string(f)
+		params = f.String()
 	}
 
 	var prefix string
@@ -339,11 +343,14 @@ func (rsc *client) Get(l *Locator) (*Resource, error) {
 		}
 
 		// marshal and convert to string
-		f, err := json.Marshal(options)
+		f := &bytes.Buffer{}
+		e := json.NewEncoder(f)
+		e.SetEscapeHTML(false)
+		err := e.Encode(options)
 		if err != nil {
 			return nil, fmt.Errorf("invalid get parameters: %s", err)
 		}
-		params = string(f)
+		params = f.String()
 	}
 
 	// construct rcl for get call
@@ -380,14 +387,17 @@ func (rsc *client) Update(l *Locator, fields Fields) error {
 		return fmt.Errorf("resource locator is invalid: href is missing")
 	}
 
-	js, err := json.Marshal(fields.onlyPopulated())
+	js := &bytes.Buffer{}
+	e := json.NewEncoder(js)
+	e.SetEscapeHTML(false)
+	err := e.Encode(fields.onlyPopulated())
 	if err != nil {
 		return err
 	}
 	rcl := fmt.Sprintf(`
 	@resource = %s.get(href: "%s")
 	@resource.update(%s)
-	`, l.Namespace, l.Href, js)
+	`, l.Namespace, l.Href, js.String())
 
 	_, err = rsc.runRCL(rcl)
 	return err
@@ -401,7 +411,10 @@ func (rsc *client) Create(namespace, typ string, fields Fields) (*Resource, erro
 		"type":      typ,
 		"fields":    fields.onlyPopulated(),
 	}
-	js, err := json.Marshal(m)
+	js := &bytes.Buffer{}
+	e := json.NewEncoder(js)
+	e.SetEscapeHTML(false)
+	err := e.Encode(m)
 	if err != nil {
 		return nil, err
 	}
@@ -412,7 +425,7 @@ func (rsc *client) Create(namespace, typ string, fields Fields) (*Resource, erro
 	$href   = @res.href
 	$res    = to_object(@res)
 	$fields = to_json($res["details"][0])
-	`, js)
+	`, js.String())
 
 	outputs, err := rsc.runRCL(rcl, "$href", "$fields")
 	if err != nil {
@@ -441,7 +454,10 @@ func (rsc *client) CreateServer(namespace, typ string, fields Fields) (*Resource
 		"type":      typ,
 		"fields":    fields.onlyPopulated(),
 	}
-	js, err := json.Marshal(m)
+	js := &bytes.Buffer{}
+	e := json.NewEncoder(js)
+	e.SetEscapeHTML(false)
+	err := e.Encode(m)
 	if err != nil {
 		return nil, err
 	}
@@ -506,7 +522,7 @@ func (rsc *client) CreateServer(namespace, typ string, fields Fields) (*Resource
 		else
 			raise "Error trying to launch server (" + $server_name + ")"
 		end
-	end`, js)
+	end`, js.String())
 
 	ts := time.Now().Add(-time.Second * 15)
 	p, err := rsc.RunProcess(serverSourceRcl, nil)

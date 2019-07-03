@@ -27,7 +27,7 @@ func TestAccRSMCIDatasource(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRSMCIDatasource(MCIHref),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRSMCIExists("data.rightscale_multi_cloud_image.a_mci", &MCIHref),

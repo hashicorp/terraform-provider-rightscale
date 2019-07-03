@@ -25,19 +25,19 @@ func dataSourceServer() *schema.Resource {
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"deployment_href": &schema.Schema{
+						"deployment_href": {
 							Description: "ID of deployment the server is in",
 							Type:        schema.TypeString,
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"name": &schema.Schema{
+						"name": {
 							Description: "name of server",
 							Type:        schema.TypeString,
 							Optional:    true,
 							ForceNew:    true,
 						},
-						"cloud_href": &schema.Schema{
+						"cloud_href": {
 							Description: "ID of cloud the server is in",
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -46,35 +46,35 @@ func dataSourceServer() *schema.Resource {
 					},
 				},
 			},
-			"description": &schema.Schema{
+			"description": {
 				Description: "description of server",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
-			"instance": &schema.Schema{
+			"instance": {
 				Description: "server instance details",
 				Type:        schema.TypeList,
 				Elem:        resourceInstance(),
 				Computed:    true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Description: "name of server",
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
 			},
-			"optimized": &schema.Schema{
+			"optimized": {
 				Description: "A flag indicating whether Instances of this Server should be optimized for high-performance volumes (e.g. Volumes supporting a specified number of IOPS). Not supported in all Clouds.",
 				Type:        schema.TypeBool,
 				Computed:    true,
 			},
-			"links": &schema.Schema{
+			"links": {
 				Description: "Hrefs of related API resources",
 				Type:        schema.TypeList,
 				Elem:        &schema.Schema{Type: schema.TypeMap},
 				Computed:    true,
 			},
-			"href": &schema.Schema{
+			"href": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

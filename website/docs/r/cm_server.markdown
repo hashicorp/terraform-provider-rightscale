@@ -39,9 +39,7 @@ The following arguments are supported:
 
 * `deployment_href` - (Required) The href of the deployment the server will be placed in.
 
-* `instance` - (Required) See [rightscale_instance](https://github.com/terraform-providers/terraform-provider-rightscale/blob/master/website/docs/r/cm_instance.markdown)
-
-* `cloud_href` - (Required) The Href of the cloud the server will be launched in.
+* `instance` - (Required) See [rightscale_instance](./cm_instance.html).
 
 * `description` - (Optional) A description of the server.
 

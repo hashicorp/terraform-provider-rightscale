@@ -25,29 +25,29 @@ func resourceNetwork() *schema.Resource {
 		Update: resourceUpdateFunc(networkWriteFields),
 
 		Schema: map[string]*schema.Schema{
-			"cidr_block": &schema.Schema{
+			"cidr_block": {
 				Description: "range of IP addresses for network, this parameter is required for Amazon clouds",
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
 			},
-			"cloud_href": &schema.Schema{
+			"cloud_href": {
 				Description: "ID of cloud to create network in",
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 			},
-			"deployment_href": &schema.Schema{
+			"deployment_href": {
 				Description: "Optional href of deployment that owns the network.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Description: "description of network",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"instance_tenancy": &schema.Schema{
+			"instance_tenancy": {
 				Description:  "launch policy for AWS instances in the network. Specify 'dedicated' to force all instances to be launched as 'dedicated'.",
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -55,12 +55,12 @@ func resourceNetwork() *schema.Resource {
 				Default:      "default",
 				ValidateFunc: validation.StringInSlice([]string{"default", "dedicated"}, false),
 			},
-			"name": &schema.Schema{
+			"name": {
 				Description: "name of network",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"route_table_href": &schema.Schema{
+			"route_table_href": {
 				Description: "sets the default route table for this network",
 				Type:        schema.TypeString,
 				Optional:    true,

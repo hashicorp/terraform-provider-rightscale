@@ -21,12 +21,12 @@ func resourceSSHKey() *schema.Resource {
 		Update: resourceUpdateFunc(sshKeyWriteFields),
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Description: "name of SSH key",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"cloud_href": &schema.Schema{
+			"cloud_href": {
 				Description: "The ID of the cloud to operate against",
 				Type:        schema.TypeString,
 				Required:    true,

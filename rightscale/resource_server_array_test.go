@@ -38,7 +38,7 @@ func TestAccRightScaleServerArray_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckServerArrayDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccServerArray_basic(serverarrayName, state, deploymentHref, threshold, minCount, maxCount, datacenterHref, datacenterMax, instanceName, cloudHref, imageHref, typeHref, templateHref, subnetHref),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckServerArrayExists("rightscale_server_array.test_server_array", &serverArray),

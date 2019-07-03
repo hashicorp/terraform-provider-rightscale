@@ -5,6 +5,13 @@
 - Missing Endquotes, Issue [\#4](https://github.com/terraform-providers/terraform-provider-rightscale/issues/4) ([mastamark](https://github.com/mastamark))
 - Invalid links, Issue [\#5](https://github.com/terraform-providers/terraform-provider-rightscale/issues/5) ([crunis](https://github.com/crunis))
 - Fixes in documentation index page, Issue [\#7](https://github.com/terraform-providers/terraform-provider-rightscale/issues/7) ([crunis](https://github.com/crunis))
+- Golang 1.11.x and switching to go modules, Issue [\#13](https://github.com/terraform-providers/terraform-provider-rightscale/issues/13) ([appilon](https://github.com/appilon))
+- Travis CI fixes to accomodate go module vs. dep.  Issue [\#11](https://github.com/terraform-providers/terraform-provider-rightscale/issues/11) ([mastamark](https://github.com/mastamark))
+
+**Merged pull requests:**
+
+- Resource: rightscale_server, docs update - cloud_href argument actually set on instance. [\#16](https://github.com/terraform-providers/terraform-provider-rightscale/pull/16) ([douglaswth](https://github.com/douglaswth))
+- Core (rightscale api): Disable go's JSON escape HTML marshalling for RCL, and added test coverage. [\#18](https://github.com/terraform-providers/terraform-provider-rightscale/pull/18) ([douglaswth](https://github.com/douglaswth))
 
 ## 1.3.0 (September 19, 2018)
 

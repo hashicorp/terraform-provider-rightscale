@@ -32,7 +32,7 @@ func TestAccRightScaleSecurityGroup(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSecurityGroupDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccSecurityGroup(SecurityGroupName, securityGroupDescription, cloudHref, networkHref),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSecurityGroupExists("rightscale_security_group.test_sg", &depl),

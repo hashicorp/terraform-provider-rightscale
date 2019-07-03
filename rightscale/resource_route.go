@@ -25,41 +25,41 @@ func resourceRoute() *schema.Resource {
 		Update: resourceUpdateFunc(routeWriteFields),
 
 		Schema: map[string]*schema.Schema{
-			"route_table_href": &schema.Schema{
+			"route_table_href": {
 				Description: "Href of route table in which to create new route",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"destination_cidr_block": &schema.Schema{
+			"destination_cidr_block": {
 				Description: "Destination network in CIDR nodation",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"next_hop_type": &schema.Schema{
+			"next_hop_type": {
 				Description:  "The route next hop type.  Options are 'instance', 'network_interface', 'network_gateway', 'ip_string', and 'url'",
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"instance", "network_interface", "network_gateway", "ip_string", "url"}, false),
 			},
-			"next_hop_href": &schema.Schema{
+			"next_hop_href": {
 				Description:   "The href of the Route's next hop. Required if 'next_hop_type' is 'instance', 'network_interface', or 'network_gateway'. Not allowed otherwise.",
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"next_hop_ip", "next_hop_url"},
 			},
-			"next_hop_ip": &schema.Schema{
+			"next_hop_ip": {
 				Description:   "The IP Address of the Route's next hop. Required if 'next_hop_type' is 'ip_string'. Not allowed otherwise.",
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"next_hop_url", "next_hop_href"},
 			},
-			"next_hop_url": &schema.Schema{
+			"next_hop_url": {
 				Description:   "The URL of the Route's next hop. Required if 'next_hop_type' is 'url'. Not allowed otherwise.",
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"next_hop_ip", "next_hop_href"},
 			},
-			"description": &schema.Schema{
+			"description": {
 				Description: "Description of route",
 				Type:        schema.TypeString,
 				Optional:    true,
