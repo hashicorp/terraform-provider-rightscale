@@ -115,7 +115,7 @@ The following attributes are exported:
 
   * `memory_mb` - The size of instance memory. Supported by UCA cloud only.
 
-  * `metadata"` - Extra data used for configuration, in query string format. AWS clouds only.
+  * `metadata` - Extra data used for configuration, in query string format. AWS clouds only.
 
   * `num_cores` - The number of instance cores. Supported by UCA cloud only.
 
